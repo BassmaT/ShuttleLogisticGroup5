@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.group5.shuttle.controller.MainController"
+            style="-fx-background-color: #1e1e1e; -fx-padding: 20;">
+
+    <!-- HEADER -->
+    <top>
+        <Label text="Shuttle Dashboard"
+               style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;"
+               BorderPane.alignment="CENTER"/>
+    </top>
+
+    <!-- LINKER BEREICH: Rollenwahl -->
+    <left>
+        <VBox spacing="15" style="-fx-padding: 20;">
+            <Button text="Mission Control" fx:id="btnMission" />
+            <Button text="Technician" fx:id="btnTechnician" />
+            <Button text="Inventory" fx:id="btnInventory" />
+            <Button text="History" fx:id="btnHistory" />
+        </VBox>
+    </left>
+
+    <!-- RECHTER BEREICH: Live Status -->
+    <center>
+        <VBox spacing="20" style="-fx-padding: 20;">
+            
+            <!-- Fortschrittsanzeige -->
+            <Label text="Takeover Progress"
+                   style="-fx-text-fill: white; -fx-font-size: 18px;" />
+            <ProgressBar fx:id="progressTakeover" prefWidth="300" progress="0.45"/>
+
+            <!-- Warnungen -->
+            <Label fx:id="lblWarning"
+                   text="No warnings"
+                   style="-fx-text-fill: #ffcc00; -fx-font-size: 16px;" />
+
+            <!-- Status -->
+            <Label fx:id="lblStatus"
+                   text="Systems nominal"
+                   style="-fx-text-fill: #66ff66; -fx-font-size: 16px;" />
+
+        </VBox>
+    </center>
+
+</BorderPane>

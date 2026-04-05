@@ -2,50 +2,141 @@ package com.group5.shuttle.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.group5.shuttle.model.InventoryItem;
+import com.group5.shuttle.model.MaintenanceTicket;
 import com.group5.shuttle.model.SensorThreshold;
 import com.group5.shuttle.model.ShuttleData;
 
+import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
+// Diese Klasse ist für das Laden und Speichern aller Daten zuständig:
+// Sensordaten, Grenzwerte, Lagerhaltung und Wartungshistorie.
+// Sie wird von den Controllern benutzt, um auf die Daten zuzugreifen.
 public class SensorService {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    // ObjectMapper ist die Jackson-Klasse, die JSON liest und schreibt.
+    // INDENT_OUTPUT sorgt dafür, dass gespeicherte JSON-Dateien lesbar formatiert sind.
+    private final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
-    // Lädt die aktuellen Sensordaten aus sensors.json
+    // Pfad zum beschreibbaren Datenordner im Home-Verzeichnis des Benutzers: ~/.shuttle-dashboard/
+    // System.getProperty("user.home") gibt z. B. "/Users/Max" zurück.
+    private static final Path DATA_DIR      = Path.of(System.getProperty("user.home"), ".shuttle-dashboard");
+
+    // Vollständiger Dateipfad zur Lagerdatei, z. B. "/Users/Max/.shuttle-dashboard/inventory.json"
+    private static final File INVENTORY_FILE = DATA_DIR.resolve("inventory.json").toFile();
+
+    // Stellt sicher, dass der Datenordner und die Lagerdatei existieren.
+    // Beim ersten Start wird die Lagerdatei aus den Projektdaten kopiert (Seed).
+    private void ensureDataDir() {
+        try {
+            Files.createDirectories(DATA_DIR); // Ordner anlegen, falls er noch nicht existiert
+            if (!INVENTORY_FILE.exists()) {
+                // Erste Ausführung: Initialdaten aus dem Classpath (resources-Ordner) kopieren
+                try (InputStream is = getClass().getClassLoader()
+                        .getResourceAsStream("view/data/inventory.json")) {
+                    if (is != null) Files.copy(is, INVENTORY_FILE.toPath());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Fehler ausgeben, Programm läuft aber weiter
+        }
+    }
+
+    // ── Sensordaten und Grenzwerte ──────────────────────────────────────────
+
+    // Lädt die aktuellen Sensorwerte aus der sensors.json-Datei im Classpath.
+    // Gibt null zurück, wenn die Datei nicht gelesen werden kann.
     public ShuttleData loadSensorData() {
         try {
-            InputStream is = getClass().getResourceAsStream("/data/sensors.json");
-            return mapper.readValue(is, ShuttleData.class);
+            InputStream is = getClass().getClassLoader().getResourceAsStream("view/data/sensors.json");
+            return mapper.readValue(is, ShuttleData.class); // JSON → Java-Objekt
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    // Lädt die Grenzwerte aus thresholds.json
+    // Lädt die Grenzwerte aller Sensoren aus der thresholds.json-Datei im Classpath.
+    // Gibt eine verschachtelte Map zurück: Teil → Sensor → Grenzwert-Objekt.
     public Map<String, Map<String, SensorThreshold>> loadThresholds() {
         try {
-            InputStream is = getClass().getResourceAsStream("/data/thresholds.json");
-            return mapper.readValue(is, new TypeReference<>() {});
+            InputStream is = getClass().getClassLoader().getResourceAsStream("view/data/thresholds.json");
+            return mapper.readValue(is, new TypeReference<>() {}); // JSON → verschachtelte Map
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    // Bewertet einen Sensorwert anhand seiner Grenzwerte
-    public String evaluate(double value, SensorThreshold t) {
+    // ── Lagerhaltung ────────────────────────────────────────────────────────
 
-        // Harte Grenzverletzung → Teil muss ersetzt werden
+    // Lädt die aktuelle Lagerliste aus der beschreibbaren inventory.json-Datei.
+    // Beim ersten Start wird diese Datei automatisch aus den Projektdaten erstellt.
+    public List<InventoryItem> loadInventory() {
+        ensureDataDir(); // sicherstellen, dass die Datei existiert
+        try {
+            return mapper.readValue(INVENTORY_FILE, new TypeReference<>() {}); // JSON → Liste
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList(); // leere Liste zurückgeben, damit das Programm nicht abstürzt
+        }
+    }
+
+    // Speichert die aktuelle Lagerliste dauerhaft in die inventory.json-Datei.
+    // Wird aufgerufen, wenn Teile verbraucht oder bestellt werden.
+    public void saveInventory(List<InventoryItem> items) {
+        ensureDataDir();
+        try {
+            mapper.writeValue(INVENTORY_FILE, items); // Liste → JSON-Datei
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ── Wartungshistorie (nur im Arbeitsspeicher) ──────────────────────────
+
+    // Gibt alle Tickets der aktuellen Sitzung zurück.
+    // Die Daten liegen nur im Arbeitsspeicher – beim Schließen der App sind sie weg.
+    public List<MaintenanceTicket> loadTickets() {
+        return TicketStore.getInstance().getTickets();
+    }
+
+    // Fügt ein einzelnes Ticket zur Sitzungs-History hinzu.
+    public void appendTicket(MaintenanceTicket ticket) {
+        List<MaintenanceTicket> list = TicketStore.getInstance().getTickets(); // aktuelle Liste holen
+        list.add(ticket);                                                      // neues Ticket anhängen
+        TicketStore.getInstance().saveTickets(list);                           // zurückspeichern
+    }
+
+    // Ersetzt die gesamte Ticket-Liste durch eine neue Liste.
+    // Wird aufgerufen, wenn nach einer Reparatur alle Tickets auf einmal gespeichert werden.
+    public void saveTickets(List<MaintenanceTicket> tickets) {
+        TicketStore.getInstance().saveTickets(tickets);
+    }
+
+    // ── Sensorauswertung ──────────────────────────────────────────────────
+
+    // Vergleicht einen Messwert mit den Grenzwerten und gibt das Ergebnis zurück:
+    // "REPLACE"  → Wert liegt klar außerhalb des erlaubten Bereichs (sofort tauschen)
+    // "WARNING"  → Wert nähert sich dem Grenzwert (Warnung, prüfen)
+    // "OK"       → Wert liegt im normalen Bereich
+    public String evaluate(double value, SensorThreshold t) {
+        // Prüfen, ob der Wert klar unter dem Minimum oder über dem Maximum liegt → REPLACE
         if (t.min != null && value < t.min) return "REPLACE";
         if (t.max != null && value > t.max) return "REPLACE";
 
-        // Leichte Abweichung → Warnung
+        // Prüfen, ob der Wert sich dem Minimum oder Maximum auf 5 Einheiten nähert → WARNING
         if (t.min != null && value < t.min + 5) return "WARNING";
         if (t.max != null && value > t.max - 5) return "WARNING";
 
-        // Alles im grünen Bereich
+        // Alles in Ordnung
         return "OK";
     }
 }

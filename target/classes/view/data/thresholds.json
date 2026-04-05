@@ -2,7 +2,8 @@
   "orbiter": {
     "hullTemperature": { "max": 650 },
     "cabinPressure": { "min": 95, "max": 110 },
-    "oxygenLevel": { "min": 90 }
+    "oxygenLevel": { "min": 90 },
+    "coolantPressure": { "min": 3.5 }
   },
   "srb": {
     "thrust": { "min": 1500 },

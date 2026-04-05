@@ -1,49 +1,39 @@
 package com.group5.shuttle;
-// → Definiert das Package, also in welchem Projektordner diese Klasse liegt.
-//   Wichtig für Struktur, Imports und Maven.
 
 import javafx.application.Application;
-// → Importiert die JavaFX-Basisklasse "Application". Jede JavaFX-App MUSS davon erben.
-
 import javafx.fxml.FXMLLoader;
-// → Loader, der FXML-Dateien lädt und daraus UI-Elemente erzeugt.
-
 import javafx.scene.Scene;
-// → Eine Scene ist der sichtbare Bereich im Fenster (Stage). Darin liegen alle UI-Elemente.
-
 import javafx.stage.Stage;
-// → Stage ist das eigentliche Fenster der Anwendung.
 
+// Hauptklasse der JavaFX-Anwendung.
+// Sie erbt von Application – das ist bei jeder JavaFX-App Pflicht.
+// JavaFX ruft automatisch die start()-Methode auf, sobald das Framework bereit ist.
 public class App extends Application {
-// → Unsere App-Klasse erbt von Application, damit JavaFX weiß, wo es starten soll.
 
+    // Diese Methode wird von JavaFX aufgerufen, wenn die Anwendung startet.
+    // stage ist das Hauptfenster der App.
     @Override
     public void start(Stage stage) {
-        // → Die start()-Methode wird automatisch von JavaFX aufgerufen.
-        //   Hier definieren wir, was beim Start der App passieren soll.
-
         try {
+            // Erstellt einen Loader, der die FXML-Datei für das Haupt-Dashboard liest.
+            // getClass().getResource() sucht die Datei im resources-Ordner des Projekts.
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml"));
-            // → Erstellt einen FXML-Loader und sagt ihm, welche FXML-Datei geladen werden soll.
-            //   "/view/main_view.fxml" ist der Pfad in src/main/resources.
-System.out.println(getClass().getResource("/view/main_view.fxml"));
 
+            // Lädt die FXML-Datei und packt das fertige UI in eine 800×600 Pixel große Scene.
             Scene scene = new Scene(loader.load(), 800, 600);
-            // → Lädt die FXML-Datei und packt sie in eine Scene.
-            //   Die Scene ist 800x600 Pixel groß.
 
+            // Setzt den Text in der Titelleiste des Fensters.
             stage.setTitle("Shuttle Dashboard");
-            // → Setzt den Fenstertitel.
 
+            // Verbindet die Scene mit dem Fenster, damit das UI angezeigt wird.
             stage.setScene(scene);
-            // → Verknüpft die Scene mit dem Fenster (Stage).
 
+            // Macht das Fenster sichtbar. Ohne diesen Aufruf bleibt das Fenster unsichtbar.
             stage.show();
-            // → Zeigt das Fenster an. Ohne show() passiert gar nichts.
 
         } catch (Exception e) {
+            // Gibt Fehler in der Konsole aus, z. B. wenn die FXML-Datei nicht gefunden wird.
             e.printStackTrace();
-            // → Falls etwas schiefgeht (z. B. FXML nicht gefunden), wird der Fehler ausgegeben.
         }
     }
 }

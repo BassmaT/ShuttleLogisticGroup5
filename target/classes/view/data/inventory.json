@@ -1,1 +1,9 @@
-[]
+[
+  { "id": "INV-001", "name": "Heat Shield Panel", "part": "Orbiter", "quantity": 0, "status": "OUT_OF_STOCK" },
+  { "id": "INV-002", "name": "O2 Sensor Module", "part": "Orbiter", "quantity": 2, "status": "LOW" },
+  { "id": "INV-003", "name": "Pressure Gauge", "part": "Orbiter", "quantity": 0, "status": "OUT_OF_STOCK" },
+  { "id": "INV-004", "name": "SRB Nozzle Assembly", "part": "SRB", "quantity": 3, "status": "IN_STOCK" },
+  { "id": "INV-005", "name": "Vibration Damper", "part": "SRB", "quantity": 1, "status": "LOW" },
+  { "id": "INV-006", "name": "Fuel Tank Liner", "part": "External Tank", "quantity": 4, "status": "IN_STOCK" },
+  { "id": "INV-007", "name": "Cryogenic Seal", "part": "External Tank", "quantity": 0, "status": "OUT_OF_STOCK" }
+]

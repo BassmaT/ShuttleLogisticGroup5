@@ -1,1 +1,7 @@
-[]
+[
+  { "id": "TKT-001", "date": "2024-11-15", "part": "Orbiter", "sensor": "hullTemperature", "oldStatus": "WARNING", "action": "Inspected and cleared", "technician": "J. Miller" },
+  { "id": "TKT-002", "date": "2024-11-20", "part": "SRB", "sensor": "vibration", "oldStatus": "WARNING", "action": "Damper replaced", "technician": "A. Chen" },
+  { "id": "TKT-003", "date": "2024-12-01", "part": "External Tank", "sensor": "fuelPressure", "oldStatus": "REPLACE", "action": "Pressure valve replaced", "technician": "J. Miller" },
+  { "id": "TKT-004", "date": "2025-01-10", "part": "Orbiter", "sensor": "cabinPressure", "oldStatus": "OK", "action": "Routine check", "technician": "S. Torres" },
+  { "id": "TKT-005", "date": "2025-02-14", "part": "SRB", "sensor": "casingTemperature", "oldStatus": "WARNING", "action": "Cooling system adjusted", "technician": "A. Chen" }
+]

@@ -3,10 +3,14 @@ package com.group5.shuttle.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.group5.shuttle.model.EmployeeRoster;
+import com.group5.shuttle.model.FlightHistory;
 import com.group5.shuttle.model.InventoryItem;
 import com.group5.shuttle.model.MaintenanceTicket;
+import com.group5.shuttle.model.RoutineTask;
 import com.group5.shuttle.model.SensorThreshold;
 import com.group5.shuttle.model.ShuttleData;
+import com.group5.shuttle.model.TakeoverSchedule;
 
 import java.io.File;
 import java.io.InputStream;
@@ -138,5 +142,60 @@ public class SensorService {
 
         // Alles in Ordnung
         return "OK";
+    }
+
+    // ── Mitarbeiter ──────────────────────────────────────────────────────────
+
+    // Lädt alle Mitarbeiter aus der employees.json-Datei im Classpath.
+    // Gibt ein EmployeeRoster-Objekt zurück, das alle Teams enthält.
+    public EmployeeRoster loadEmployees() {
+        try {
+            InputStream is = getClass().getClassLoader().getResourceAsStream("view/data/employees.json");
+            return mapper.readValue(is, EmployeeRoster.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // ── Routineaufgaben ──────────────────────────────────────────────────────
+
+    // Lädt die Routineaufgaben aus der routine_tasks.json-Datei im Classpath.
+    // Diese Aufgaben sind bei jeder Übergabe durchzuführen, unabhängig von Sensordaten.
+    public List<RoutineTask> loadRoutineTasks() {
+        try {
+            InputStream is = getClass().getClassLoader().getResourceAsStream("view/data/routine_tasks.json");
+            return mapper.readValue(is, new TypeReference<>() {});
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    // ── Zeitplan ─────────────────────────────────────────────────────────────
+
+    // Lädt den 3-Tage-Zeitplan aus der schedule.json-Datei im Classpath.
+    public TakeoverSchedule loadSchedule() {
+        try {
+            InputStream is = getClass().getClassLoader().getResourceAsStream("view/data/schedule.json");
+            return mapper.readValue(is, TakeoverSchedule.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // ── Flughistorie (Trendanalyse) ───────────────────────────────────────────
+
+    // Lädt die simulierten Flugdaten der letzten 5 Flüge aus flight_history.json.
+    // Wird von PredictiveAnalysisService für die Trendberechnung verwendet.
+    public FlightHistory loadFlightHistory() {
+        try {
+            InputStream is = getClass().getClassLoader().getResourceAsStream("view/data/flight_history.json");
+            return mapper.readValue(is, FlightHistory.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

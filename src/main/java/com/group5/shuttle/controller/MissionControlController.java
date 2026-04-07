@@ -1,8 +1,13 @@
 package com.group5.shuttle.controller;
 
+import com.group5.shuttle.model.Employee;
 import com.group5.shuttle.model.InventoryItem;
 import com.group5.shuttle.model.MaintenanceTicket;
 import com.group5.shuttle.model.RepairTask;
+import com.group5.shuttle.model.RoutineTask;
+import com.group5.shuttle.model.TakeoverSchedule;
+import com.group5.shuttle.service.EmployeeService;
+import com.group5.shuttle.service.RoutineTaskStore;
 import com.group5.shuttle.service.SensorService;
 import com.group5.shuttle.service.TakeoverState;
 
@@ -12,6 +17,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -20,6 +26,9 @@ import javafx.util.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Controller für Mission Control – steuert den 2-Schritt-Ablauf:
@@ -54,16 +63,10 @@ public class MissionControlController extends BaseController {
     /** Zeigt an, welches Teil gerade ausgewählt ist (oder Fehlermeldung bei leerem Namen). */
     @FXML private Label lblSelectedPart;
 
-    /** Eingabefeld für den Namen des angemeldeten Mitarbeiters. */
-    @FXML private TextField txtName;
+    /** ComboBox zur Auswahl eines Mitarbeiters aus employees.json. */
+    @FXML private ComboBox<Employee> cmbEmployee;
 
-    /** Radio-Button zur Auswahl der Rolle "Technician". */
-    @FXML private RadioButton rbTechnician;
-
-    /** Radio-Button zur Auswahl der Rolle "Security Chief". */
-    @FXML private RadioButton rbSecurityChief;
-
-    /** Bestätigungs-Button – registriert Name und Rolle im TakeoverState. */
+    /** Bestätigungs-Button – registriert den gewählten Mitarbeiter im TakeoverState. */
     @FXML private Button btnConfirm;
 
     // ── Arbeitsbereich ───────────────────────────────────────────────────────────
@@ -94,6 +97,26 @@ public class MissionControlController extends BaseController {
 
     /** Button "Technician Done" – der Techniker signalisiert, dass alle Reparaturen fertig sind. */
     @FXML private Button btnTechDone;
+
+    // ── Routine Tasks ─────────────────────────────────────────────────────────────
+
+    /** Überschrift der Routineaufgaben-Tabelle. */
+    @FXML private Label lblRoutineHeader;
+
+    /** Tabelle mit Routineaufgaben für das gewählte Teil. */
+    @FXML private TableView<RoutineTask> routineTable;
+
+    /** Spalte: Aufgabenname. */
+    @FXML private TableColumn<RoutineTask, String>  colRtName;
+
+    /** Spalte: Geschätzte Dauer in Minuten. */
+    @FXML private TableColumn<RoutineTask, Integer> colRtEst;
+
+    /** Spalte: Done-Checkbox. */
+    @FXML private TableColumn<RoutineTask, Boolean> colRtDone;
+
+    /** Spalte: Erledigungszeitstempel. */
+    @FXML private TableColumn<RoutineTask, String>  colRtTime;
 
     // ── Lagerbestand ─────────────────────────────────────────────────────────────
 
@@ -138,18 +161,25 @@ public class MissionControlController extends BaseController {
         btnPartSrb.setOnAction(e -> selectPart("srb"));
         btnPartTank.setOnAction(e -> selectPart("externalTank"));
 
-        // Radio-Buttons für die Rollenwahl in einer ToggleGroup zusammenfassen
-        ToggleGroup roleGroup = new ToggleGroup();
-        rbTechnician.setToggleGroup(roleGroup);
-        rbSecurityChief.setToggleGroup(roleGroup);
-        // Standardmäßig ist die Techniker-Rolle vorausgewählt
-        rbTechnician.setSelected(true);
+        // ComboBox mit allen Mitarbeitern befüllen (Techniker und Security Chiefs)
+        cmbEmployee.setItems(FXCollections.observableArrayList(
+            EmployeeService.getInstance().getAllEmployees()));
+        // Anzeige in der ComboBox: "Name (Rolle)" – z. B. "Max Müller (Technician)"
+        cmbEmployee.setConverter(new javafx.util.StringConverter<Employee>() {
+            @Override public String toString(Employee e) {
+                return e == null ? "" : e.getName() + " (" + e.getRole() + ")";
+            }
+            @Override public Employee fromString(String s) { return null; }
+        });
 
         // Bestätigungs-Button mit confirmEntry() verknüpfen
         btnConfirm.setOnAction(e -> confirmEntry());
 
         // Reparaturtabelle mit allen Spalten und Zell-Factories einrichten
         setupRepairTable();
+
+        // Routineaufgaben-Tabelle einrichten
+        setupRoutineTable();
 
         // "Technician Done"-Button: Techniker meldet alle Reparaturen als abgeschlossen
         btnTechDone.setOnAction(e -> {
@@ -216,14 +246,21 @@ public class MissionControlController extends BaseController {
         String displayName = TakeoverState.getDisplayName(partKey);
         lblSelectedPart.setText("Part: " + displayName);
 
-        // Bereits registrierten Techniker- oder Chief-Namen laden
+        // ComboBox mit gefilterten Mitarbeitern befüllen (nur die für diesen Part eingeplanten)
+        List<Employee> assignedEmps = getAssignedEmployeesForPart(partKey);
+        cmbEmployee.setItems(FXCollections.observableArrayList(assignedEmps));
         String techName  = state.getTechnicianName(partKey);
         String chiefName = state.getSecurityChiefName(partKey);
-
-        // Namensfeld und Rolle vorbelegen, falls bereits ein Mitarbeiter angemeldet ist
-        if (techName != null)       { txtName.setText(techName);  rbTechnician.setSelected(true); }
-        else if (chiefName != null) { txtName.setText(chiefName); rbSecurityChief.setSelected(true); }
-        else                        { txtName.clear(); rbTechnician.setSelected(true); }
+        String existingName = techName != null ? techName : chiefName;
+        if (existingName != null) {
+            // Passenden Mitarbeiter in der gefilterten Liste vorauswählen
+            assignedEmps.stream()
+                .filter(e -> e.getName().equals(existingName))
+                .findFirst()
+                .ifPresent(e -> cmbEmployee.getSelectionModel().select(e));
+        } else {
+            cmbEmployee.getSelectionModel().clearSelection();
+        }
 
         // Rollen-Panel einblenden, damit Name und Rolle eingegeben oder bestätigt werden können
         rolePanel.setVisible(true);
@@ -262,17 +299,18 @@ public class MissionControlController extends BaseController {
         // Ohne ausgewähltes Teil keine Aktion möglich
         if (selectedPartKey == null) return;
 
-        // Namen aus dem Textfeld trimmen und auf Leerheit prüfen
-        String name = txtName.getText().trim();
-        if (name.isEmpty()) {
-            // Fehlermeldung in roter Schrift anzeigen
-            lblSelectedPart.setText("Please enter your name!");
+        // Mitarbeiter aus der ComboBox lesen – muss ausgewählt sein
+        Employee emp = cmbEmployee.getValue();
+        if (emp == null) {
+            // Fehlermeldung anzeigen
+            lblSelectedPart.setText("Please select an employee!");
             lblSelectedPart.setStyle("-fx-text-fill: #ff4444; -fx-font-size: 13px;");
             return;
         }
 
-        // Rolle anhand des ausgewählten Radio-Buttons bestimmen
-        String role = rbSecurityChief.isSelected() ? TakeoverState.ROLE_SECURITY_CHIEF : TakeoverState.ROLE_TECHNICIAN;
+        // Name und Rolle direkt aus dem Employee-Objekt lesen
+        String name = emp.getName();
+        String role = emp.getRole();
 
         // Mitarbeiter mit Name und Rolle im zentralen Zustand registrieren
         state.registerWorker(selectedPartKey, name, role);
@@ -566,11 +604,15 @@ public class MissionControlController extends BaseController {
         List<RepairTask> tasks = state.getRepairs(selectedPartKey);
         repairTable.setItems(FXCollections.observableArrayList(tasks));
 
+        // Routineaufgaben für diesen Part laden und anzeigen
+        routineTable.setItems(FXCollections.observableArrayList(
+            RoutineTaskStore.getInstance().getTasksForPart(displayName)));
+
         // Teile-Status für jede Aufgabe initialisieren (ORDERED/ARRIVED-Zustände bleiben erhalten)
         initTaskPartStatus();
 
         // "Technician Done"-Button nur anzeigen wenn: Techniker angemeldet, noch nicht fertig, nicht genehmigt
-        boolean isTechnician = techName != null && (chiefName == null || rbTechnician.isSelected());
+        boolean isTechnician = techName != null && chiefName == null;
         boolean showTechDone = isTechnician && !techDone && !approved;
         btnTechDone.setVisible(showTechDone);
         btnTechDone.setManaged(showTechDone);
@@ -708,6 +750,74 @@ public class MissionControlController extends BaseController {
     }
 
     // ── Hilfsmethoden ─────────────────────────────────────────────────────────────
+
+    /**
+     * Richtet die Routineaufgaben-Tabelle ein:
+     * Aufgabenname, Dauer, Done-Checkbox (setzt completedAt) und Zeitstempel.
+     */
+    private void setupRoutineTable() {
+        colRtName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        colRtEst.setCellValueFactory(new PropertyValueFactory<>("estimatedMinutes"));
+
+        // Done-Checkbox
+        colRtDone.setCellValueFactory(data -> data.getValue().doneProperty());
+        colRtDone.setCellFactory(col -> new CheckBoxTableCell<>());
+        colRtDone.setEditable(true);
+        routineTable.setEditable(true);
+
+        // Listener: completedAt setzen wenn Checkbox angehakt wird
+        routineTable.getItems().addListener(
+            (javafx.collections.ListChangeListener<RoutineTask>) change -> {
+                while (change.next()) {
+                    for (RoutineTask task : change.getAddedSubList()) {
+                        task.doneProperty().addListener((obs, oldVal, newVal) -> {
+                            if (newVal) {
+                                task.setCompletedAt(LocalDateTime.now()
+                                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+                            } else {
+                                task.setCompletedAt(null);
+                            }
+                            routineTable.refresh();
+                        });
+                    }
+                }
+            });
+
+        // Erledigungszeitstempel
+        colRtTime.setCellValueFactory(new PropertyValueFactory<>("completedAt"));
+        colRtTime.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String ts, boolean empty) {
+                super.updateItem(ts, empty);
+                if (empty || ts == null) { setText("–"); setStyle("-fx-text-fill: #666;"); }
+                else { setText(ts); setStyle("-fx-text-fill: #66ff66;"); }
+            }
+        });
+
+        routineTable.setStyle("-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;");
+    }
+
+    /**
+     * Gibt die Liste der Mitarbeiter zurück, die laut schedule.json für diesen Part eingeplant sind.
+     * Fallback: alle Mitarbeiter, falls kein Schedule geladen werden kann.
+     */
+    private List<Employee> getAssignedEmployeesForPart(String partKey) {
+        String displayName = TakeoverState.getDisplayName(partKey);
+        TakeoverSchedule schedule = sensorService.loadSchedule();
+        if (schedule == null || schedule.getDays() == null) {
+            return EmployeeService.getInstance().getAllEmployees();
+        }
+        Set<String> ids = schedule.getDays().stream()
+            .flatMap(d -> d.getEntries().stream())
+            .filter(e -> displayName.equals(e.getShuttlePart()))
+            .map(e -> e.getAssignedEmployeeId())
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+        if (ids.isEmpty()) return EmployeeService.getInstance().getAllEmployees();
+        return EmployeeService.getInstance().getAllEmployees().stream()
+            .filter(e -> ids.contains(e.getId()))
+            .collect(Collectors.toList());
+    }
 
     /**
      * Zeigt einen modalen Alert-Dialog mit dem angegebenen Typ, Titel und Text an.

@@ -43,7 +43,9 @@
                     <!-- Verfügbare Menge -->
                     <TableColumn fx:id="colQuantity" text="Qty"       prefWidth="60"/>
                     <!-- Lagerstatus (farbig dargestellt) -->
-                    <TableColumn fx:id="colStatus"   text="Status"    prefWidth="130"/>
+                    <TableColumn fx:id="colStatus"      text="Status"      prefWidth="130"/>
+                    <!-- Kurzbeschreibung des Bauteils -->
+                    <TableColumn fx:id="colDescription" text="Description" prefWidth="280"/>
                 </columns>
             </TableView>
         </VBox>

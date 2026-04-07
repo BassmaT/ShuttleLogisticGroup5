@@ -39,6 +39,9 @@ public class InventoryController extends BaseController {
     // Spalte für den Lagerstatus: "IN_STOCK", "LOW" oder "OUT_OF_STOCK".
     @FXML private TableColumn<InventoryItem, String>  colStatus;
 
+    // Spalte für die Kurzbeschreibung des Bauteils.
+    @FXML private TableColumn<InventoryItem, String>  colDescription;
+
     // SensorService lädt die Lagerdaten aus der inventory.json-Datei.
     private final SensorService sensorService = new SensorService();
 
@@ -61,6 +64,7 @@ public class InventoryController extends BaseController {
         colPart.setCellValueFactory(new PropertyValueFactory<>("part"));
         colQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+        colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
 
         // Benutzerdefinierte Darstellung: Status-Zelle bekommt je nach Wert eine andere Farbe.
         colStatus.setCellFactory(col -> new TableCell<>() {

@@ -23,12 +23,16 @@ public class InventoryItem {
     // Lagerstatus: "IN_STOCK", "LOW" oder "OUT_OF_STOCK".
     public String status;
 
+    // Kurze Beschreibung: was das Bauteil ist und wofür es gebraucht wird
+    public String description;
+
     // Getter-Methoden – werden von PropertyValueFactory für die Tabelle benötigt.
-    public String getId()       { return id; }
-    public String getName()     { return name; }
-    public String getPart()     { return part; }
-    public int    getQuantity() { return quantity; }
-    public String getStatus()   { return status; }
+    public String getId()          { return id; }
+    public String getName()        { return name; }
+    public String getPart()        { return part; }
+    public int    getQuantity()    { return quantity; }
+    public String getStatus()      { return status; }
+    public String getDescription() { return description; }
 
     // Setzt die neue Menge und berechnet dabei automatisch den Status neu.
     public void setQuantity(int quantity) {

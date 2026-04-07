@@ -1,9 +1,58 @@
 [
-  { "id": "INV-001", "name": "Heat Shield Panel", "part": "Orbiter", "quantity": 0, "status": "OUT_OF_STOCK" },
-  { "id": "INV-002", "name": "O2 Sensor Module", "part": "Orbiter", "quantity": 2, "status": "LOW" },
-  { "id": "INV-003", "name": "Pressure Gauge", "part": "Orbiter", "quantity": 0, "status": "OUT_OF_STOCK" },
-  { "id": "INV-004", "name": "SRB Nozzle Assembly", "part": "SRB", "quantity": 3, "status": "IN_STOCK" },
-  { "id": "INV-005", "name": "Vibration Damper", "part": "SRB", "quantity": 1, "status": "LOW" },
-  { "id": "INV-006", "name": "Fuel Tank Liner", "part": "External Tank", "quantity": 4, "status": "IN_STOCK" },
-  { "id": "INV-007", "name": "Cryogenic Seal", "part": "External Tank", "quantity": 0, "status": "OUT_OF_STOCK" }
+  {
+    "id": "INV-001",
+    "name": "Heat Shield Panel",
+    "part": "Orbiter",
+    "quantity": 0,
+    "status": "OUT_OF_STOCK",
+    "description": "Thermal protection tile that shields the orbiter hull from extreme heat during atmospheric re-entry. Must be replaced after severe temperature anomalies."
+  },
+  {
+    "id": "INV-002",
+    "name": "O2 Sensor Module",
+    "part": "Orbiter",
+    "quantity": 2,
+    "status": "LOW",
+    "description": "Monitors cabin oxygen concentration. Replaced when oxygenLevel sensor falls below safe thresholds to ensure crew life support integrity."
+  },
+  {
+    "id": "INV-003",
+    "name": "Coolant Pressure Valve",
+    "part": "Orbiter",
+    "quantity": 3,
+    "status": "IN_STOCK",
+    "description": "Regulates coolant flow through the orbiter's thermal control system. Required when coolantPressure drops below minimum operating level."
+  },
+  {
+    "id": "INV-004",
+    "name": "SRB Nozzle Assembly",
+    "part": "SRB",
+    "quantity": 3,
+    "status": "IN_STOCK",
+    "description": "Directs exhaust from the solid rocket booster to generate thrust. Inspected and replaced when casingTemperature or thrust readings deviate from nominal."
+  },
+  {
+    "id": "INV-005",
+    "name": "Vibration Damper",
+    "part": "SRB",
+    "quantity": 1,
+    "status": "LOW",
+    "description": "Absorbs mechanical vibrations from the solid rocket booster during ignition and ascent. Replaced when vibration sensor exceeds safe limits."
+  },
+  {
+    "id": "INV-006",
+    "name": "Fuel Tank Liner",
+    "part": "External Tank",
+    "quantity": 4,
+    "status": "IN_STOCK",
+    "description": "Insulating liner inside the external tank that prevents cryogenic fuel from warming. Inspected after every flight for cracks or stress deformation."
+  },
+  {
+    "id": "INV-007",
+    "name": "Cryogenic Seal",
+    "part": "External Tank",
+    "quantity": 0,
+    "status": "OUT_OF_STOCK",
+    "description": "High-performance seal for cryogenic fuel connections. Required when stress or fuelPressure readings indicate structural fatigue in the external tank."
+  }
 ]

@@ -3,20 +3,33 @@ package com.group5.shuttle.controller;
 import com.group5.shuttle.model.ShuttleData;
 import com.group5.shuttle.model.ShuttlePart;
 import com.group5.shuttle.model.SensorThreshold;
+import com.group5.shuttle.model.ScheduleDay;
+import com.group5.shuttle.model.ScheduleEntry;
+import com.group5.shuttle.model.TakeoverSchedule;
+import com.group5.shuttle.model.TrendResult;
+import com.group5.shuttle.service.EmployeeService;
+import com.group5.shuttle.service.PredictiveAnalysisService;
 import com.group5.shuttle.service.SensorService;
 import com.group5.shuttle.service.TakeoverState;
+import com.group5.shuttle.service.TakeoverState.AppPhase;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 // Controller für das Haupt-Dashboard (main_view.fxml).
@@ -29,6 +42,9 @@ public class MainController {
     @FXML private Button btnTechnician; // öffnet das Techniker-Panel
     @FXML private Button btnInventory;  // öffnet die Lagerübersicht
     @FXML private Button btnHistory;    // öffnet die Wartungshistorie
+    @FXML private Button btnStaff;      // öffnet die Mitarbeiter-Übersicht
+    @FXML private Button btnLogistics;  // öffnet das Logistik-System
+    @FXML private Button btnSchedule;   // öffnet den interaktiven Zeitplan
 
     // Button, der nach vollständiger Übernahme (100%) erscheint.
     @FXML private Button btnFinish;
@@ -54,47 +70,207 @@ public class MainController {
     // Zeigt die zuletzt durchgeführte Aktion an, z. B. "J. Miller completed repairs on Orbiter".
     @FXML private Label lblLastActivity;
 
+    // Container für die Schedule-Vorschau
+    @FXML private VBox scheduleContainer;
+
+    // Container für Predictive-Maintenance-Warnungen
+    @FXML private VBox predictiveContainer;
+
+    // ── Landing-Banner (sichtbar während LANDING und SENSOR_LOADING) ──────────
+
+    // Wrapper-VBox des Landing-Banners
+    @FXML private VBox landingBanner;
+
+    // Countdown-Text, z. B. "Approaching in 12:00 min..."
+    @FXML private Label lblLandingCountdown;
+
+    // Fortschrittsbalken des Landing-Countdowns
+    @FXML private ProgressBar progressLanding;
+
+    // Status-Text unter dem Fortschrittsbalken
+    @FXML private Label lblLandingStatus;
+
+    // ── Services & State ──────────────────────────────────────────────────────
+
     // SensorService lädt die Sensordaten und Grenzwerte aus den JSON-Dateien.
     private final SensorService sensorService = new SensorService();
 
     // TakeoverState ist der zentrale Zustandsspeicher der Übernahme – Singleton.
     private final TakeoverState takeoverState = TakeoverState.getInstance();
 
+    // Service für die Trendanalyse aus den letzten 5 Flügen
+    private final PredictiveAnalysisService predictiveService = new PredictiveAnalysisService();
+
+    // Aktiver Timer – static, damit er beim Navigieren und Zurückkommen gestoppt werden kann
+    private static Timeline activeTimer = null;
+
     // initialize() wird automatisch aufgerufen, wenn das FXML geladen ist.
     @FXML
     public void initialize() {
-        // Navigations-Buttons mit Aktionen verknüpfen – jeder lädt eine andere FXML-Seite.
+        // Vorherigen Timer stoppen (falls wir von einer anderen View zurückgekehrt sind)
+        if (activeTimer != null) { activeTimer.stop(); activeTimer = null; }
+
+        // Navigations-Buttons verknüpfen
         btnMission.setOnAction(e -> loadView("mission_control.fxml"));
         btnTechnician.setOnAction(e -> loadView("technician.fxml"));
         btnInventory.setOnAction(e -> loadView("inventory.fxml"));
         btnHistory.setOnAction(e -> loadView("history.fxml"));
+        btnStaff.setOnAction(e -> loadView("staff.fxml"));
+        btnLogistics.setOnAction(e -> loadView("logistics.fxml"));
+        btnSchedule.setOnAction(e -> loadView("schedule_view.fxml"));
 
-        // "Takeover Complete"-Button: setzt alles zurück und generiert neue Reparaturen.
+        // "Takeover Complete"-Button
         btnFinish.setOnAction(e -> {
-            takeoverState.reset(); // alle Daten der Übernahme zurücksetzen
-
-            // Nach dem Reset die Reparaturaufgaben neu berechnen.
+            takeoverState.reset();
             ShuttleData data = sensorService.loadSensorData();
             Map<String, Map<String, SensorThreshold>> thresholds = sensorService.loadThresholds();
             takeoverState.generateRepairs(data, thresholds, sensorService);
-
-            updateDashboard(); // Dashboard neu laden
+            updateDashboard();
         });
 
-        // Beim ersten Start: Reparaturaufgaben aus den aktuellen Sensordaten berechnen.
+        // Phase aus dem Singleton lesen und entsprechend reagieren
+        AppPhase phase = takeoverState.getAppPhase();
+        int remaining   = takeoverState.getRemainingSeconds();
+
+        if (phase == AppPhase.LANDING) {
+            applyPhase(AppPhase.LANDING);
+            if (remaining > 0) {
+                startLandingTimer(remaining);
+            } else {
+                // Landung bereits abgeschlossen (z. B. kam man von einer anderen View zurück)
+                takeoverState.beginSensorLoading();
+                applyPhase(AppPhase.SENSOR_LOADING);
+                startSensorLoadingTimer(TakeoverState.SENSOR_LOADING_SECONDS);
+            }
+        } else if (phase == AppPhase.SENSOR_LOADING) {
+            applyPhase(AppPhase.SENSOR_LOADING);
+            if (remaining > 0) {
+                startSensorLoadingTimer(remaining);
+            } else {
+                activateOperational();
+            }
+        } else {
+            // Phase OPERATIONAL: normaler Betrieb
+            activateOperational();
+        }
+    }
+
+    // ── Phase-Management ──────────────────────────────────────────────────────
+
+    // Passt die UI-Sichtbarkeit und den Button-Status an die aktuelle Phase an.
+    private void applyPhase(AppPhase phase) {
+        boolean isOperational = (phase == AppPhase.OPERATIONAL);
+
+        // Landing-Banner: sichtbar während LANDING und SENSOR_LOADING
+        landingBanner.setVisible(!isOperational);
+        landingBanner.setManaged(!isOperational);
+
+        // Sensor-relevante Abschnitte: nur im Betrieb sichtbar
+        sensorContainer.setVisible(isOperational);
+        sensorContainer.setManaged(isOperational);
+        predictiveContainer.setVisible(isOperational);
+        predictiveContainer.setManaged(isOperational);
+        scheduleContainer.setVisible(isOperational);
+        scheduleContainer.setManaged(isOperational);
+
+        // Nicht-Logistics-Buttons: deaktiviert während Landung/Laden
+        btnMission.setDisable(!isOperational);
+        btnTechnician.setDisable(!isOperational);
+        btnInventory.setDisable(!isOperational);
+        btnHistory.setDisable(!isOperational);
+        btnStaff.setDisable(!isOperational);
+        btnSchedule.setDisable(!isOperational);
+        // Logistics ist immer zugänglich
+        btnLogistics.setDisable(false);
+
+        // Warn- und Status-Label während Landung überschreiben
+        if (!isOperational) {
+            lblWarning.setText(phase == AppPhase.LANDING
+                ? "Shuttle is landing – pre-order parts in Logistics"
+                : "Loading sensor data...");
+            lblWarning.setStyle("-fx-text-fill: #66aaff; -fx-font-size: 15px;");
+            lblStatus.setText(phase == AppPhase.LANDING
+                ? "Operations begin after landing"
+                : "Please wait – sensor calibration in progress");
+        }
+    }
+
+    // Startet den 1-Sekunden-Takt für den Landecountdown.
+    private void startLandingTimer(int seconds) {
+        final int[] remaining = {seconds};
+        activeTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            remaining[0]--;
+            double progress = 1.0 - (double) remaining[0] / TakeoverState.LANDING_SECONDS;
+            progressLanding.setProgress(progress);
+            lblLandingCountdown.setText(String.format("Approaching in %02d:00 min...", remaining[0]));
+            if (remaining[0] > 10) {
+                lblLandingStatus.setText("Shuttle on approach – systems nominal");
+            } else if (remaining[0] > 4) {
+                lblLandingStatus.setText("Initiating landing sequence...");
+            } else {
+                lblLandingStatus.setText("Final approach – deploying landing gear...");
+            }
+        }));
+        activeTimer.setCycleCount(seconds);
+        activeTimer.setOnFinished(e -> {
+            activeTimer = null;
+            // Landung abgeschlossen
+            progressLanding.setProgress(1.0);
+            progressLanding.setStyle("-fx-accent: #66ff66;");
+            lblLandingCountdown.setText("Shuttle landed successfully.");
+            lblLandingCountdown.setStyle("-fx-text-fill: #66ff66; -fx-font-size: 16px; -fx-font-weight: bold;");
+            lblLandingStatus.setText("Takeover process is starting soon...");
+            lblWarning.setText("Shuttle landed successfully. Takeover process is starting soon.");
+            lblWarning.setStyle("-fx-text-fill: #66ff66; -fx-font-size: 14px;");
+            // 3 Sekunden Pause, dann Sensor-Ladephase starten
+            Timeline pause = new Timeline(new KeyFrame(Duration.seconds(3), ev -> {
+                takeoverState.beginSensorLoading();
+                applyPhase(AppPhase.SENSOR_LOADING);
+                startSensorLoadingTimer(TakeoverState.SENSOR_LOADING_SECONDS);
+            }));
+            pause.play();
+        });
+        activeTimer.play();
+    }
+
+    // Startet den Countdown für das Laden der Sensordaten (10 Sek. = 30 Min. simuliert).
+    private void startSensorLoadingTimer(int seconds) {
+        progressLanding.setProgress(0.0);
+        progressLanding.setStyle("-fx-accent: #ffcc00;");
+        lblLandingCountdown.setStyle("-fx-text-fill: #ffcc00; -fx-font-size: 16px; -fx-font-weight: bold;");
+        final int[] remaining = {seconds};
+        activeTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            remaining[0]--;
+            double progress = 1.0 - (double) remaining[0] / TakeoverState.SENSOR_LOADING_SECONDS;
+            progressLanding.setProgress(progress);
+            lblLandingCountdown.setText(String.format("Loading sensor data... %d sec", remaining[0]));
+            lblLandingStatus.setText("Calibrating sensors – please wait");
+        }));
+        activeTimer.setCycleCount(seconds);
+        activeTimer.setOnFinished(e -> {
+            activeTimer = null;
+            activateOperational();
+        });
+        activeTimer.play();
+    }
+
+    // Wechselt in den Betriebsmodus: Sensordaten laden, Dashboard vollständig anzeigen.
+    private void activateOperational() {
+        takeoverState.setOperational();
         ShuttleData data = sensorService.loadSensorData();
         Map<String, Map<String, SensorThreshold>> thresholds = sensorService.loadThresholds();
         if (data != null && thresholds != null) {
             takeoverState.generateRepairs(data, thresholds, sensorService);
         }
-
-        // Dashboard mit aktuellen Werten befüllen.
+        applyPhase(AppPhase.OPERATIONAL);
         updateDashboard();
     }
 
     // Aktualisiert alle sichtbaren Informationen auf dem Dashboard.
     // Wird auch von anderen Controllern aufgerufen (z. B. nach dem Zurück-Navigieren).
     public void updateDashboard() {
+        // Sensor-Abschnitte nur im Betriebsmodus aktualisieren
+        if (takeoverState.getAppPhase() != AppPhase.OPERATIONAL) return;
         ShuttleData data = sensorService.loadSensorData();
         Map<String, Map<String, SensorThreshold>> thresholds = sensorService.loadThresholds();
 
@@ -207,9 +383,107 @@ public class MainController {
                 sensorContainer.getChildren().add(sensorLabel);
             }
         }
+
+        // 3-Tage-Zeitplan: Vorschau aller Tage aus schedule.json anzeigen
+        updateSchedulePreview();
+
+        // Predictive Maintenance: Trendwarnungen anzeigen
+        updatePredictiveWarnings();
     }
 
-    // Berechnet die schlimmste aktuelle Warnstufe aller Sensoren
+    // Lädt alle Tage aus schedule.json und zeigt sie als strukturiertes Grid im scheduleContainer an
+    private void updateSchedulePreview() {
+        if (scheduleContainer == null) return;
+        scheduleContainer.getChildren().clear();
+
+        TakeoverSchedule schedule = sensorService.loadSchedule();
+        if (schedule == null || schedule.getDays() == null) return;
+
+        for (ScheduleDay day : schedule.getDays()) {
+            // Tagesüberschrift
+            Label dayLabel = new Label(day.getLabel());
+            dayLabel.setStyle("-fx-text-fill: #66aaff; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 6 0 2 0;");
+            scheduleContainer.getChildren().add(dayLabel);
+
+            // Spalten-Header-Zeile
+            HBox header = new HBox();
+            header.setStyle("-fx-background-color: #333333; -fx-padding: 2 4;");
+            Label hTime = new Label("Time");    hTime.setPrefWidth(65);  hTime.setStyle("-fx-text-fill: #aaaaaa; -fx-font-size: 11px; -fx-font-weight: bold;");
+            Label hTask = new Label("Task");    hTask.setPrefWidth(240); hTask.setStyle("-fx-text-fill: #aaaaaa; -fx-font-size: 11px; -fx-font-weight: bold;");
+            Label hEmp  = new Label("Employee");hEmp.setPrefWidth(150);  hEmp.setStyle("-fx-text-fill: #aaaaaa; -fx-font-size: 11px; -fx-font-weight: bold;");
+            header.getChildren().addAll(hTime, hTask, hEmp);
+            scheduleContainer.getChildren().add(header);
+
+            // Eintragszeilen
+            for (ScheduleEntry entry : day.getEntries()) {
+                // Hintergrundfarbe je nach Kategorie (gedimmt)
+                String bg = switch (entry.getCategory()) {
+                    case "repair"     -> "#3a1a1a";
+                    case "approval"   -> "#1a3a1a";
+                    case "routine"    -> "#3a3a1a";
+                    case "diagnostic" -> "#1a2a3a";
+                    case "break"      -> "#2a2a2a";
+                    default           -> "#252525";
+                };
+                String fg = switch (entry.getCategory()) {
+                    case "repair"     -> "#ff6666";
+                    case "approval"   -> "#66ff66";
+                    case "routine"    -> "#ffcc00";
+                    case "diagnostic" -> "#66aaff";
+                    default           -> "#aaaaaa";
+                };
+
+                // Mitarbeitername auflösen
+                String empName = "–";
+                if (entry.getAssignedEmployeeId() != null) {
+                    com.group5.shuttle.model.Employee emp =
+                        EmployeeService.getInstance().getById(entry.getAssignedEmployeeId());
+                    empName = emp != null ? emp.getName() : entry.getAssignedEmployeeId();
+                }
+
+                HBox row = new HBox();
+                row.setStyle("-fx-background-color: " + bg + "; -fx-padding: 3 4;");
+                Label lTime = new Label(entry.getTime()); lTime.setPrefWidth(65);  lTime.setStyle("-fx-text-fill: #cccccc; -fx-font-size: 12px;");
+                Label lTask = new Label(entry.getTask()); lTask.setPrefWidth(240); lTask.setStyle("-fx-text-fill: " + fg + "; -fx-font-size: 12px;");
+                Label lEmp  = new Label(empName);          lEmp.setPrefWidth(150);  lEmp.setStyle("-fx-text-fill: #aaaaaa; -fx-font-size: 12px;");
+                row.getChildren().addAll(lTime, lTask, lEmp);
+                scheduleContainer.getChildren().add(row);
+            }
+        }
+    }
+
+    // Analysiert Sensortrends und zeigt Warnungen für kritische Entwicklungen an
+    private void updatePredictiveWarnings() {
+        if (predictiveContainer == null) return;
+        predictiveContainer.getChildren().clear();
+
+        Map<String, List<TrendResult>> trends = predictiveService.analyzeAll();
+        boolean foundWarning = false;
+
+        for (var partEntry : trends.entrySet()) {
+            for (TrendResult trend : partEntry.getValue()) {
+                // Nur Warnungen anzeigen, die in ≤5 Flügen den Grenzwert erreichen
+                if (trend.getDirection().equals("STABLE")) continue;
+                if (trend.getFlightsUntilLimit() < 0 || trend.getFlightsUntilLimit() > 5) continue;
+
+                foundWarning = true;
+                // Farbe je nach Dringlichkeit (0 = sofort, ≤2 = kritisch, ≤5 = beobachten)
+                String color = trend.getFlightsUntilLimit() == 0 ? "#ff4444"
+                             : trend.getFlightsUntilLimit() <= 2 ? "#ff8800"
+                             : "#ffcc00";
+                String partDisplay = TakeoverState.getDisplayName(trend.getPartKey());
+                Label lbl = new Label("  [" + partDisplay + "] " + trend.getRecommendation());
+                lbl.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 12px;");
+                lbl.setWrapText(true);
+                predictiveContainer.getChildren().add(lbl);
+            }
+        }
+        if (!foundWarning) {
+            Label ok = new Label("  No critical trends detected");
+            ok.setStyle("-fx-text-fill: #66ff66; -fx-font-size: 12px;");
+            predictiveContainer.getChildren().add(ok);
+        }
+    }
     // und aktualisiert die Warn- und Status-Labels entsprechend.
     private void updateWarningLabel(ShuttleData data,
                                     Map<String, Map<String, SensorThreshold>> thresholds) {
@@ -259,11 +533,13 @@ public class MainController {
     // Lädt eine andere Ansicht und ersetzt den Inhalt des Fensters.
     // fxml ist der Dateiname der Zielseite, z. B. "mission_control.fxml".
     private void loadView(String fxml) {
+        // Timer pausieren, damit er beim Zurückkehren korrekt fortgesetzt wird
+        if (activeTimer != null) { activeTimer.stop(); activeTimer = null; }
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/" + fxml));
             Parent root = loader.load();
-            Stage stage = (Stage) btnMission.getScene().getWindow(); // aktuelles Fenster holen
-            stage.getScene().setRoot(root); // Fensterinhalt tauschen
+            Stage stage = (Stage) btnMission.getScene().getWindow();
+            stage.getScene().setRoot(root);
         } catch (Exception e) {
             e.printStackTrace();
         }

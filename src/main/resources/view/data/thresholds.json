@@ -8,11 +8,11 @@
   "srb": {
     "thrust": { "min": 1500 },
     "casingTemperature": { "max": 800 },
-    "vibration": { "max": 0.35 }
+    "vibration": { "max": 0.40 }
   },
   "externalTank": {
     "fuelTemperature": { "min": -170, "max": -120 },
-    "fuelPressure": { "min": 4.0, "max": 6.0 },
+    "fuelPressure":    { "min": 4.0 },
     "stress": { "max": 20 }
   }
 }

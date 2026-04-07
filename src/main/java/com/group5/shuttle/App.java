@@ -15,8 +15,8 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            // Erstellt einen Loader, der die FXML-Datei für das Haupt-Dashboard liest.
-            // getClass().getResource() sucht die Datei im resources-Ordner des Projekts.
+            // Haupt-Dashboard laden. Der LandingController ist in MainController integriert –
+            // die Landephase wird dort über TakeoverState.AppPhase gesteuert.
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml"));
 
             // Lädt die FXML-Datei und packt das fertige UI in eine 800×600 Pixel große Scene.

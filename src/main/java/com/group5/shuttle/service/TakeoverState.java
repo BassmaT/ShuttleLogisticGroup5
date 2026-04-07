@@ -6,6 +6,7 @@ import com.group5.shuttle.model.SensorThreshold;
 import com.group5.shuttle.model.ShuttleData;
 import com.group5.shuttle.model.ShuttlePart;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,55 @@ public class TakeoverState {
     // Letzte protokollierte Aktivität – wird im Dashboard angezeigt.
     private String lastActivity = "";
 
+    // ── App-Phase ─────────────────────────────────────────────────────────────
+
+    // Drei Phasen: Landung (15 Sek.) → Sensordaten laden (10 Sek.) → Betrieb
+    public enum AppPhase { LANDING, SENSOR_LOADING, OPERATIONAL }
+
+    // Aktuelle Phase der App
+    private AppPhase appPhase = AppPhase.LANDING;
+
+    // Zeitstempel für den Start der Landephase und der Sensordaten-Ladephase
+    private Instant landingStartedAt   = null;
+    private Instant sensorLoadingStartedAt = null;
+
+    // Dauer der Simulationen in Sekunden
+    public static final int LANDING_SECONDS       = 15; // simuliert 15 Minuten
+    public static final int SENSOR_LOADING_SECONDS = 10; // simuliert 30 Minuten
+
+    // Gibt die aktuelle Phase zurück
+    public AppPhase getAppPhase() { return appPhase; }
+
+    // Startet die Landephase und merkt sich den Zeitstempel
+    public void beginLanding() {
+        this.appPhase = AppPhase.LANDING;
+        this.landingStartedAt = Instant.now();
+    }
+
+    // Startet die Sensordaten-Ladephase und merkt sich den Zeitstempel
+    public void beginSensorLoading() {
+        this.appPhase = AppPhase.SENSOR_LOADING;
+        this.sensorLoadingStartedAt = Instant.now();
+    }
+
+    // Wechselt in den Betriebsmodus (alle Funktionen freigeschaltet)
+    public void setOperational() {
+        this.appPhase = AppPhase.OPERATIONAL;
+    }
+
+    // Verbleibende Sekunden in der aktuellen Phase (0 wenn Phase bereits abgelaufen)
+    public int getRemainingSeconds() {
+        if (appPhase == AppPhase.LANDING && landingStartedAt != null) {
+            long elapsed = java.time.Duration.between(landingStartedAt, Instant.now()).getSeconds();
+            return (int) Math.max(0, LANDING_SECONDS - elapsed);
+        }
+        if (appPhase == AppPhase.SENSOR_LOADING && sensorLoadingStartedAt != null) {
+            long elapsed = java.time.Duration.between(sensorLoadingStartedAt, Instant.now()).getSeconds();
+            return (int) Math.max(0, SENSOR_LOADING_SECONDS - elapsed);
+        }
+        return 0;
+    }
+
     // Interne Schlüssel der drei Shuttle-Teile (werden für Maps verwendet).
     public static final String[] PART_KEYS    = {"orbiter", "srb", "externalTank"};
 
@@ -57,6 +107,8 @@ public class TakeoverState {
             technicianDone.put(key, false);      // kein Techniker hat zu Beginn fertig gemeldet
             repairs.put(key, new ArrayList<>()); // leere Reparaturliste für jeden Teil
         }
+        // Landephase sofort beim Start beginnen
+        beginLanding();
     }
 
     // Gibt die einzige Instanz zurück. Falls noch keine existiert, wird sie hier erstellt.
@@ -238,6 +290,7 @@ public class TakeoverState {
 
     // Setzt den gesamten Workflow zurück in den Ausgangszustand.
     // Alle Mitarbeiter, Freigaben, Fertigmeldungen und Reparaturlisten werden geleert.
+    // Auch Routineaufgaben und Bestellungen werden zurückgesetzt.
     public void reset() {
         activeTechnicians.clear();       // alle Techniker-Einträge löschen
         activeSecurityChiefs.clear();    // alle Security-Chief-Einträge löschen
@@ -247,6 +300,10 @@ public class TakeoverState {
             technicianDone.put(key, false);      // Fertigmeldung zurücksetzen
             repairs.get(key).clear();            // Reparaturliste leeren
         }
+        // Routineaufgaben-Status zurücksetzen (Erledigt-Flags + Zeitstempel löschen)
+        RoutineTaskStore.getInstance().reset();
+        // Alle Logistik-Bestellungen der Sitzung löschen
+        OrderStore.getInstance().clear();
     }
 
     // ── Hilfsmethoden ────────────────────────────────────────────────────────

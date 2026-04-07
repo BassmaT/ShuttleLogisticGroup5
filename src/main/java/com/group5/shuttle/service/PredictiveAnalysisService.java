@@ -1,0 +1,132 @@
+package com.group5.shuttle.service;
+
+import com.group5.shuttle.model.FlightHistory;
+import com.group5.shuttle.model.FlightRecord;
+import com.group5.shuttle.model.SensorThreshold;
+import com.group5.shuttle.model.TrendResult;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+// Analysiert historische Flugdaten und berechnet Trendvorhersagen für jeden Sensor.
+// Gibt TrendResult-Objekte zurück, die im Dashboard als Warnungen angezeigt werden.
+// Kein Singleton – diese Klasse hat keinen veränderbaren Zustand.
+public class PredictiveAnalysisService {
+
+    // SensorService wird für das Laden der Flughistorie und Grenzwerte verwendet
+    private final SensorService sensorService = new SensorService();
+
+    // Analysiert alle Sensoren über die letzten 5 Flüge.
+    // Gibt eine Map zurück: Teilschlüssel (z. B. "srb") → Liste der Trendresultate
+    public Map<String, List<TrendResult>> analyzeAll() {
+        FlightHistory history = sensorService.loadFlightHistory();
+        Map<String, Map<String, SensorThreshold>> thresholds = sensorService.loadThresholds();
+        Map<String, List<TrendResult>> result = new LinkedHashMap<>();
+
+        // Ohne Flugdaten ist keine Analyse möglich
+        if (history == null || history.getFlights() == null) return result;
+
+        // Flüge chronologisch sortieren (nach Flugnummer aufsteigend)
+        List<FlightRecord> flights = new ArrayList<>(history.getFlights());
+        flights.sort(Comparator.comparingInt(FlightRecord::getFlightNumber));
+
+        // Jeden Shuttle-Teil analysieren
+        for (String partKey : TakeoverState.PART_KEYS) {
+            List<TrendResult> partTrends = new ArrayList<>();
+
+            // Sensor-Namen aus dem ersten Flugdatensatz ermitteln
+            Map<String, Double> firstSensors = flights.get(0).getSensors().get(partKey);
+            if (firstSensors == null) continue;
+
+            for (String sensorName : firstSensors.keySet()) {
+                // Messwerte über alle Flüge für diesen Sensor sammeln
+                List<Double> values = new ArrayList<>();
+                for (FlightRecord f : flights) {
+                    Map<String, Double> partSensors = f.getSensors().get(partKey);
+                    if (partSensors != null && partSensors.containsKey(sensorName)) {
+                        values.add(partSensors.get(sensorName));
+                    }
+                }
+                // Mindestens zwei Messpunkte sind für eine Trendberechnung erforderlich
+                if (values.size() < 2) continue;
+
+                // Linearer Trend: (letzter Wert − erster Wert) / (Anzahl Intervalle)
+                double delta = values.get(values.size() - 1) - values.get(0);
+                double trendPerFlight = delta / (values.size() - 1);
+
+                // Trendrichtung bestimmen
+                String direction;
+                if (Math.abs(trendPerFlight) < 0.01) direction = "STABLE";
+                else if (trendPerFlight > 0)          direction = "RISING";
+                else                                   direction = "FALLING";
+
+                // Grenzwert für diesen Sensor ermitteln (kann null sein)
+                SensorThreshold threshold = null;
+                if (thresholds != null && thresholds.get(partKey) != null) {
+                    threshold = thresholds.get(partKey).get(sensorName);
+                }
+
+                // Aktueller Wert = letzter bekannter Messwert
+                double currentValue = values.get(values.size() - 1);
+
+                // Flüge bis zum Grenzwert berechnen
+                int flightsUntilLimit = computeFlightsUntilLimit(currentValue, trendPerFlight, threshold);
+
+                // Lesbaren Empfehlungstext erzeugen
+                String recommendation = buildRecommendation(
+                    sensorName, trendPerFlight, direction, flightsUntilLimit);
+
+                partTrends.add(new TrendResult(
+                    partKey, sensorName, trendPerFlight, direction, recommendation, flightsUntilLimit));
+            }
+            result.put(partKey, partTrends);
+        }
+        return result;
+    }
+
+    // Berechnet, wie viele Flüge es noch dauert, bis der Grenzwert erreicht wird.
+    // Gibt -1 zurück, wenn keine Berechnung möglich ist (kein Trend oder kein Grenzwert).
+    private int computeFlightsUntilLimit(double current, double trend, SensorThreshold t) {
+        if (t == null || Math.abs(trend) < 0.001) return -1;
+
+        // Steigender Trend → nähert sich dem Maximum
+        if (trend > 0 && t.max != null) {
+            double remaining = t.max - current;
+            if (remaining <= 0) return 0; // bereits überschritten
+            return (int) Math.ceil(remaining / trend);
+        }
+        // Fallender Trend → nähert sich dem Minimum
+        if (trend < 0 && t.min != null) {
+            double remaining = current - t.min;
+            if (remaining <= 0) return 0; // bereits unterschritten
+            return (int) Math.ceil(remaining / (-trend));
+        }
+        return -1; // keine passende Grenzwert-Richtung vorhanden
+    }
+
+    // Erzeugt einen verständlichen deutschen Empfehlungstext für die Anzeige im Dashboard
+    private String buildRecommendation(String sensor, double trend, String direction, int flights) {
+        String trendStr = String.format("%.2f/Flight", Math.abs(trend));
+
+        if (direction.equals("STABLE")) {
+            return sensor + " is stable – no action required.";
+        }
+
+        // Richtungsangabe auf Deutsch
+        String dirStr = direction.equals("RISING") ? "rising" : "decreases";
+        String base = sensor + " " + dirStr + " ~" + trendStr;
+
+        if (flights == 0) {
+            return base + ". THRESHHOLD REACHED – immediate replacement recommended!";
+        }
+        if (flights > 0 && flights <= 3) {
+            return base + ". Replacment in " + flights + " flights recommended.";
+        }
+        if (flights > 0) {
+            return base + ". Monitor – Threshold expected to be reached at " + flights + " flights.";
+        }
+        return base + ".";
+    }
+}

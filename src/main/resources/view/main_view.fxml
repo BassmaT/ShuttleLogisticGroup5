@@ -38,6 +38,12 @@
                     style="-fx-font-size: 13px; -fx-min-width: 140;" />
             <Button text="History" fx:id="btnHistory"
                     style="-fx-font-size: 13px; -fx-min-width: 140;" />
+            <Button text="Staff" fx:id="btnStaff"
+                    style="-fx-font-size: 13px; -fx-min-width: 140;" />
+            <Button text="Logistics" fx:id="btnLogistics"
+                    style="-fx-font-size: 13px; -fx-min-width: 140;" />
+            <Button text="Schedule" fx:id="btnSchedule"
+                    style="-fx-font-size: 13px; -fx-min-width: 140;" />
         </VBox>
     </left>
 
@@ -46,6 +52,22 @@
         <!-- ScrollPane ermöglicht Scrollen, wenn der Inhalt zu groß für das Fenster ist -->
         <ScrollPane fitToWidth="true" style="-fx-background: #1e1e1e; -fx-background-color: #1e1e1e; -fx-border-color: transparent;">
         <VBox spacing="16" style="-fx-padding: 20; -fx-background-color: #1e1e1e;">
+
+            <!-- Landing-Banner: nur während der Landephase und Sensordaten-Ladephase sichtbar.
+                 Wird vom Controller ein-/ausgeblendet je nach AppPhase. -->
+            <VBox fx:id="landingBanner" spacing="10"
+                  style="-fx-background-color: #0a0a2a; -fx-padding: 16; -fx-background-radius: 8;">
+                <Label text="SHUTTLE APPROACH"
+                       style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                <Label fx:id="lblLandingCountdown"
+                       text="Shuttle approaching..."
+                       style="-fx-text-fill: #66aaff; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <ProgressBar fx:id="progressLanding" prefWidth="500" progress="0.0"
+                             style="-fx-accent: #66aaff;"/>
+                <Label fx:id="lblLandingStatus"
+                       text="Awaiting landing clearance..."
+                       style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"/>
+            </VBox>
 
             <!-- Überschrift für den Fortschrittsbereich -->
             <Label text="Takeover Progress"
@@ -97,6 +119,20 @@
 
             <!-- Wird im Controller dynamisch befüllt: alle Sensoren mit Messwerten und Status -->
             <VBox fx:id="sensorContainer" spacing="5" />
+
+            <!-- Überschrift für den 3-Tage-Zeitplan -->
+            <Label text="3-Day Schedule"
+                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 0 0 0;" />
+
+            <!-- Wird im Controller dynamisch befüllt: alle Tage und Einträge aus schedule.json -->
+            <VBox fx:id="scheduleContainer" spacing="3" />
+
+            <!-- Überschrift für Predictive Maintenance -->
+            <Label text="Predictive Maintenance"
+                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 0 0 0;" />
+
+            <!-- Wird im Controller dynamisch befüllt: Trendwarnungen aus den letzten 5 Flügen -->
+            <VBox fx:id="predictiveContainer" spacing="3" />
 
         </VBox>
         </ScrollPane>

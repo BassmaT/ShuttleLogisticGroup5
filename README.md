@@ -1,4 +1,5 @@
-# Shuttle Dashboard – Gruppe 5 KI GENERIERTE READ ME FILE
+# Shuttle Dashboard – Gruppe 5
+KI generiert: 
 
 Eine JavaFX-Desktop-Anwendung zur Verwaltung des Pre-Launch-Takeover-Prozesses für Raumfähren. Das System unterstützt Techniker und Security Chiefs dabei, alle Shuttle-Komponenten zu überprüfen, Reparaturen durchzuführen und die finale Freigabe zu erteilen.
 
@@ -6,28 +7,31 @@ Eine JavaFX-Desktop-Anwendung zur Verwaltung des Pre-Launch-Takeover-Prozesses f
 
 ## Features
 
-- **Haupt-Dashboard** – Überblick über den Takeover-Fortschritt (0–100%), Sensorwarnungen, aktive Arbeiter und letzte Aktivität
-- **Mission Control** – Zweistufiger Workflow: Zuerst Shuttle-Teil wählen, dann Name und Rolle eingeben
-- **Techniker-Panel** – Reparaturaufgaben in Tabellenform; Checkboxen mit automatischer Ersatzteil-Prüfung
-- **Bestell-Simulation** – Fehlende Teile können bestellt werden; nach 10 Sekunden erscheint eine Benachrichtigung „Teil eingetroffen"
-- **Inventar** – Lagerbestand der Ersatzteile; wird bei abgeschlossenen Reparaturen automatisch abgebucht
-- **History** – Alle durchgeführten Reparaturen mit Datum, Uhrzeit, Techniker und Maßnahme (nur für aktuelle Sitzung, wird beim Schließen gelöscht)
-- **Fortschrittsbalken** – Zeigt den Genehmigungsfortschritt; Hover-Tooltip zeigt Prozentzahl
-- **Sensorüberwachung** – Farbcodierte Statusanzeige: Grün (OK), Gelb (WARNING), Rot (REPLACE)
-- **Zweistufige Freigabe** – Erst wenn der Techniker „Mark All Done" gedrückt hat, kann der Security Chief seinen finalen OK geben
-- **Dunkel-Theme** – Durchgängig dunkle Benutzeroberfläche (#1e1e1e)
+- **Landing-Phase** – Beim Start landet das Shuttle simuliert (15 Sek. = 15 Min.). Nur der Logistics-Tab ist aktiv; alle anderen Tabs sind ausgegraut.
+- **Sensor-Ladepha­se** – Nach der Landung werden die Sensoren kalibriert (10 Sek. = 30 Min.). Fortschrittsbalken zeigt den Status.
+- **Haupt-Dashboard** – Überblick über den Takeover-Fortschritt (0–100%), Sensorwarnungen, aktive Arbeiter, 3-Tage-Zeitplan und Predictive Maintenance.
+- **Mission Control** – Mitarbeiter einem Shuttle-Teil zuweisen; Reparatur- und Routineaufgaben pro Teil sichtbar; zweistufige Freigabe (Techniker → Security Chief).
+- **Technician-Panel** – Reparaturaufgaben als Tabelle; Checkboxen mit automatischer Ersatzteil-Prüfung.
+- **Inventory** – Lagerbestand der Ersatzteile mit Name, Menge, Status und Beschreibung.
+- **History** – Wartungshistorie aus den letzten Flügen.
+- **Staff** – Routineaufgaben als Checkliste; erledigte Aufgaben werden durchgestrichen.
+- **Logistics** – Teile per ComboBox auswählen und bestellen; Lagerbestand wird nach Lieferung automatisch erhöht; aktueller Lagerbestand sichtbar.
+- **Schedule** – 3-Tage-Zeitplan interaktiv; Mitarbeiter können per ComboBox umgeplant werden (z. B. bei Krankheit oder Urlaub).
+- **Sensorüberwachung** – Farbcodiert: Grün (OK), Gelb (WARNING), Rot (REPLACE).
+- **Predictive Maintenance** – Trendanalyse aus den letzten 5 Flügen; Warnungen, wenn ein Sensor in ≤5 Flügen den Grenzwert erreicht.
+- **Dunkel-Theme** – Durchgängig dunkle Benutzeroberfläche (#1e1e1e).
 
 ---
 
 ## Technologie-Stack
 
-| Technologie      | Version  | Zweck                                      |
-|------------------|----------|--------------------------------------------|
-| Java             | 17       | Programmiersprache                         |
-| JavaFX           | 21.0.2   | UI-Framework (FXML, Controls, Properties)  |
-| Jackson          | 2.17.0   | JSON-Serialisierung / Deserialisierung      |
-| Maven            | –        | Build-Tool und Abhängigkeitsverwaltung     |
-| javafx-maven-plugin | 0.0.8 | App starten via `mvn javafx:run`           |
+| Technologie         | Version  | Zweck                                     |
+|---------------------|----------|-------------------------------------------|
+| Java                | 17       | Programmiersprache                        |
+| JavaFX              | 21.0.2   | UI-Framework (FXML, Controls, Properties) |
+| Jackson             | 2.17.0   | JSON-Serialisierung / Deserialisierung    |
+| Maven               | –        | Build-Tool und Abhängigkeitsverwaltung    |
+| javafx-maven-plugin | 0.0.8    | App starten via `mvn javafx:run`          |
 
 ---
 
@@ -35,43 +39,67 @@ Eine JavaFX-Desktop-Anwendung zur Verwaltung des Pre-Launch-Takeover-Prozesses f
 
 ```
 shuttle-dashboard/
-├── pom.xml                          ← Maven Build-Konfiguration
-└── src/
-    └── main/
-        ├── java/com/group5/shuttle/
-        │   ├── App.java             ← Einstiegspunkt der Anwendung
-        │   ├── Main.java            ← JavaFX Launch-Wrapper
-        │   ├── controller/          ← UI-Controller (MVC)
-        │   │   ├── BaseController.java
-        │   │   ├── MainController.java
-        │   │   ├── MissionControlController.java
-        │   │   ├── TechnicianController.java
-        │   │   ├── InventoryController.java
-        │   │   ├── HistoryController.java
-        │   │   └── RoleSelectionController.java
-        │   ├── model/               ← Datenmodelle
-        │   │   ├── ShuttleData.java
-        │   │   ├── ShuttlePart.java
-        │   │   ├── SensorThreshold.java
-        │   │   ├── SensorRow.java
-        │   │   ├── RepairTask.java
-        │   │   ├── InventoryItem.java
-        │   │   └── MaintenanceTicket.java
-        │   └── service/             ← Business-Logik
-        │       ├── SensorService.java
-        │       ├── TakeoverState.java
-        │       └── TicketStore.java
-        └── resources/view/
-            ├── main_view.fxml       ← Haupt-Dashboard
-            ├── mission_control.fxml ← Mission Control
-            ├── technician.fxml      ← Techniker-Panel
-            ├── inventory.fxml       ← Lagerübersicht
-            ├── history.fxml         ← Wartungshistorie
-            ├── role_selection.fxml  ← Rollen-Auswahl
-            └── data/
-                ├── sensors.json     ← Aktuelle Sensorwerte
-                ├── thresholds.json  ← Grenzwerte pro Sensor
-                └── inventory.json   ← Lagerbestand (Vorlage)
+├── pom.xml
+└── src/main/
+    ├── java/com/group5/shuttle/
+    │   ├── Main.java                        ← JavaFX Launch-Wrapper
+    │   ├── App.java                         ← Fenster aufbauen, main_view.fxml laden
+    │   ├── controller/
+    │   │   ├── BaseController.java          ← Abstrakte Basisklasse für alle Controller
+    │   │   ├── MainController.java          ← Haupt-Dashboard + Landing/Sensor-Timer
+    │   │   ├── MissionControlController.java← Mitarbeiter zuweisen, Teile freigeben
+    │   │   ├── TechnicianController.java    ← Reparaturaufgaben einsehen
+    │   │   ├── InventoryController.java     ← Lagerbestand anzeigen
+    │   │   ├── HistoryController.java       ← Wartungshistorie anzeigen
+    │   │   ├── StaffController.java         ← Routineaufgaben Checkliste
+    │   │   ├── LogisticsController.java     ← Teile bestellen, Lagerbestand verwalten
+    │   │   ├── ScheduleController.java      ← Interaktiver 3-Tage-Zeitplan
+    │   │   └── LandingController.java       ← (veraltet, Landing in MainController integriert)
+    │   ├── model/
+    │   │   ├── ShuttleData.java             ← Wurzelobjekt der Sensordaten (3 Teile)
+    │   │   ├── ShuttlePart.java             ← Ein Shuttle-Teil mit Sensor-Map
+    │   │   ├── SensorThreshold.java         ← Grenzwerte (min/max, warn/replace)
+    │   │   ├── SensorRow.java               ← Tabellenzeile für Sensoranzeige
+    │   │   ├── RepairTask.java              ← Eine Reparaturaufgabe
+    │   │   ├── InventoryItem.java           ← Ein Lagerteil (Name, Menge, Status)
+    │   │   ├── RoutineTask.java             ← Eine Routineaufgabe mit done-Property
+    │   │   ├── Employee.java                ← Mitarbeiter (ID, Name, Rolle, Team)
+    │   │   ├── EmployeeRoster.java          ← Wrapper für employees.json
+    │   │   ├── EmployeeTeam.java            ← Team mit Mitarbeiterliste
+    │   │   ├── ScheduleEntry.java           ← Ein Eintrag im Zeitplan
+    │   │   ├── ScheduleDay.java             ← Ein Tag mit mehreren Einträgen
+    │   │   ├── TakeoverSchedule.java        ← Wrapper für schedule.json
+    │   │   ├── LogisticsOrder.java          ← Eine Bestellung im Logistics-System
+    │   │   ├── FlightRecord.java            ← Sensordaten eines vergangenen Fluges
+    │   │   ├── FlightHistory.java           ← Wrapper für flight_history.json
+    │   │   ├── TrendResult.java             ← Ergebnis der Trendanalyse
+    │   │   └── MaintenanceTicket.java       ← Wartungsticket (History)
+    │   └── service/
+    │       ├── SensorService.java           ← Alle JSON-Daten lesen/schreiben
+    │       ├── TakeoverState.java           ← Zentraler Singleton: Phase, Fortschritt, Mitarbeiter
+    │       ├── EmployeeService.java         ← Singleton: Mitarbeiterliste laden und abrufen
+    │       ├── RoutineTaskStore.java        ← Singleton: Routineaufgaben im Speicher
+    │       ├── OrderStore.java              ← Singleton: Logistik-Bestellungen im Speicher
+    │       ├── PredictiveAnalysisService.java ← Trendanalyse aus Flughistorie
+    │       └── TicketStore.java             ← Wartungstickets im Speicher
+    └── resources/view/
+        ├── main_view.fxml
+        ├── mission_control.fxml
+        ├── technician.fxml
+        ├── inventory.fxml
+        ├── history.fxml
+        ├── staff.fxml
+        ├── logistics.fxml
+        ├── schedule_view.fxml
+        └── data/
+            ├── sensors.json         ← Aktuelle Sensorwerte der 3 Shuttle-Teile
+            ├── thresholds.json      ← Grenzwerte pro Sensor (warn/replace)
+            ├── inventory.json       ← Lagerbestand der Ersatzteile
+            ├── employees.json       ← Mitarbeiterliste mit Rollen und Teams
+            ├── schedule.json        ← 3-Tage-Zeitplan mit Aufgaben und Mitarbeitern
+            ├── routine_tasks.json   ← Routineaufgaben pro Shuttle-Teil
+            ├── flight_history.json  ← Sensordaten der letzten 5 Flüge (Trendanalyse)
+            └── tickets.json         ← Wartungstickets (Beispieldaten)
 ```
 
 ---
@@ -79,119 +107,87 @@ shuttle-dashboard/
 ## Architektur
 
 ### MVC-Pattern
-Die App folgt dem Model-View-Controller-Muster:
-- **Model** – Datenklassen (z.B. `ShuttlePart`, `RepairTask`, `InventoryItem`)
-- **View** – FXML-Dateien definieren das Layout; CSS-Styles direkt im FXML
-- **Controller** – Java-Klassen mit `@FXML`-Injektionen steuern die UI-Logik
+
+| Schicht       | Inhalt                                                             |
+|---------------|--------------------------------------------------------------------|
+| **Model**     | Datenklassen: `ShuttlePart`, `RepairTask`, `InventoryItem`, ...    |
+| **View**      | FXML-Dateien definieren das Layout; Styles direkt im FXML          |
+| **Controller**| Java-Klassen mit `@FXML`-Injektion steuern die UI-Logik           |
 
 ### Singleton-Pattern
-Zwei zentrale Singletons teilen den Zustand über alle Controller:
 
-- **`TakeoverState`** – Speichert den gesamten Takeover-Fortschritt: welche Teile genehmigt sind, welche Techniker eingetragen sind, alle Reparaturaufgaben und die letzte Aktivität
-- **`TicketStore`** – Speichert Wartungstickets nur im Arbeitsspeicher (kein File-I/O); Daten werden beim Schließen der App gelöscht
+Vier Singletons teilen den Zustand über alle Controller:
 
-### BaseController
-Alle View-Controller erben von `BaseController`, der die `loadView(String fxml)`-Methode für Navigation bereitstellt.
+| Singleton              | Inhalt                                                              |
+|------------------------|---------------------------------------------------------------------|
+| `TakeoverState`        | App-Phase, Fortschritt, Mitarbeiter, Freigaben, Reparaturen        |
+| `EmployeeService`      | Mitarbeiterliste (aus employees.json, einmal geladen)              |
+| `RoutineTaskStore`     | Routineaufgaben mit done-Status (Speicher, kein File-I/O)          |
+| `OrderStore`           | Aktive Logistik-Bestellungen der Sitzung                           |
 
-### Jackson-Integration
-`ShuttlePart` nutzt `@JsonAnySetter`, damit Jackson alle Sensor-Schlüssel aus der JSON-Datei direkt in die interne `sensors`-Map einträgt – ohne dass jeder Sensor ein eigenes Feld braucht.
+### App-Phasen (State Machine)
+
+```
+LANDING (15 Sek.)
+    └── Countdown läuft; nur Logistics aktiv
+    └── Nach Ablauf: 3 Sek. Pause → SENSOR_LOADING
+
+SENSOR_LOADING (10 Sek.)
+    └── Alle Tabs gesperrt; Lade-Animation
+    └── Nach Ablauf → OPERATIONAL
+
+OPERATIONAL
+    └── Alle Tabs aktiv; Sensordaten und Zeitplan sichtbar
+    └── Takeover-Workflow läuft
+```
+
+Der Zustand überlebt Navigation (z.B. zu Logistics und zurück), weil `Instant landingStartedAt` im Singleton gespeichert wird und `getRemainingSeconds()` die Restzeit berechnet.
 
 ---
 
 ## Takeover-Workflow
 
-Der Takeover-Prozess umfasst drei Shuttle-Teile: **Orbiter**, **SRB** und **External Tank**. Für jeden Teil gilt folgender Ablauf:
+Für jeden der drei Teile (**Orbiter**, **SRB**, **External Tank**) gilt:
 
-### Schritt 1 – Shuttle-Teil wählen (Mission Control)
-Im Mission-Control-Bereich auf einen der drei Part-Buttons klicken:
-`[Orbiter]` `[SRB]` `[External Tank]`
+```
+1. Mission Control → Teil wählen → Techniker eintragen
+2. Techniker sieht Reparatur- und Routineaufgaben für diesen Teil
+3. Aufgaben erledigen → "Mark Done" klicken
+4. Security Chief für das gleiche Teil eintragen
+5. Security Chief klickt "Approve" (nur aktiv, wenn Techniker fertig)
+6. Teil gilt als freigegeben (✓)
+```
 
-### Schritt 2 – Rolle und Name eingeben
-Nach der Part-Auswahl erscheint das Eingabefeld:
-- **Name** eingeben (wird in der History und im Dashboard angezeigt)
-- **Rolle** wählen: `Technician` oder `Security Chief`
-- `Confirm` drücken
-
-### Schritt 3 – Reparaturen durchführen (Technician)
-Als Technician sieht man die Reparaturtabelle für den gewählten Part:
-- Alle Reparaturaufgaben mit Sensor, Status (WARNING/REPLACE) und Maßnahme
-- Ersatzteile-Spalte: zeigt ob Teil auf Lager ist oder bestellt werden muss
-- Bei `OUT_OF_STOCK`: **Order Part**-Button drücken → nach 10 Sekunden erscheint eine Pop-up-Benachrichtigung, dass das Teil eingetroffen ist
-- Done-Checkbox ist erst aktivierbar, wenn das Teil verfügbar ist
-- Wenn alle Aufgaben erledigt: `Mark All Done` drücken
-
-### Schritt 4 – Finale Freigabe (Security Chief)
-Als Security Chief denselben Part wählen:
-- Der `Give OK`-Button ist nur aktiv, wenn der Technician bereits `Mark All Done` gedrückt hat
-- Nach `Give OK` gilt der Part als freigegeben (`Approved ✓`)
-
-### Schritt 5 – Takeover abschließen
-Sobald alle drei Teile freigegeben sind (100% Fortschritt), erscheint der Button `Takeover Complete` im Dashboard. Ein Klick setzt alles zurück und generiert neue Reparaturaufgaben.
+Sobald alle drei Teile freigegeben sind → Fortschrittsbalken 100% → Button **Takeover Complete** erscheint → Klick setzt alles zurück.
 
 ---
 
 ## Setup & Ausführen
 
 ### Voraussetzungen
-- Java 17 oder höher installiert
-- Maven installiert (oder Maven Wrapper `./mvnw` nutzen)
+
+- Java 17 oder höher
+- Maven installiert
 
 ### App starten
 
 ```bash
-cd shuttle-dashboard
 mvn javafx:run
 ```
-
-### Ersten Start / Inventar zurücksetzen
-
-Beim ersten Start wird `~/.shuttle-dashboard/inventory.json` automatisch aus den classpath-Ressourcen kopiert. Um die Inventardaten zurückzusetzen (z.B. nach Tests):
-
-```bash
-rm ~/.shuttle-dashboard/inventory.json
-```
-
-Beim nächsten Start wird die Datei automatisch neu angelegt.
 
 ---
 
 ## Datenpersistenz
 
-| Daten              | Speicherort                              | Verhalten                                   |
-|--------------------|------------------------------------------|---------------------------------------------|
-| Inventar           | `~/.shuttle-dashboard/inventory.json`    | Wird dauerhaft gespeichert; überlebt Neustart |
-| Sensorwerte        | `src/main/resources/view/data/sensors.json` | Schreibgeschützt (classpath)              |
-| Grenzwerte         | `src/main/resources/view/data/thresholds.json` | Schreibgeschützt (classpath)           |
-| Wartungshistorie   | Arbeitsspeicher (TicketStore)            | Wird beim Schließen der App gelöscht        |
-| Takeover-Zustand   | Arbeitsspeicher (TakeoverState)          | Wird beim Schließen der App gelöscht        |
-
----
-
-## Testdaten
-
-### Sensoren (sensors.json)
-
-| Part          | Sensor              | Wert  | Status  |
-|---------------|---------------------|-------|---------|
-| Orbiter       | fuelPressure        | 350.5 | OK      |
-| Orbiter       | coolantPressure     | 2.8   | REPLACE |
-| Orbiter       | engineTemp          | 520.0 | WARNING |
-| SRB           | thrustLevel         | 88.5  | OK      |
-| SRB           | casingTemp          | 430.0 | WARNING |
-| External Tank | liquidOxygenLevel   | 95.2  | OK      |
-| External Tank | hydrogenPressure    | 42.0  | OK      |
-
-### Grenzwerte (thresholds.json)
-
-Jeder Sensor hat einen `min`- und/oder `max`-Grenzwert:
-- Liegt der Wert im normalen Bereich → **OK** (grün)
-- Liegt er knapp außerhalb → **WARNING** (gelb) → `Inspect and adjust`
-- Liegt er weit außerhalb → **REPLACE** (rot) → `Replace component`
-
-### Inventar
-
-- **Heat Shield Panel** (INV-001) – Anfangsbestand: 0 → `OUT_OF_STOCK` → muss bestellt werden
-- Weitere Teile sind auf Lager und können direkt verwendet werden
+| Daten                | Speicherort                             | Verhalten                                  |
+|----------------------|-----------------------------------------|--------------------------------------------|
+| Inventar             | `resources/view/data/inventory.json`    | Wird dauerhaft gespeichert                 |
+| Sensorwerte          | `resources/view/data/sensors.json`      | Schreibgeschützt                           |
+| Grenzwerte           | `resources/view/data/thresholds.json`   | Schreibgeschützt                           |
+| Routineaufgaben      | `RoutineTaskStore` (Speicher)           | Wird beim Schließen gelöscht               |
+| Bestellungen         | `OrderStore` (Speicher)                 | Wird beim Schließen gelöscht               |
+| Takeover-Zustand     | `TakeoverState` (Speicher)              | Wird beim Schließen gelöscht               |
+| Schedule-Änderungen  | `TakeoverSchedule` (Speicher)           | Wird beim Schließen gelöscht               |
 
 ---
 

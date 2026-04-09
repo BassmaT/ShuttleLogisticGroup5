@@ -1,141 +1,114 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Importiert die JavaFX-Klassen, die in dieser Datei verwendet werden. -->
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ProgressBar?>
-<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.Circle?>
 
-<!--
-    Haupt-Dashboard der App.
-    BorderPane teilt das Fenster in Bereiche auf: oben (top), links (left), Mitte (center).
-    fx:controller verknüpft diese FXML-Datei mit der MainController-Klasse.
--->
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group5.shuttle.controller.MainController"
-            style="-fx-background-color: #1e1e1e; -fx-padding: 20;">
+            style="-fx-background-color: #0D1117;">
 
-    <!-- Kopfzeile oben mit dem App-Titel -->
     <top>
-        <Label text="Shuttle Dashboard"
-               style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;"
-               BorderPane.alignment="CENTER"/>
+        <HBox spacing="20" style="-fx-padding: 20; -fx-background-color: #12161D; -fx-border-color: #30363d; -fx-border-width: 0 0 1 0;" alignment="CENTER_LEFT">
+            <Label text="MISSION CONTROL" style="-fx-text-fill: #4B9CFF; -fx-font-weight: bold; -fx-font-size: 20px; -fx-letter-spacing: 2px;"/>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#toggleAiChat" text="🤖 AI Chat"
+                    style="-fx-background-color: #21262d; -fx-text-fill: #8957e5; -fx-border-color: #8957e5; -fx-border-radius: 5; -fx-cursor: hand;"/>
+            <HBox spacing="10" alignment="CENTER" style="-fx-background-color: rgba(75, 156, 255, 0.1); -fx-padding: 8 15; -fx-background-radius: 20;">
+                <Circle radius="4" fill="#2EA043" />
+                <Label fx:id="lblStatus" text="SYSTEMS NOMINAL" style="-fx-text-fill: #2EA043; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+            </HBox>
+        </HBox>
     </top>
 
-    <!-- Linke Seitenleiste mit den Navigations-Buttons -->
     <left>
-        <VBox spacing="15" style="-fx-padding: 20;">
-            <!-- Jeder Button öffnet einen anderen Bereich der App -->
-            <Button text="Mission Control" fx:id="btnMission"
-                    style="-fx-font-size: 13px; -fx-min-width: 140;" />
-            <Button text="Technician" fx:id="btnTechnician"
-                    style="-fx-font-size: 13px; -fx-min-width: 140;" />
-            <Button text="Inventory" fx:id="btnInventory"
-                    style="-fx-font-size: 13px; -fx-min-width: 140;" />
-            <Button text="History" fx:id="btnHistory"
-                    style="-fx-font-size: 13px; -fx-min-width: 140;" />
-            <Button text="Staff" fx:id="btnStaff"
-                    style="-fx-font-size: 13px; -fx-min-width: 140;" />
-            <Button text="Logistics" fx:id="btnLogistics"
-                    style="-fx-font-size: 13px; -fx-min-width: 140;" />
-            <Button text="Schedule" fx:id="btnSchedule"
-                    style="-fx-font-size: 13px; -fx-min-width: 140;" />
+        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #0D1117; -fx-border-color: #30363d; -fx-border-width: 0 1 0 0;">
+            <Button text="Dashboard" style="-fx-background-color: #21262d; -fx-text-fill: white; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
+            <Button fx:id="btnMission" text="Mission Control" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
+            <Button fx:id="btnTechnician" text="Technician" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
+            <Button fx:id="btnInventory" text="Inventory" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
+            <Button fx:id="btnHistory" text="History" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
+            <Button fx:id="btnStaff" text="Staff" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
+            <Button fx:id="btnLogistics" text="Logistics" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
+            <Button fx:id="btnSchedule" text="Schedule" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
         </VBox>
     </left>
 
-    <!-- Hauptbereich in der Mitte mit scrollbarem Inhalt -->
     <center>
-        <!-- ScrollPane ermöglicht Scrollen, wenn der Inhalt zu groß für das Fenster ist -->
-        <ScrollPane fitToWidth="true" style="-fx-background: #1e1e1e; -fx-background-color: #1e1e1e; -fx-border-color: transparent;">
-        <VBox spacing="16" style="-fx-padding: 20; -fx-background-color: #1e1e1e;">
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+            <VBox spacing="20" style="-fx-padding: 25;">
 
-            <!-- Landing-Banner: nur während der Landephase und Sensordaten-Ladephase sichtbar.
-                 Wird vom Controller ein-/ausgeblendet je nach AppPhase. -->
-            <VBox fx:id="landingBanner" spacing="10"
-                  style="-fx-background-color: #0a0a2a; -fx-padding: 16; -fx-background-radius: 8;">
-                <Label text="SHUTTLE APPROACH"
-                       style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
-                <Label fx:id="lblLandingCountdown"
-                       text="Shuttle approaching..."
-                       style="-fx-text-fill: #66aaff; -fx-font-size: 16px; -fx-font-weight: bold;"/>
-                <ProgressBar fx:id="progressLanding" prefWidth="500" progress="0.0"
-                             style="-fx-accent: #66aaff;"/>
-                <Label fx:id="lblLandingStatus"
-                       text="Awaiting landing clearance..."
-                       style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"/>
+                <VBox fx:id="landingBanner" spacing="15" style="-fx-background-color: #161B22; -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: #30363d; -fx-border-radius: 12;">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="SHUTTLE APPROACH" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="lblLandingCountdown" text="T-Minus: --:--" style="-fx-text-fill: #58a6ff; -fx-font-family: 'Monospaced'; -fx-font-size: 16px;"/>
+                    </HBox>
+                    <ProgressBar fx:id="progressLanding" prefWidth="Infinity" progress="0.0" style="-fx-accent: #58a6ff;"/>
+                    <Label fx:id="lblLandingStatus" text="Awaiting data..." style="-fx-text-fill: #8b949e; -fx-font-size: 12px;"/>
+                </VBox>
+
+                <VBox spacing="10" style="-fx-background-color: #161B22; -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: #30363d;">
+                    <Label text="TAKEOVER PROGRESS" style="-fx-text-fill: #8b949e; -fx-font-weight: bold;"/>
+                    <ProgressBar fx:id="progressTakeover" prefWidth="Infinity" progress="0.0" style="-fx-accent: #66ff66;"/>
+                    <Label fx:id="lblApprovalStatus" text="Checking components..." style="-fx-text-fill: white;"/>
+                    <Label fx:id="lblWarning" text="Scanning for anomalies..." style="-fx-text-fill: #ffcc00;"/>
+                    <Button fx:id="btnFinish" text="Complete Takeover" visible="false" style="-fx-background-color: #66ff66; -fx-text-fill: #0D1117; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <GridPane hgap="20" vgap="20">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50" />
+                        <ColumnConstraints percentWidth="50" />
+                    </columnConstraints>
+
+                    <VBox GridPane.columnIndex="0" spacing="10" style="-fx-background-color: #161B22; -fx-padding: 15; -fx-background-radius: 10;">
+                        <Label text="SENSOR MATRIX" style="-fx-text-fill: #8b949e; -fx-font-weight: bold;"/>
+                        <VBox fx:id="sensorContainer" spacing="8" />
+                    </VBox>
+
+                    <VBox GridPane.columnIndex="1" spacing="10" style="-fx-background-color: #161B22; -fx-padding: 15; -fx-background-radius: 10;">
+                        <Label text="ACTIVE TASKS" style="-fx-text-fill: #8b949e; -fx-font-weight: bold;"/>
+                        <VBox fx:id="activeWorkContainer" spacing="8" />
+                        <Label text="Last Activity:" style="-fx-text-fill: #8b949e; -fx-font-size: 11px; -fx-padding: 10 0 0 0;"/>
+                        <Label fx:id="lblLastActivity" text="None" style="-fx-text-fill: #58a6ff; -fx-font-size: 11px;"/>
+                    </VBox>
+                </GridPane>
+
+                <HBox spacing="20">
+                    <VBox HBox.hgrow="ALWAYS" spacing="10" style="-fx-background-color: #161B22; -fx-padding: 15; -fx-background-radius: 10;">
+                        <Label text="3-DAY SCHEDULE" style="-fx-text-fill: #8b949e; -fx-font-weight: bold;"/>
+                        <VBox fx:id="scheduleContainer" spacing="5" />
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="10" style="-fx-background-color: #161B22; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #8957e5; -fx-border-width: 0.5;">
+                        <Label text="PREDICTIVE AI TRENDS" style="-fx-text-fill: #8957e5; -fx-font-weight: bold;"/>
+                        <VBox fx:id="predictiveContainer" spacing="5" />
+                    </VBox>
+                </HBox>
             </VBox>
-
-            <!-- Überschrift für den Fortschrittsbereich -->
-            <Label text="Takeover Progress"
-                   style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
-
-            <!-- Fortschrittsbalken: 0.0 = 0%, 1.0 = 100%. Farbe ist grün. -->
-            <ProgressBar fx:id="progressTakeover" prefWidth="400" progress="0.0"
-                         style="-fx-accent: #66ff66;"/>
-
-            <!-- Zeigt an, welche Teile bereits freigegeben sind (✓ = ja, ✗ = nein) -->
-            <Label fx:id="lblApprovalStatus"
-                   text="Orbiter ✗   SRB ✗   External Tank ✗"
-                   style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;" />
-
-            <!-- Zeigt die schlimmste aktuell aktive Warnung an -->
-            <Label fx:id="lblWarning"
-                   text="Loading..."
-                   style="-fx-text-fill: #ffcc00; -fx-font-size: 15px;" />
-
-            <!-- Allgemeiner Systemstatus, z. B. "Systems nominal" -->
-            <Label fx:id="lblStatus"
-                   text="Loading..."
-                   style="-fx-text-fill: #66ff66; -fx-font-size: 15px;" />
-
-            <!-- Erscheint nur, wenn alle drei Teile freigegeben wurden (100%) -->
-            <Button fx:id="btnFinish"
-                    text="Takeover Complete"
-                    visible="false"
-                    style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #66ff66; -fx-text-fill: #1e1e1e; -fx-padding: 10 20;" />
-
-            <!-- Überschrift für den Abschnitt "Aktive Arbeit" -->
-            <Label text="Active Work"
-                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 0 0 0;" />
-
-            <!-- Wird im Controller dynamisch befüllt: wer arbeitet gerade wo -->
-            <VBox fx:id="activeWorkContainer" spacing="4" />
-
-            <!-- Überschrift für die letzte Aktivität -->
-            <Label text="Last Activity"
-                   style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 6 0 0 0;" />
-
-            <!-- Zeigt die zuletzt abgeschlossene Aktion an -->
-            <Label fx:id="lblLastActivity" text="–"
-                   style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;" />
-
-            <!-- Überschrift für die Sensor-Detailansicht -->
-            <Label text="Sensor Details"
-                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 0 0 0;" />
-
-            <!-- Wird im Controller dynamisch befüllt: alle Sensoren mit Messwerten und Status -->
-            <VBox fx:id="sensorContainer" spacing="5" />
-
-            <!-- Überschrift für den 3-Tage-Zeitplan -->
-            <Label text="3-Day Schedule"
-                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 0 0 0;" />
-
-            <!-- Wird im Controller dynamisch befüllt: alle Tage und Einträge aus schedule.json -->
-            <VBox fx:id="scheduleContainer" spacing="3" />
-
-            <!-- Überschrift für Predictive Maintenance -->
-            <Label text="Predictive Maintenance"
-                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 0 0 0;" />
-
-            <!-- Wird im Controller dynamisch befüllt: Trendwarnungen aus den letzten 5 Flügen -->
-            <VBox fx:id="predictiveContainer" spacing="3" />
-
-        </VBox>
         </ScrollPane>
     </center>
+
+    <right>
+        <StackPane fx:id="aiDrawer" prefWidth="320" style="-fx-background-color: #0D1117; -fx-border-color: #30363d; -fx-border-width: 0 0 0 1;">
+            <VBox spacing="0">
+                <HBox alignment="CENTER_LEFT" style="-fx-padding: 15;">
+                    <Label text="AI ADVISOR" style="-fx-text-fill: #8957e5; -fx-font-weight: bold;"/>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button text="→" onAction="#toggleAiChat" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-cursor: hand;"/>
+                </HBox>
+
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+                    <VBox fx:id="chatHistory" spacing="10" style="-fx-padding: 15;" />
+                </ScrollPane>
+
+                <HBox style="-fx-padding: 15; -fx-background-color: #161B22;">
+                    <TextField fx:id="txtChatInput" onAction="#handleChatInput" promptText="Ask AI about costs..." HBox.hgrow="ALWAYS"
+                               style="-fx-background-color: #0D1117; -fx-text-fill: white; -fx-border-color: #30363d;"/>
+                </HBox>
+            </VBox>
+        </StackPane>
+    </right>
 
 </BorderPane>

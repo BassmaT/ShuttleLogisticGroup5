@@ -31,6 +31,8 @@ import javafx.util.Duration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 
 // Controller für das Haupt-Dashboard (main_view.fxml).
 // Zeigt den Übernahme-Fortschritt, aktive Arbeiter, Sensorwarnungen und Sensor-Details.
@@ -90,7 +92,27 @@ public class MainController {
     // Status-Text unter dem Fortschrittsbalken
     @FXML private Label lblLandingStatus;
 
+    @FXML private VBox chatHistory;
+    @FXML private TextField txtChatInput;
+
+    @FXML private StackPane aiDrawer;
+
+    @FXML
+
     // ── Services & State ──────────────────────────────────────────────────────
+
+    private void addAiMessage(String text) {
+        Label label = new Label(text);
+        boolean isUser = text.startsWith("You:");
+
+        label.setStyle(isUser
+                ? "-fx-background-color: #21262d; -fx-text-fill: #E6EDF3; -fx-padding: 8 12; -fx-background-radius: 10;"
+                : "-fx-background-color: #161B22; -fx-text-fill: #8957e5; -fx-padding: 8 12; -fx-background-radius: 10; -fx-border-color: #8957e5; -fx-border-width: 0.5;");
+
+        label.setWrapText(true);
+        label.setMaxWidth(280);
+        chatHistory.getChildren().add(label);
+    }
 
     // SensorService lädt die Sensordaten und Grenzwerte aus den JSON-Dateien.
     private final SensorService sensorService = new SensorService();
@@ -107,8 +129,24 @@ public class MainController {
     // initialize() wird automatisch aufgerufen, wenn das FXML geladen ist.
     @FXML
     public void initialize() {
-        // Vorherigen Timer stoppen (falls wir von einer anderen View zurückgekehrt sind)
+
+        // --- 1. KI INITIALISIERUNG ---
+        addAiMessage("AI Advisor: Systems online. Standing by for landing data.");
+
+        // Chat-Eingabe verarbeiten (Wenn User Enter drückt)
+        txtChatInput.setOnAction(e -> handleChatInput());
+
+        // --- 2. NAVIGATION & STYLING ---
         if (activeTimer != null) { activeTimer.stop(); activeTimer = null; }
+
+        // Wir erstellen eine Liste der Buttons für einfaches Styling
+        List<Button> navButtons = List.of(btnMission, btnTechnician, btnInventory, btnHistory, btnStaff, btnLogistics, btnSchedule);
+
+        for (Button btn : navButtons) {
+            // Hover-Effekt für mehr "Gefühl" beim Nutzen
+            btn.setOnMouseEntered(e -> btn.setStyle("-fx-background-color: rgba(75, 156, 255, 0.1); -fx-text-fill: white; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"));
+            btn.setOnMouseExited(e -> btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"));
+        }
 
         // Navigations-Buttons verknüpfen
         btnMission.setOnAction(e -> loadView("mission_control.fxml"));
@@ -152,6 +190,37 @@ public class MainController {
         } else {
             // Phase OPERATIONAL: normaler Betrieb
             activateOperational();
+        }
+    }
+
+    @FXML
+    private void toggleAiChat() {
+        if (aiDrawer != null) {
+            boolean isVisible = aiDrawer.isVisible();
+            aiDrawer.setVisible(!isVisible);
+            aiDrawer.setManaged(!isVisible);
+        }
+    }
+
+    @FXML
+    private void handleChatInput() {
+        String message = txtChatInput.getText();
+
+        // Validierung: Nur senden, wenn das Feld nicht leer ist
+        if (message != null && !message.isBlank()) {
+            addAiMessage("You: " + message);
+
+            // KI Logik: Hier kannst du deine Datenbank-Werte "vorgaukeln"
+            if (message.toLowerCase().contains("cost")) {
+                addAiMessage("AI: Analyzing database... Current delay costs are 1.2M € per day.");
+            } else if (message.toLowerCase().contains("status")) {
+                addAiMessage("AI: All shuttle systems are currently within nominal parameters.");
+            } else {
+                addAiMessage("AI: Telemetry analysis in progress for: " + message);
+            }
+
+            // Feld leeren, damit man direkt neu tippen kann
+            txtChatInput.clear();
         }
     }
 

@@ -243,7 +243,7 @@ public class MainController {
             remaining[0]--;
             double progress = 1.0 - (double) remaining[0] / TakeoverState.SENSOR_LOADING_SECONDS;
             progressLanding.setProgress(progress);
-            lblLandingCountdown.setText(String.format("Loading sensor data... %d sec", remaining[0]));
+            lblLandingCountdown.setText(String.format("Loading sensor data... %d min", remaining[0]));
             lblLandingStatus.setText("Calibrating sensors – please wait");
         }));
         activeTimer.setCycleCount(seconds);

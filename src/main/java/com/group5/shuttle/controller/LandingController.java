@@ -50,7 +50,7 @@ public class LandingController {
     // Wird jede Sekunde aufgerufen – aktualisiert Countdown und Fortschrittsbalken
     private void tick() {
         secondsLeft--;
-
+//KI-generiert anfang
         // Fortschritt berechnen (0.0 = Start, 1.0 = gelandet)
         double progress = 1.0 - (double) secondsLeft / TOTAL_SECONDS;
         progressLanding.setProgress(progress);
@@ -68,7 +68,7 @@ public class LandingController {
             lblStatus.setText("Final approach – deploying landing gear...");
         }
     }
-
+//KI-generiert ende
     // Wird aufgerufen, wenn der Countdown abgelaufen ist (Landung erfolgt)
     private void onLanded() {
         // Balken voll auffüllen

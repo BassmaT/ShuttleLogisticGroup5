@@ -67,6 +67,7 @@ public class HistoryController extends BaseController {
         colTechnician.setCellValueFactory(new PropertyValueFactory<>("technician"));
 
         // Benutzerdefinierte Status-Zellen: farbige Texte je nach Schweregrad.
+        //KI-Generiert Anfang
         colOldStatus.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -87,6 +88,7 @@ public class HistoryController extends BaseController {
             }
         });
     }
+//KI-Generiert Ende 
 
     // Lädt alle Tickets der aktuellen Sitzung aus dem Arbeitsspeicher
     // und gibt sie an die Tabelle weiter.

@@ -1,12 +1,8 @@
 package com.group5.shuttle.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-// JavaFX-Property für die Checkbox-Bindung in der TableView
 import javafx.beans.property.SimpleBooleanProperty;
 
 // Repräsentiert eine Routineaufgabe, die bei jeder Übergabe durchgeführt wird
-// Im Gegensatz zu Reparaturaufgaben sind diese immer vorhanden, unabhängig von Sensordaten
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoutineTask {
 
     // Eindeutige ID der Aufgabe, z. B. "RT-001"

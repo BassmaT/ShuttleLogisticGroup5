@@ -1,201 +1,375 @@
 package com.group5.shuttle.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.group5.shuttle.model.Employee;
 import com.group5.shuttle.model.EmployeeRoster;
+import com.group5.shuttle.model.EmployeeTeam;
 import com.group5.shuttle.model.FlightHistory;
+import com.group5.shuttle.model.FlightRecord;
 import com.group5.shuttle.model.InventoryItem;
 import com.group5.shuttle.model.MaintenanceTicket;
 import com.group5.shuttle.model.RoutineTask;
+import com.group5.shuttle.model.ScheduleDay;
+import com.group5.shuttle.model.ScheduleEntry;
 import com.group5.shuttle.model.SensorThreshold;
 import com.group5.shuttle.model.ShuttleData;
 import com.group5.shuttle.model.TakeoverSchedule;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// Diese Klasse ist für das Laden und Speichern aller Daten zuständig:
-// Sensordaten, Grenzwerte, Lagerhaltung und Wartungshistorie.
-// Sie wird von den Controllern benutzt, um auf die Daten zuzugreifen.
+// Diese Klasse stellt alle Anwendungsdaten bereit.
+// Alle Daten sind direkt in Java kodiert – es werden keine externen Dateien geladen.
 public class SensorService {
 
-    // ObjectMapper ist die Jackson-Klasse, die JSON liest und schreibt.
-    // INDENT_OUTPUT sorgt dafür, dass gespeicherte JSON-Dateien lesbar formatiert sind.
-    private final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+    // Zwischenspeicher für die Lagerliste – bleibt für die gesamte Sitzung erhalten.
+    private List<InventoryItem> inventoryCache = null;
 
-    // Pfad zum beschreibbaren Datenordner im Home-Verzeichnis des Benutzers: ~/.shuttle-dashboard/
-    // System.getProperty("user.home") gibt z. B. "/Users/Max" zurück.
-    private static final Path DATA_DIR      = Path.of(System.getProperty("user.home"), ".shuttle-dashboard");
+    // ── Sensordaten ──────────────────────────────────────────────────────────
 
-    // Vollständiger Dateipfad zur Lagerdatei, z. B. "/Users/Max/.shuttle-dashboard/inventory.json"
-    private static final File INVENTORY_FILE = DATA_DIR.resolve("inventory.json").toFile();
-
-    // Stellt sicher, dass der Datenordner und die Lagerdatei existieren.
-    // Beim ersten Start wird die Lagerdatei aus den Projektdaten kopiert (Seed).
-    private void ensureDataDir() {
-        try {
-            Files.createDirectories(DATA_DIR); // Ordner anlegen, falls er noch nicht existiert
-            if (!INVENTORY_FILE.exists()) {
-                // Erste Ausführung: Initialdaten aus dem Classpath (resources-Ordner) kopieren
-                try (InputStream is = getClass().getClassLoader()
-                        .getResourceAsStream("view/data/inventory.json")) {
-                    if (is != null) Files.copy(is, INVENTORY_FILE.toPath());
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace(); // Fehler ausgeben, Programm läuft aber weiter
-        }
-    }
-
-    // ── Sensordaten und Grenzwerte ──────────────────────────────────────────
-
-    // Lädt die aktuellen Sensorwerte aus der sensors.json-Datei im Classpath.
-    // Gibt null zurück, wenn die Datei nicht gelesen werden kann.
+    // Gibt die aktuellen Sensorwerte aller drei Shuttle-Teile zurück.
     public ShuttleData loadSensorData() {
-        try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream("view/data/sensors.json");
-            return mapper.readValue(is, ShuttleData.class); // JSON → Java-Objekt
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        ShuttleData data = new ShuttleData();
+
+        data.orbiter = new com.group5.shuttle.model.ShuttlePart();
+        data.orbiter.setSensor("hullTemperature", 520.0);
+        data.orbiter.setSensor("cabinPressure",   101.0);
+        data.orbiter.setSensor("oxygenLevel",      96.0);
+        data.orbiter.setSensor("coolantPressure",   2.8);
+
+        data.srb = new com.group5.shuttle.model.ShuttlePart();
+        data.srb.setSensor("thrust",             1800.0);
+        data.srb.setSensor("casingTemperature",   797.0);
+        data.srb.setSensor("vibration",             0.22);
+
+        data.externalTank = new com.group5.shuttle.model.ShuttlePart();
+        data.externalTank.setSensor("fuelTemperature", -150.0);
+        data.externalTank.setSensor("fuelPressure",       4.8);
+        data.externalTank.setSensor("stress",            22.0);
+
+        return data;
     }
 
-    // Lädt die Grenzwerte aller Sensoren aus der thresholds.json-Datei im Classpath.
-    // Gibt eine verschachtelte Map zurück: Teil → Sensor → Grenzwert-Objekt.
+    // ── Grenzwerte ───────────────────────────────────────────────────────────
+
+    // Gibt die Alarm-Grenzwerte aller Sensoren zurück.
+    // Aufbau: Teil → Sensor → SensorThreshold(min, max)
     public Map<String, Map<String, SensorThreshold>> loadThresholds() {
-        try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream("view/data/thresholds.json");
-            return mapper.readValue(is, new TypeReference<>() {}); // JSON → verschachtelte Map
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        Map<String, Map<String, SensorThreshold>> result = new HashMap<>();
+//Sensordaten sind KI generiert
+        // Orbiter
+        Map<String, SensorThreshold> orbiter = new HashMap<>();
+        orbiter.put("hullTemperature", threshold(null,  650.0));
+        orbiter.put("cabinPressure",   threshold(95.0,  110.0));
+        orbiter.put("oxygenLevel",     threshold(90.0,  null));
+        orbiter.put("coolantPressure", threshold(3.5,   null));
+        result.put("orbiter", orbiter);
+
+        // SRB
+        Map<String, SensorThreshold> srb = new HashMap<>();
+        srb.put("thrust",             threshold(1500.0, null));
+        srb.put("casingTemperature",  threshold(null,   800.0));
+        srb.put("vibration",          threshold(null,     0.40));
+        result.put("srb", srb);
+
+        // External Tank
+        Map<String, SensorThreshold> tank = new HashMap<>();
+        tank.put("fuelTemperature", threshold(-170.0, -120.0));
+        tank.put("fuelPressure",    threshold(4.0,    null));
+        tank.put("stress",          threshold(null,   20.0));
+        result.put("externalTank", tank);
+
+        return result;
     }
 
-    // ── Lagerhaltung ────────────────────────────────────────────────────────
+    // Hilfsmethode: erstellt ein SensorThreshold-Objekt mit min und max.
+    private SensorThreshold threshold(Double min, Double max) {
+        SensorThreshold t = new SensorThreshold();
+        t.min = min;
+        t.max = max;
+        return t;
+    }
 
-    // Lädt die aktuelle Lagerliste aus der beschreibbaren inventory.json-Datei.
-    // Beim ersten Start wird diese Datei automatisch aus den Projektdaten erstellt.
+    // ── Lagerhaltung ─────────────────────────────────────────────────────────
+
+    // Gibt die aktuelle Lagerliste zurück.
+    // Beim ersten Aufruf werden die Standarddaten angelegt (einmalig pro Sitzung).
     public List<InventoryItem> loadInventory() {
-        ensureDataDir(); // sicherstellen, dass die Datei existiert
-        try {
-            return mapper.readValue(INVENTORY_FILE, new TypeReference<>() {}); // JSON → Liste
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList(); // leere Liste zurückgeben, damit das Programm nicht abstürzt
+        if (inventoryCache == null) {
+            inventoryCache = createDefaultInventory();
         }
+        return inventoryCache;
     }
 
-    // Speichert die aktuelle Lagerliste dauerhaft in die inventory.json-Datei.
-    // Wird aufgerufen, wenn Teile verbraucht oder bestellt werden.
+    // Speichert eine geänderte Lagerliste im Arbeitsspeicher.
+    // Die Daten bleiben bis zum Beenden der Anwendung erhalten.
     public void saveInventory(List<InventoryItem> items) {
-        ensureDataDir();
-        try {
-            mapper.writeValue(INVENTORY_FILE, items); // Liste → JSON-Datei
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        inventoryCache = items;
     }
 
-    // ── Wartungshistorie (nur im Arbeitsspeicher) ──────────────────────────
+    // Erstellt die Ausgangslage der Lagerliste mit sieben Bauteilen.
+    private List<InventoryItem> createDefaultInventory() {
+        List<InventoryItem> list = new ArrayList<>();
+//Die InventoryItems sind KI generiert
+        list.add(item("INV-001", "Heat Shield Panel",      "Orbiter",       0, "OUT_OF_STOCK",
+                "Thermal protection tile that shields the orbiter hull from extreme heat during atmospheric re-entry. Must be replaced after severe temperature anomalies."));
+        list.add(item("INV-002", "O2 Sensor Module",        "Orbiter",       2, "LOW",
+                "Monitors cabin oxygen concentration. Replaced when oxygenLevel sensor falls below safe thresholds to ensure crew life support integrity."));
+        list.add(item("INV-003", "Coolant Pressure Valve",  "Orbiter",       3, "IN_STOCK",
+                "Regulates coolant flow through the orbiter's thermal control system. Required when coolantPressure drops below minimum operating level."));
+        list.add(item("INV-004", "SRB Nozzle Assembly",     "SRB",           3, "IN_STOCK",
+                "Directs exhaust from the solid rocket booster to generate thrust. Inspected and replaced when casingTemperature or thrust readings deviate from nominal."));
+        list.add(item("INV-005", "Vibration Damper",         "SRB",           1, "LOW",
+                "Absorbs mechanical vibrations from the solid rocket booster during ignition and ascent. Replaced when vibration sensor exceeds safe limits."));
+        list.add(item("INV-006", "Fuel Tank Liner",          "External Tank", 4, "IN_STOCK",
+                "Insulating liner inside the external tank that prevents cryogenic fuel from warming. Inspected after every flight for cracks or stress deformation."));
+        list.add(item("INV-007", "Cryogenic Seal",           "External Tank", 0, "OUT_OF_STOCK",
+                "High-performance seal for cryogenic fuel connections. Required when stress or fuelPressure readings indicate structural fatigue in the external tank."));
 
-    // Gibt alle Tickets der aktuellen Sitzung zurück.
-    // Die Daten liegen nur im Arbeitsspeicher – beim Schließen der App sind sie weg.
+        return list;
+    }
+
+    // Hilfsmethode: erstellt ein einzelnes InventoryItem.
+    private InventoryItem item(String id, String name, String part,
+                               int quantity, String status, String description) {
+        InventoryItem it = new InventoryItem();
+        it.id          = id;
+        it.name        = name;
+        it.part        = part;
+        it.quantity    = quantity;
+        it.status      = status;
+        it.description = description;
+        return it;
+    }
+
+    // ── Wartungshistorie (nur im Arbeitsspeicher) KI generiert ────────────────────────────
+
     public List<MaintenanceTicket> loadTickets() {
         return TicketStore.getInstance().getTickets();
     }
 
-    // Fügt ein einzelnes Ticket zur Sitzungs-History hinzu.
     public void appendTicket(MaintenanceTicket ticket) {
-        List<MaintenanceTicket> list = TicketStore.getInstance().getTickets(); // aktuelle Liste holen
-        list.add(ticket);                                                      // neues Ticket anhängen
-        TicketStore.getInstance().saveTickets(list);                           // zurückspeichern
+        List<MaintenanceTicket> list = TicketStore.getInstance().getTickets();
+        list.add(ticket);
+        TicketStore.getInstance().saveTickets(list);
     }
 
-    // Ersetzt die gesamte Ticket-Liste durch eine neue Liste.
-    // Wird aufgerufen, wenn nach einer Reparatur alle Tickets auf einmal gespeichert werden.
     public void saveTickets(List<MaintenanceTicket> tickets) {
         TicketStore.getInstance().saveTickets(tickets);
     }
 
-    // ── Sensorauswertung ──────────────────────────────────────────────────
+    // ── Sensorauswertung ─────────────────────────────────────────────────────
 
-    // Vergleicht einen Messwert mit den Grenzwerten und gibt das Ergebnis zurück:
-    // "REPLACE"  → Wert liegt klar außerhalb des erlaubten Bereichs (sofort tauschen)
-    // "WARNING"  → Wert nähert sich dem Grenzwert (Warnung, prüfen)
+    // Vergleicht einen Messwert mit den Grenzwerten:
+    // "REPLACE"  → Wert liegt außerhalb des erlaubten Bereichs
+    // "WARNING"  → Wert nähert sich dem Grenzwert (Puffer: 5 Einheiten)
     // "OK"       → Wert liegt im normalen Bereich
     public String evaluate(double value, SensorThreshold t) {
-        // Prüfen, ob der Wert klar unter dem Minimum oder über dem Maximum liegt → REPLACE
         if (t.min != null && value < t.min) return "REPLACE";
         if (t.max != null && value > t.max) return "REPLACE";
-
-        // Prüfen, ob der Wert sich dem Minimum oder Maximum auf 5 Einheiten nähert → WARNING
         if (t.min != null && value < t.min + 5) return "WARNING";
         if (t.max != null && value > t.max - 5) return "WARNING";
-
-        // Alles in Ordnung
         return "OK";
     }
 
     // ── Mitarbeiter ──────────────────────────────────────────────────────────
 
-    // Lädt alle Mitarbeiter aus der employees.json-Datei im Classpath.
-    // Gibt ein EmployeeRoster-Objekt zurück, das alle Teams enthält.
+    // Gibt alle Mitarbeiter in zwei Teams zurück.
     public EmployeeRoster loadEmployees() {
-        try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream("view/data/employees.json");
-            return mapper.readValue(is, EmployeeRoster.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        EmployeeRoster roster = new EmployeeRoster();
+//Mitarbeiter KI Generiert
+        EmployeeTeam alpha = new EmployeeTeam();
+        alpha.name = "Team Alpha";
+        alpha.members = Arrays.asList(
+            emp("EMP-001", "Max Müller",    "Technician",     "Team Alpha"),
+            emp("EMP-002", "Sarah Schmidt", "Technician",     "Team Alpha"),
+            emp("EMP-003", "Hans Weber",    "Technician",     "Team Alpha"),
+            emp("EMP-004", "Lena Fischer",  "Security Chief", "Team Alpha")
+        );
+
+        EmployeeTeam beta = new EmployeeTeam();
+        beta.name = "Team Beta";
+        beta.members = Arrays.asList(
+            emp("EMP-005", "Tom Braun",     "Technician",     "Team Beta"),
+            emp("EMP-006", "Julia Krause",  "Technician",     "Team Beta"),
+            emp("EMP-007", "Erik Hoffmann", "Technician",     "Team Beta"),
+            emp("EMP-008", "Anna Meyer",    "Security Chief", "Team Beta")
+        );
+
+        roster.teams = Arrays.asList(alpha, beta);
+        return roster;
+    }
+
+    // Hilfsmethode: erstellt einen einzelnen Mitarbeiter.
+    private Employee emp(String id, String name, String role, String team) {
+        Employee e = new Employee();
+        e.id   = id;
+        e.name = name;
+        e.role = role;
+        e.team = team;
+        return e;
     }
 
     // ── Routineaufgaben ──────────────────────────────────────────────────────
 
-    // Lädt die Routineaufgaben aus der routine_tasks.json-Datei im Classpath.
-    // Diese Aufgaben sind bei jeder Übergabe durchzuführen, unabhängig von Sensordaten.
+    // Gibt die acht Standard-Routineaufgaben zurück KI Generiert
     public List<RoutineTask> loadRoutineTasks() {
-        try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream("view/data/routine_tasks.json");
-            return mapper.readValue(is, new TypeReference<>() {});
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        }
+        return Arrays.asList(
+            rt("RT-001", "Refuel Main Tanks",          "External Tank", 120, "EMP-001"),
+            rt("RT-002", "Clean Cabin",                 "Orbiter",        60, "EMP-002"),
+            rt("RT-003", "Check Fire Suppression",      "Orbiter",        45, "EMP-003"),
+            rt("RT-004", "Inspect Landing Gear",        "Orbiter",        90, "EMP-005"),
+            rt("RT-005", "Lubricate Docking Mechanism", "Orbiter",        30, "EMP-006"),
+            rt("RT-006", "Calibrate Instruments",       "Orbiter",        75, "EMP-007"),
+            rt("RT-007", "Inspect SRB Nozzles",         "SRB",            60, "EMP-003"),
+            rt("RT-008", "Check External Tank Seals",   "External Tank",  50, "EMP-006")
+        );
+    }
+
+    // Hilfsmethode: erstellt eine einzelne Routineaufgabe.
+    private RoutineTask rt(String id, String name, String part, int minutes, String empId) {
+        RoutineTask t = new RoutineTask();
+        t.id                 = id;
+        t.name               = name;
+        t.shuttlePart        = part;
+        t.estimatedMinutes   = minutes;
+        t.assignedEmployeeId = empId;
+        return t;
     }
 
     // ── Zeitplan ─────────────────────────────────────────────────────────────
 
-    // Lädt den 3-Tage-Zeitplan aus der schedule.json-Datei im Classpath.
+    // Gibt den 3-Tage-Übergabe-Zeitplan zurück (Schedules sind KI Generiert)
     public TakeoverSchedule loadSchedule() {
-        try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream("view/data/schedule.json");
-            return mapper.readValue(is, TakeoverSchedule.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        TakeoverSchedule schedule = new TakeoverSchedule();
+        schedule.takeoverTitle = "Pre-Launch Processing – Takeover Session";
+
+        // Tag 1
+        ScheduleDay day1 = new ScheduleDay();
+        day1.dayNumber = 1;
+        day1.label     = "Day 1 – Inspection & Diagnostics";
+        day1.entries   = Arrays.asList(
+            se("06:00", "Full sensor diagnostic run",        "diagnostic", "EMP-001", "Orbiter"),
+            se("08:00", "Inspect Landing Gear",              "routine",    "EMP-005", "Orbiter"),
+            se("09:00", "Check Fire Suppression System",     "routine",    "EMP-003", "Orbiter"),
+            se("10:00", "Inspect SRB Nozzles",               "routine",    "EMP-003", "SRB"),
+            se("12:00", "Lunch Break",                       "break",      null,      null),
+            se("13:00", "Repair: coolantPressure (Orbiter)", "repair",     "EMP-002", "Orbiter"),
+            se("15:00", "Security Chief Review – Orbiter",   "approval",   "EMP-004", "Orbiter")
+        );
+
+        // Tag 2
+        ScheduleDay day2 = new ScheduleDay();
+        day2.dayNumber = 2;
+        day2.label     = "Day 2 – Repairs & Systems Check";
+        day2.entries   = Arrays.asList(
+            se("07:00", "Repair: casingTemperature (SRB)",   "repair",   "EMP-005", "SRB"),
+            se("09:00", "Repair: stress (External Tank)",    "repair",   "EMP-001", "External Tank"),
+            se("10:00", "Refuel Main Tanks",                  "routine",  "EMP-001", "External Tank"),
+            se("12:00", "Calibrate Instruments",              "routine",  "EMP-007", "Orbiter"),
+            se("14:00", "Security Chief Review – SRB",        "approval", "EMP-008", "SRB"),
+            se("16:00", "Security Chief Review – Ext. Tank",  "approval", "EMP-004", "External Tank")
+        );
+
+        // Tag 3
+        ScheduleDay day3 = new ScheduleDay();
+        day3.dayNumber = 3;
+        day3.label     = "Day 3 – Final Checks & Sign-Off";
+        day3.entries   = Arrays.asList(
+            se("07:00", "Clean Cabin",                   "routine",    "EMP-002", "Orbiter"),
+            se("08:00", "Lubricate Docking Mechanism",   "routine",    "EMP-006", "Orbiter"),
+            se("09:00", "Check External Tank Seals",     "routine",    "EMP-006", "External Tank"),
+            se("10:00", "Final systems walkthrough",     "diagnostic", "EMP-007", null),
+            se("12:00", "Takeover Complete – Sign-Off",  "approval",   "EMP-004", null)
+        );
+
+        schedule.days = Arrays.asList(day1, day2, day3);
+        return schedule;
+    }
+
+    // Hilfsmethode: erstellt einen einzelnen Zeitplan-Eintrag.
+    private ScheduleEntry se(String time, String task, String category,
+                             String empId, String part) {
+        ScheduleEntry e = new ScheduleEntry();
+        e.time               = time;
+        e.task               = task;
+        e.category           = category;
+        e.assignedEmployeeId = empId;
+        e.shuttlePart        = part;
+        return e;
     }
 
     // ── Flughistorie (Trendanalyse) ───────────────────────────────────────────
 
-    // Lädt die simulierten Flugdaten der letzten 5 Flüge aus flight_history.json.
-    // Wird von PredictiveAnalysisService für die Trendberechnung verwendet.
+    // Gibt die simulierten Sensordaten der letzten 5 Flüge zurück (daten)
     public FlightHistory loadFlightHistory() {
-        try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream("view/data/flight_history.json");
-            return mapper.readValue(is, FlightHistory.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        FlightHistory history = new FlightHistory();
+        history.flights = Arrays.asList(
+            flight("STS-133", 1,
+                orbiterSensors(480.0, 103.0, 97.0, 4.1),
+                srbSensors(1820.0, 640.0, 0.14),
+                tankSensors(-155.0, 4.9, 10.0)),
+            flight("STS-134", 2,
+                orbiterSensors(490.0, 102.0, 97.0, 3.8),
+                srbSensors(1815.0, 660.0, 0.16),
+                tankSensors(-152.0, 4.85, 13.0)),
+            flight("STS-135", 3,
+                orbiterSensors(500.0, 101.0, 96.0, 3.4),
+                srbSensors(1808.0, 720.0, 0.18),
+                tankSensors(-151.0, 4.82, 15.0)),
+            flight("STS-136", 4,
+                orbiterSensors(510.0, 101.0, 96.0, 3.1),
+                srbSensors(1803.0, 760.0, 0.20),
+                tankSensors(-150.0, 4.80, 18.0)),
+            flight("STS-137", 5,
+                orbiterSensors(520.0, 101.0, 96.0, 2.8),
+                srbSensors(1800.0, 797.0, 0.22),
+                tankSensors(-150.0, 4.80, 22.0))
+        );
+        return history;
+    }
+
+    // Hilfsmethoden für die Flughistorie
+
+    private FlightRecord flight(String id, int number,
+                                Map<String, Double> orbiter,
+                                Map<String, Double> srb,
+                                Map<String, Double> tank) {
+        FlightRecord r = new FlightRecord();
+        r.flightId     = id;
+        r.flightNumber = number;
+        r.sensors      = new HashMap<>();
+        r.sensors.put("orbiter",      orbiter);
+        r.sensors.put("srb",          srb);
+        r.sensors.put("externalTank", tank);
+        return r;
+    }
+
+    private Map<String, Double> orbiterSensors(double hull, double cabin,
+                                               double oxygen, double coolant) {
+        Map<String, Double> m = new HashMap<>();
+        m.put("hullTemperature", hull);
+        m.put("cabinPressure",   cabin);
+        m.put("oxygenLevel",     oxygen);
+        m.put("coolantPressure", coolant);
+        return m;
+    }
+
+    private Map<String, Double> srbSensors(double thrust, double casing, double vibration) {
+        Map<String, Double> m = new HashMap<>();
+        m.put("thrust",             thrust);
+        m.put("casingTemperature",  casing);
+        m.put("vibration",          vibration);
+        return m;
+    }
+
+    private Map<String, Double> tankSensors(double fuelTemp, double fuelPressure, double stress) {
+        Map<String, Double> m = new HashMap<>();
+        m.put("fuelTemperature", fuelTemp);
+        m.put("fuelPressure",    fuelPressure);
+        m.put("stress",          stress);
+        return m;
     }
 }

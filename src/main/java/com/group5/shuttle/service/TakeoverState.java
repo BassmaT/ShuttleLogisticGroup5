@@ -44,12 +44,18 @@ public class TakeoverState {
     // Drei Phasen: Landung (15 Sek.) → Sensordaten laden (10 Sek.) → Betrieb
     public enum AppPhase { LANDING, SENSOR_LOADING, OPERATIONAL }
 
+    // Status des Zeitplans: im Plan, Stunden hinterher, oder min. ein Tag hinterher
+    public enum ScheduleStatus { ON_TIME, HOURS_BEHIND, DAY_BEHIND }
+
     // Aktuelle Phase der App
     private AppPhase appPhase = AppPhase.LANDING;
 
     // Zeitstempel für den Start der Landephase und der Sensordaten-Ladephase
-    private Instant landingStartedAt   = null;
-    private Instant sensorLoadingStartedAt = null;
+    private Instant landingStartedAt        = null;
+    private Instant sensorLoadingStartedAt  = null;
+
+    // Zeitstempel für den Beginn des Operational-Modus – Basis für Zeitplan-Berechnung
+    private Instant operationalStartedAt    = null;
 
     // Dauer der Simulationen in Sekunden
     public static final int LANDING_SECONDS       = 15; // simuliert 15 Minuten
@@ -73,9 +79,10 @@ public class TakeoverState {
     // Wechselt in den Betriebsmodus (alle Funktionen freigeschaltet)
     public void setOperational() {
         this.appPhase = AppPhase.OPERATIONAL;
+        this.operationalStartedAt = Instant.now(); // Startzeitpunkt für Zeitplan-Tracking
     }
 
-    // Verbleibende Sekunden in der aktuellen Phase (0 wenn Phase bereits abgelaufen)
+    // Verbleibende Sekunden in der aktuellen Phase (0 wenn Phase bereits abgelaufen) KI 
     public int getRemainingSeconds() {
         if (appPhase == AppPhase.LANDING && landingStartedAt != null) {
             long elapsed = java.time.Duration.between(landingStartedAt, Instant.now()).getSeconds();
@@ -86,6 +93,36 @@ public class TakeoverState {
             return (int) Math.max(0, SENSOR_LOADING_SECONDS - elapsed);
         }
         return 0;
+    }
+
+    // Gibt die vergangenen simulierten Stunden seit Operational-Start zurück.
+    // Simulationsrate: 1 Echtzeit-Sekunde = 2 Sim-Minuten (1 Stunde = 30 Sekunden real).
+    public double getSimulatedHoursElapsed() {
+        if (operationalStartedAt == null) return 0;
+        return java.time.Duration.between(operationalStartedAt, Instant.now()).getSeconds() / 30.0;
+    }
+
+    // Prüft anhand der Approval-Meilensteine aus dem Zeitplan, ob man im Plan liegt.
+    // Meilensteine (in Sim-Stunden ab Operational-Start):
+    //   Orbiter Security Chief Review  → Tag 1, 15:00 = 15h
+    //   SRB Security Chief Review      → Tag 2, 14:00 = 38h
+    //   Ext. Tank Security Chief Review→ Tag 2, 16:00 = 40h
+    public ScheduleStatus getScheduleStatus() {
+        if (operationalStartedAt == null) return ScheduleStatus.ON_TIME;
+
+        double simHours = getSimulatedHoursElapsed();
+        double maxLag   = 0;
+
+        if (simHours > 15 && !isPartApproved("orbiter"))
+            maxLag = Math.max(maxLag, simHours - 15);
+        if (simHours > 38 && !isPartApproved("srb"))
+            maxLag = Math.max(maxLag, simHours - 38);
+        if (simHours > 40 && !isPartApproved("externalTank"))
+            maxLag = Math.max(maxLag, simHours - 40);
+
+        if (maxLag >= 24) return ScheduleStatus.DAY_BEHIND;
+        if (maxLag >= 2)  return ScheduleStatus.HOURS_BEHIND;
+        return ScheduleStatus.ON_TIME;
     }
 
     // Interne Schlüssel der drei Shuttle-Teile (werden für Maps verwendet).
@@ -295,6 +332,7 @@ public class TakeoverState {
         activeTechnicians.clear();       // alle Techniker-Einträge löschen
         activeSecurityChiefs.clear();    // alle Security-Chief-Einträge löschen
         lastActivity = "";               // letzte Aktivität zurücksetzen
+        operationalStartedAt = null;     // Zeitplan-Timer zurücksetzen
         for (String key : PART_KEYS) {
             securityApprovals.put(key, false);  // Freigabe-Status zurücksetzen
             technicianDone.put(key, false);      // Fertigmeldung zurücksetzen

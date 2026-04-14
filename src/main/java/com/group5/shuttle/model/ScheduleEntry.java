@@ -1,9 +1,6 @@
 package com.group5.shuttle.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 // Repräsentiert einen einzelnen Eintrag im 3-Tage-Zeitplan der Übergabe
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ScheduleEntry {
 
     // Uhrzeit des Eintrags, z. B. "08:00"

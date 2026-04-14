@@ -1,10 +1,8 @@
 package com.group5.shuttle.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
-// Wrapper-Objekt für die flight_history.json-Datei – enthält alle 5 Flugdatensätze
-@JsonIgnoreProperties(ignoreUnknown = true)
+// Wrapper-Objekt für alle historischen Flugdatensätze
 public class FlightHistory {
 
     // Liste aller historischen Flüge (chronologisch sortiert)

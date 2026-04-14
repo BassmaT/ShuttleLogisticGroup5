@@ -236,7 +236,7 @@ public class MissionControlController extends BaseController {
      *
      * @param partKey interner Schlüssel des Teils ("orbiter", "srb", "externalTank")
      */
-    private void selectPart(String partKey) {
+    private void selectPart(String partKey) { //KI
         // Ausgewählten Teil-Schlüssel global speichern
         selectedPartKey = partKey;
         // Ausgewählten Button blau hervorheben, alle anderen zurücksetzen
@@ -493,7 +493,7 @@ public class MissionControlController extends BaseController {
      *
      * @param task die Reparaturaufgabe, für die das Teil bestellt werden soll
      */
-    private void placeOrder(RepairTask task) {
+    private void placeOrder(RepairTask task) { //KI
         // Status sofort auf "bestellt" setzen und Tabelle aktualisieren
         task.setPartStatus("ORDERED");
         repairTable.refresh();
@@ -538,7 +538,7 @@ public class MissionControlController extends BaseController {
      *
      * @param task die abgeschlossene Reparaturaufgabe
      */
-    private void deductInventory(RepairTask task) {
+    private void deductInventory(RepairTask task) { //KI
         // Keine Abbuchung nötig, wenn kein Teil benötigt wird
         if (task.getRequiredItemName() == null) return;
         List<InventoryItem> inventory = sensorService.loadInventory();

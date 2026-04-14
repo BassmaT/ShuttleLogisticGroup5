@@ -1,10 +1,6 @@
 package com.group5.shuttle.model;
 
-// Jackson-Annotation: unbekannte JSON-Felder werden ignoriert, kein Fehler beim Laden
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 // Repräsentiert einen einzelnen Mitarbeiter mit seiner Rolle und Teamzugehörigkeit
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Employee {
 
     // Eindeutige Mitarbeiter-ID, z. B. "EMP-001"

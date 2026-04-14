@@ -9,7 +9,6 @@ com/group5/shuttle/Main.class
 com/group5/shuttle/controller/TechnicianController.class
 com/group5/shuttle/model/RoutineTask.class
 com/group5/shuttle/model/ScheduleDay.class
-com/group5/shuttle/service/SensorService$1.class
 com/group5/shuttle/controller/ScheduleController$2.class
 com/group5/shuttle/controller/MissionControlController.class
 com/group5/shuttle/controller/LandingController.class
@@ -29,8 +28,9 @@ com/group5/shuttle/model/FlightHistory.class
 com/group5/shuttle/model/ShuttleData.class
 com/group5/shuttle/service/RoutineTaskStore.class
 com/group5/shuttle/controller/InventoryController$1.class
+com/group5/shuttle/controller/MainController$1.class
+com/group5/shuttle/service/TakeoverState$ScheduleStatus.class
 com/group5/shuttle/controller/LogisticsController.class
-com/group5/shuttle/service/SensorService$3.class
 com/group5/shuttle/controller/ScheduleController.class
 com/group5/shuttle/service/SensorService.class
 com/group5/shuttle/controller/MissionControlController$3.class
@@ -51,7 +51,6 @@ com/group5/shuttle/model/TakeoverSchedule.class
 com/group5/shuttle/model/RepairTask.class
 com/group5/shuttle/service/OrderStore.class
 com/group5/shuttle/App.class
-com/group5/shuttle/service/SensorService$2.class
 com/group5/shuttle/model/SensorThreshold.class
 com/group5/shuttle/model/ShuttlePart.class
 com/group5/shuttle/controller/MissionControlController$2.class

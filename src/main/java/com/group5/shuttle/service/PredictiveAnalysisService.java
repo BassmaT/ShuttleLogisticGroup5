@@ -32,7 +32,7 @@ public class PredictiveAnalysisService {
         List<FlightRecord> flights = new ArrayList<>(history.getFlights());
         flights.sort(Comparator.comparingInt(FlightRecord::getFlightNumber));
 
-        // Jeden Shuttle-Teil analysieren
+        // Jeden Shuttle-Teil analysieren KI 
         for (String partKey : TakeoverState.PART_KEYS) {
             List<TrendResult> partTrends = new ArrayList<>();
 
@@ -87,7 +87,7 @@ public class PredictiveAnalysisService {
     }
 
     // Berechnet, wie viele Flüge es noch dauert, bis der Grenzwert erreicht wird.
-    // Gibt -1 zurück, wenn keine Berechnung möglich ist (kein Trend oder kein Grenzwert).
+    // Gibt -1 zurück, wenn keine Berechnung möglich ist (kein Trend oder kein Grenzwert) KI
     private int computeFlightsUntilLimit(double current, double trend, SensorThreshold t) {
         if (t == null || Math.abs(trend) < 0.001) return -1;
 
@@ -106,7 +106,7 @@ public class PredictiveAnalysisService {
         return -1; // keine passende Grenzwert-Richtung vorhanden
     }
 
-    // Erzeugt einen verständlichen deutschen Empfehlungstext für die Anzeige im Dashboard
+    // Erzeugt einen verständlichen  Empfehlungstext für die Anzeige im Dashboard mit HILFE von KI erstellt 
     private String buildRecommendation(String sensor, double trend, String direction, int flights) {
         String trendStr = String.format("%.2f/Flight", Math.abs(trend));
 
@@ -114,7 +114,7 @@ public class PredictiveAnalysisService {
             return sensor + " is stable – no action required.";
         }
 
-        // Richtungsangabe auf Deutsch
+        // Richtungsangabe 
         String dirStr = direction.equals("RISING") ? "rising" : "decreases";
         String base = sensor + " " + dirStr + " ~" + trendStr;
 

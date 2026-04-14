@@ -101,7 +101,7 @@ public class TechnicianController extends BaseController {
         parts.put("SRB",           data.srb);
         parts.put("External Tank", data.externalTank);
 
-        // Zuordnung von Anzeigename zu JSON-Schlüssel für den Threshold-Lookup.
+        // Zuordnung von Anzeigename  für den Threshold-Lookup.
         Map<String, String> partKeys = new LinkedHashMap<>();
         partKeys.put("Orbiter",       "orbiter");
         partKeys.put("SRB",           "srb");
@@ -113,14 +113,14 @@ public class TechnicianController extends BaseController {
         // Jeden Shuttle-Teil durchgehen.
         for (var partEntry : parts.entrySet()) {
             String displayName = partEntry.getKey();   // z. B. "Orbiter"
-            String jsonKey     = partKeys.get(displayName); // z. B. "orbiter"
+            String jKey     = partKeys.get(displayName); // z. B. "orbiter"
             ShuttlePart part   = partEntry.getValue();
 
             // Überspringen, wenn keine Sensordaten vorhanden sind.
             if (part == null || part.getSensors() == null) continue;
 
             // Grenzwerte für diesen Shuttle-Teil holen.
-            Map<String, SensorThreshold> partThresholds = thresholds.get(jsonKey);
+            Map<String, SensorThreshold> partThresholds = thresholds.get(jKey);
 
             // Jeden einzelnen Sensor dieses Teils durchgehen.
             for (var sensorEntry : part.getSensors().entrySet()) {

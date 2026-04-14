@@ -1,10 +1,8 @@
 package com.group5.shuttle.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
-// Wrapper-Objekt für die employees.json-Datei – enthält alle Teams
-@JsonIgnoreProperties(ignoreUnknown = true)
+// Wrapper-Objekt für alle Teams
 public class EmployeeRoster {
 
     // Liste aller Teams (Team Alpha, Team Beta usw.)

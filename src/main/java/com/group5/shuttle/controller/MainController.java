@@ -63,6 +63,9 @@ public class MainController {
     // Zeigt den Freigabe-Status aller drei Teile an, z. B. "Orbiter ✓  SRB ✗  External Tank ✗".
     @FXML private Label lblApprovalStatus;
 
+    // Zeigt den aktuellen Zeitplan-Status an (grün = im Plan, gelb = Stunden hinter Plan, rot = Tag hinter Plan).
+    @FXML private Label lblScheduleStatus;
+
     // Container, der dynamisch befüllt wird mit den aktiven Arbeitern pro Shuttle-Teil.
     @FXML private VBox sensorContainer;
 
@@ -210,11 +213,29 @@ public class MainController {
         if (message != null && !message.isBlank()) {
             addAiMessage("You: " + message);
 
-            // KI Logik: Hier kannst du deine Datenbank-Werte "vorgaukeln"
-            if (message.toLowerCase().contains("cost")) {
+            String msg = message.toLowerCase().trim();
+
+            // KI Logik: feste Demo-Prompts für Präsentation
+            if (msg.contains("cost")) {
                 addAiMessage("AI: Analyzing database... Current delay costs are 1.2M € per day.");
-            } else if (message.toLowerCase().contains("status")) {
+            } else if (msg.contains("status")) {
                 addAiMessage("AI: All shuttle systems are currently within nominal parameters.");
+            } else if (msg.equals("wer arbeitet am orbiter?")) {
+                addAiMessage("AI: Max Müller (Technician, Team Alpha) ist für den Orbiter eingeplant.\n"
+                        + "Security Chief: Lena Fischer (Team Alpha).\n"
+                        + "Routine-Aufgaben: Clean Cabin, Check Fire Suppression, Inspect Landing Gear.");
+            } else if (msg.equals("wie ist der lagerstand?")) {
+                addAiMessage("AI: Lagerstatus:\n"
+                        + "• Heat Shield Panel (Orbiter) – OUT OF STOCK\n"
+                        + "• Cryogenic Seal (External Tank) – OUT OF STOCK\n"
+                        + "• Vibration Damper (SRB) – LOW (1 Stück)\n"
+                        + "Empfehlung: Sofortige Nachbestellung über Logistics → Order.");
+            } else if (msg.equals("gibt es aktuelle warnungen?")) {
+                addAiMessage("AI: 3 kritische Sensorwerte erkannt:\n"
+                        + "[REPLACE] coolantPressure (Orbiter): 2.8 – Limit: min 3.5\n"
+                        + "[REPLACE] stress (External Tank): 22 – Limit: max 20\n"
+                        + "[WARNING] casingTemperature (SRB): 797 – Limit: max 800\n"
+                        + "Sofortige Inspektion durch zuständigen Techniker empfohlen.");
             } else {
                 addAiMessage("AI: Telemetry analysis in progress for: " + message);
             }
@@ -264,7 +285,7 @@ public class MainController {
         }
     }
 
-    // Startet den 1-Sekunden-Takt für den Landecountdown.
+    // Startet den 1-Sekunden-Takt für den Landecountdown mit HILFE von KI erstellt 
     private void startLandingTimer(int seconds) {
         final int[] remaining = {seconds};
         activeTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
@@ -302,7 +323,7 @@ public class MainController {
         activeTimer.play();
     }
 
-    // Startet den Countdown für das Laden der Sensordaten (10 Sek. = 30 Min. simuliert).
+    // Startet den Countdown für das Laden der Sensordaten (10 Sek. = 30 Min. simuliert) mit HILFE von KI erstellt 
     private void startSensorLoadingTimer(int seconds) {
         progressLanding.setProgress(0.0);
         progressLanding.setStyle("-fx-accent: #ffcc00;");
@@ -343,13 +364,38 @@ public class MainController {
         ShuttleData data = sensorService.loadSensorData();
         Map<String, Map<String, SensorThreshold>> thresholds = sensorService.loadThresholds();
 
-        // Übernahme-Fortschritt berechnen und im Balken anzeigen (0.0 bis 1.0).
+        // Übernahme-Fortschritt berechnen und im Balken anzeigen (0.0 bis 1.0)
         double progress = takeoverState.getProgress();
         progressTakeover.setProgress(progress);
 
-        // Tooltip am Fortschrittsbalken anzeigen – zeigt die Prozentzahl beim Hovern.
+        // Tooltip am Fortschrittsbalken anzeigen – zeigt die Prozentzahl beim Hovern funktioniert noch nicht
         int pct = (int) Math.round(progress * 100);
         progressTakeover.setTooltip(new Tooltip(pct + "% approved"));
+
+        // ── Zeitplan-Status: Farbe des Fortschrittsbalkens und Status-Label ──────
+        TakeoverState.ScheduleStatus schedStatus = takeoverState.getScheduleStatus();
+        switch (schedStatus) {
+            case ON_TIME      -> progressTakeover.setStyle("-fx-accent: #66ff66;");
+            case HOURS_BEHIND -> progressTakeover.setStyle("-fx-accent: #ffcc00;");
+            case DAY_BEHIND   -> progressTakeover.setStyle("-fx-accent: #ff4444;");
+        }
+        double simH   = takeoverState.getSimulatedHoursElapsed();
+        int simDay    = Math.min((int)(simH / 24) + 1, 3);
+        int simHour   = (int)(simH % 24);
+        String timeText   = String.format("Day %d, %02d:00 (sim)", simDay, simHour);
+        String statusText = switch (schedStatus) {
+            case ON_TIME      -> "On Schedule";
+            case HOURS_BEHIND -> "Behind Schedule";
+            case DAY_BEHIND   -> "1+ Day Behind";
+        };
+        String statusColor = switch (schedStatus) {
+            case ON_TIME      -> "#66ff66";
+            case HOURS_BEHIND -> "#ffcc00";
+            case DAY_BEHIND   -> "#ff4444";
+        };
+        lblScheduleStatus.setText(timeText + "  –  " + statusText);
+        lblScheduleStatus.setStyle("-fx-text-fill: " + statusColor + "; -fx-font-size: 11px;");
+        // ─────────────────────────────────────────────────────────────────────────
 
         // Freigabe-Übersicht: ✓ = freigegeben, ✗ = noch nicht freigegeben.
         String orbiterStatus = takeoverState.isPartApproved("orbiter")      ? "Orbiter ✓"       : "Orbiter ✗";
@@ -521,7 +567,7 @@ public class MainController {
         }
     }
 
-    // Analysiert Sensortrends und zeigt Warnungen für kritische Entwicklungen an
+    // Analysiert Sensortrends und zeigt Warnungen für kritische Entwicklungen an KI
     private void updatePredictiveWarnings() {
         if (predictiveContainer == null) return;
         predictiveContainer.getChildren().clear();

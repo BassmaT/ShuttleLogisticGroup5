@@ -7,9 +7,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// Singleton-Service: lädt die Mitarbeiterliste einmalig aus employees.json
+// Singleton-Service: lädt die Mitarbeiterliste einmalig 
 // und hält sie für die gesamte Sitzung im Arbeitsspeicher.
-// Wird von MissionControlController, StaffController und LogisticsController verwendet.
+// Wird von MissionControlController, StaffController und LogisticsController verwendet KI Generiert
 public class EmployeeService {
 
     // Die einzige Instanz dieser Klasse
@@ -18,7 +18,7 @@ public class EmployeeService {
     // Flache Liste aller Mitarbeiter (aus allen Teams zusammengeführt)
     private final List<Employee> allEmployees = new ArrayList<>();
 
-    // Privater Konstruktor: lädt sofort alle Mitarbeiter aus der JSON-Datei
+    
     private EmployeeService() {
         EmployeeRoster roster = new SensorService().loadEmployees();
         // Teams durchgehen und alle Mitglieder in die flache Liste einfügen

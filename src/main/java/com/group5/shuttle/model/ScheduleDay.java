@@ -1,10 +1,8 @@
 package com.group5.shuttle.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
-// Repräsentiert einen Tag im 3-Tage-Zeitplan, z. B. "Day 1 – Inspection & Diagnostics"
-@JsonIgnoreProperties(ignoreUnknown = true)
+// Repräsentiert einen Tag im 3-Tage-Zeitplan
 public class ScheduleDay {
 
     // Tagnummer: 1, 2 oder 3

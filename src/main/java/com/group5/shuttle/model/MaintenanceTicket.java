@@ -1,11 +1,7 @@
 package com.group5.shuttle.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 // Ein Wartungsticket dokumentiert eine durchgeführte Reparatur.
 // Wird nach jeder abgeschlossenen Reparatur in der History gespeichert.
-// @JsonIgnoreProperties ignoriert unbekannte JSON-Felder beim Einlesen.
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class MaintenanceTicket {
 
     // Eindeutige Ticket-Nummer, z. B. "TKT-001".

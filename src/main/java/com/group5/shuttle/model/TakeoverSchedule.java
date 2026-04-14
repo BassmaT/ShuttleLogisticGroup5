@@ -1,10 +1,8 @@
 package com.group5.shuttle.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
-// Wrapper-Objekt für die schedule.json-Datei – enthält den 3-Tage-Zeitplan der Übergabe
-@JsonIgnoreProperties(ignoreUnknown = true)
+// Wrapper-Objekt für den 3-Tage-Zeitplan der Übergabe
 public class TakeoverSchedule {
 
     // Titel der Übergabe, z. B. "Pre-Launch Processing – Takeover Session"

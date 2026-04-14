@@ -1,11 +1,5 @@
 package com.group5.shuttle.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-// @JsonIgnoreProperties(ignoreUnknown = true) bedeutet:
-// Falls die JSON-Datei Felder hat, die hier nicht als Variablen definiert sind,
-// werden diese einfach ignoriert – kein Fehler wird geworfen.
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class InventoryItem {
 
     // Eindeutige ID des Lagerartikels, z. B. "INV-001".

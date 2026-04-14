@@ -1,10 +1,8 @@
 package com.group5.shuttle.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Map;
 
 // Repräsentiert einen einzelnen historischen Flugdatensatz für die Trendanalyse
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class FlightRecord {
 
     // Bezeichnung des Fluges, z. B. "STS-133"

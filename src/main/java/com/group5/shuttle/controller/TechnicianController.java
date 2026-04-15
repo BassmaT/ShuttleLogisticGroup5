@@ -4,13 +4,14 @@ import com.group5.shuttle.model.SensorRow;
 import com.group5.shuttle.model.SensorThreshold;
 import com.group5.shuttle.model.ShuttleData;
 import com.group5.shuttle.model.ShuttlePart;
-import com.group5.shuttle.service.SensorService;
+import com.group5.shuttle.service.SensorDataService;
+import com.group5.shuttle.util.ColoredTableCell;
+import com.group5.shuttle.util.StatusColors;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -41,8 +42,7 @@ public class TechnicianController extends BaseController {
     // Spalte für den Bewertungsstatus: "OK", "WARNING" oder "REPLACE".
     @FXML private TableColumn<SensorRow, String> colStatus;
 
-    // SensorService lädt die JSON-Daten und bewertet die Sensorwerte.
-    private final SensorService sensorService = new SensorService();
+    private final SensorDataService sensorService = SensorDataService.getInstance();
 
     // initialize() wird automatisch aufgerufen, sobald die FXML-Datei geladen ist.
     @FXML
@@ -65,25 +65,7 @@ public class TechnicianController extends BaseController {
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
 
         // Benutzerdefinierte Zell-Darstellung für die Status-Spalte: farbige Texte.
-        colStatus.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty); // immer zuerst aufrufen (JavaFX-Pflicht)
-                if (empty || item == null) {
-                    setText(null);
-                    setStyle(""); // leere Zelle – kein Text, kein Style
-                } else {
-                    setText(item);
-                    // Farbe je nach Status: gelb = Warnung, rot = ersetzen, grün = OK
-                    String color = switch (item) {
-                        case "WARNING" -> "#ffcc00";
-                        case "REPLACE" -> "#ff4444";
-                        default        -> "#66ff66";
-                    };
-                    setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
-                }
-            }
-        });
+        colStatus.setCellFactory(col -> new ColoredTableCell<>(StatusColors::forSensorStatus));
     }
 
     // Lädt die Sensordaten und Grenzwerte, bewertet jeden Sensor

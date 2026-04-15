@@ -4,8 +4,10 @@ import com.group5.shuttle.model.Employee;
 import com.group5.shuttle.model.InventoryItem;
 import com.group5.shuttle.model.LogisticsOrder;
 import com.group5.shuttle.service.EmployeeService;
+import com.group5.shuttle.service.InventoryService;
 import com.group5.shuttle.service.OrderStore;
-import com.group5.shuttle.service.SensorService;
+import com.group5.shuttle.util.ColoredTableCell;
+import com.group5.shuttle.util.StatusColors;
 import javafx.animation.PauseTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -68,8 +70,7 @@ public class LogisticsController extends BaseController {
     private final ObservableList<LogisticsOrder> pendingData    = FXCollections.observableArrayList();
     private final ObservableList<LogisticsOrder> allOrdersData  = FXCollections.observableArrayList();
 
-    // SensorService zum Laden des aktuellen Lagerbestands
-    private final SensorService sensorService = new SensorService();
+    private final InventoryService sensorService = InventoryService.getInstance();
 
     // Wird automatisch beim Laden der FXML aufgerufen
     @FXML
@@ -235,25 +236,10 @@ public class LogisticsController extends BaseController {
         colAllApprovedBy.setCellValueFactory(new PropertyValueFactory<>("approvedByName"));
         colAllDate.setCellValueFactory(new PropertyValueFactory<>("orderDate"));
 
-        // Status-Spalte: farblich markiert (grün = geliefert, gelb = bestellt, orange = genehmigt,
+        // Status-Spalte: farblich markiert (grün = geliefert, blau = bestellt, gelb = genehmigt,
         //                                   rot = abgelehnt, grau = ausstehend)
         colAllStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-        colAllStatus.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String status, boolean empty) {
-                super.updateItem(status, empty);
-                if (empty || status == null) { setText(null); setStyle(""); return; }
-                setText(status);
-                String color = switch (status) {
-                    case LogisticsOrder.DELIVERED        -> "#66ff66"; // grün
-                    case LogisticsOrder.ORDERED          -> "#66aaff"; // blau
-                    case LogisticsOrder.APPROVED         -> "#ffcc00"; // gelb
-                    case LogisticsOrder.REJECTED         -> "#ff4444"; // rot
-                    default /* PENDING_APPROVAL */       -> "#aaaaaa"; // grau
-                };
-                setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
-            }
-        });
+        colAllStatus.setCellFactory(col -> new ColoredTableCell<>(StatusColors::forOrderStatus));
 
         allOrdersTable.setItems(allOrdersData);
         allOrdersTable.setStyle("-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;");
@@ -282,11 +268,7 @@ public class LogisticsController extends BaseController {
         stockContainer.getChildren().clear();
         List<InventoryItem> items = sensorService.loadInventory();
         for (InventoryItem item : items) {
-            String color = switch (item.getStatus()) {
-                case "OUT_OF_STOCK" -> "#ff4444";
-                case "LOW"          -> "#ffcc00";
-                default             -> "#66ff66";
-            };
+            String color = StatusColors.forStockStatus(item.getStatus());
             Label lbl = new Label(String.format("  %s  (Qty: %d)  [%s]",
                     item.getName(), item.getQuantity(), item.getStatus()));
             lbl.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 12px;");

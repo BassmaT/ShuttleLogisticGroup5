@@ -8,8 +8,11 @@ import com.group5.shuttle.model.RoutineTask;
 import com.group5.shuttle.model.TakeoverSchedule;
 import com.group5.shuttle.service.EmployeeService;
 import com.group5.shuttle.service.RoutineTaskStore;
-import com.group5.shuttle.service.SensorService;
+import com.group5.shuttle.service.InventoryService;
+import com.group5.shuttle.service.ScheduleService;
+import com.group5.shuttle.service.TicketStore;
 import com.group5.shuttle.service.TakeoverState;
+import com.group5.shuttle.util.StatusColors;
 
 import javafx.animation.PauseTransition;
 import javafx.collections.FXCollections;
@@ -142,8 +145,8 @@ public class MissionControlController extends BaseController {
     /** Singleton-Instanz des gemeinsamen Übergabe-Zustands (TakeoverState). */
     private final TakeoverState state = TakeoverState.getInstance();
 
-    /** Service zum Laden und Speichern von Inventar, Tickets und Sensordaten. */
-    private final SensorService sensorService = new SensorService();
+    private final InventoryService  inventoryService  = InventoryService.getInstance();
+    private final ScheduleService   scheduleService   = ScheduleService.getInstance();
 
     /** Schlüssel des aktuell ausgewählten Teils (z. B. "orbiter", "srb", "externalTank"). */
     private String selectedPartKey = null;
@@ -349,8 +352,8 @@ public class MissionControlController extends BaseController {
                 setText(item);
                 // REPLACE wird rot dargestellt, alle anderen Status gelb
                 setStyle(item.equals("REPLACE")
-                        ? "-fx-text-fill: #ff4444; -fx-font-weight: bold;"
-                        : "-fx-text-fill: #ffcc00; -fx-font-weight: bold;");
+                        ? "-fx-text-fill: " + StatusColors.forSensorStatus("REPLACE") + "; -fx-font-weight: bold;"
+                        : "-fx-text-fill: " + StatusColors.forSensorStatus("WARNING") + "; -fx-font-weight: bold;");
             }
         });
 
@@ -455,7 +458,7 @@ public class MissionControlController extends BaseController {
     private void initTaskPartStatus() {
         if (selectedPartKey == null) return;
         // Aktuellen Lagerbestand aus dem persistenten Speicher laden
-        List<InventoryItem> inventory = sensorService.loadInventory();
+        List<InventoryItem> inventory = inventoryService.loadInventory();
 
         for (RepairTask task : state.getRepairs(selectedPartKey)) {
             // Bereits gestartete Bestellungen nicht zurücksetzen
@@ -507,14 +510,14 @@ public class MissionControlController extends BaseController {
         PauseTransition pause = new PauseTransition(Duration.seconds(10));
         pause.setOnFinished(evt -> {
             // Lagerbestand laden und Menge um 1 erhöhen (Wareneingang simulieren)
-            List<InventoryItem> inventory = sensorService.loadInventory();
+            List<InventoryItem> inventory = inventoryService.loadInventory();
             inventory.stream()
                     .filter(i -> i.getName().equals(task.getRequiredItemName()))
                     .findFirst()
                     .ifPresent(item -> {
                         item.setQuantity(item.getQuantity() + 1);
                         // Aktualisierten Bestand dauerhaft speichern
-                        sensorService.saveInventory(inventory);
+                        inventoryService.saveInventory(inventory);
                     });
 
             // Status des Teils auf "eingetroffen" setzen und Checkbox freigeben
@@ -541,7 +544,7 @@ public class MissionControlController extends BaseController {
     private void deductInventory(RepairTask task) { //KI
         // Keine Abbuchung nötig, wenn kein Teil benötigt wird
         if (task.getRequiredItemName() == null) return;
-        List<InventoryItem> inventory = sensorService.loadInventory();
+        List<InventoryItem> inventory = inventoryService.loadInventory();
         inventory.stream()
                 .filter(i -> i.getName().equals(task.getRequiredItemName()))
                 .findFirst()
@@ -549,7 +552,7 @@ public class MissionControlController extends BaseController {
                     if (item.getQuantity() > 0) {
                         // Menge um 1 reduzieren und dauerhaft speichern
                         item.setQuantity(item.getQuantity() - 1);
-                        sensorService.saveInventory(inventory);
+                        inventoryService.saveInventory(inventory);
                         // Lageranzeige nach der Abbuchung aktualisieren
                         refreshInventory();
                     }
@@ -642,7 +645,7 @@ public class MissionControlController extends BaseController {
         lblInventoryHeader.setText("Required Parts – " + displayName);
 
         // Alle Lagerartikel laden und die zum gewählten Teil passenden anzeigen
-        List<InventoryItem> items = sensorService.loadInventory();
+        List<InventoryItem> items = inventoryService.loadInventory();
         boolean found = false;
         for (InventoryItem item : items) {
             if (item.getPart().equalsIgnoreCase(displayName)) {
@@ -723,7 +726,7 @@ public class MissionControlController extends BaseController {
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         // Bestehende Tickets laden, um fortlaufende IDs zu vergeben
-        List<MaintenanceTicket> tickets = sensorService.loadTickets();
+        List<MaintenanceTicket> tickets = TicketStore.getInstance().getTickets();
         int nextId = tickets.size() + 1;
 
         // Für jede abgeschlossene Aufgabe ein neues Wartungsticket anlegen
@@ -746,7 +749,7 @@ public class MissionControlController extends BaseController {
             tickets.add(ticket);
         }
         // Alle Tickets dauerhaft speichern
-        sensorService.saveTickets(tickets);
+        TicketStore.getInstance().saveTickets(tickets);
     }
 
     // ── Hilfsmethoden ─────────────────────────────────────────────────────────────
@@ -803,7 +806,7 @@ public class MissionControlController extends BaseController {
      */
     private List<Employee> getAssignedEmployeesForPart(String partKey) {
         String displayName = TakeoverState.getDisplayName(partKey);
-        TakeoverSchedule schedule = sensorService.loadSchedule();
+        TakeoverSchedule schedule = scheduleService.loadSchedule();
         if (schedule == null || schedule.getDays() == null) {
             return EmployeeService.getInstance().getAllEmployees();
         }

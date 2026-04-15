@@ -15,14 +15,13 @@ import java.util.Map;
 // Kein Singleton – diese Klasse hat keinen veränderbaren Zustand.
 public class PredictiveAnalysisService {
 
-    // SensorService wird für das Laden der Flughistorie und Grenzwerte verwendet
-    private final SensorService sensorService = new SensorService();
+    // Fokussierte Services werden per Singleton bezogen (DIP-konform)
+    private final FlightHistoryService flightHistoryService = FlightHistoryService.getInstance();
+    private final SensorDataService sensorDataService = SensorDataService.getInstance();
 
-    // Analysiert alle Sensoren über die letzten 5 Flüge.
-    // Gibt eine Map zurück: Teilschlüssel (z. B. "srb") → Liste der Trendresultate
     public Map<String, List<TrendResult>> analyzeAll() {
-        FlightHistory history = sensorService.loadFlightHistory();
-        Map<String, Map<String, SensorThreshold>> thresholds = sensorService.loadThresholds();
+        FlightHistory history = flightHistoryService.loadFlightHistory();
+        Map<String, Map<String, SensorThreshold>> thresholds = sensorDataService.loadThresholds();
         Map<String, List<TrendResult>> result = new LinkedHashMap<>();
 
         // Ohne Flugdaten ist keine Analyse möglich

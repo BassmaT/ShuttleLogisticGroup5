@@ -5,7 +5,7 @@ import com.group5.shuttle.model.ScheduleDay;
 import com.group5.shuttle.model.ScheduleEntry;
 import com.group5.shuttle.model.TakeoverSchedule;
 import com.group5.shuttle.service.EmployeeService;
-import com.group5.shuttle.service.SensorService;
+import com.group5.shuttle.service.ScheduleService;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -34,8 +34,7 @@ public class ScheduleController extends BaseController {
     // Zurück-Button zum Haupt-Dashboard
     @FXML private Button btnBack;
 
-    // SensorService zum Laden des Zeitplans aus schedule.json
-    private final SensorService sensorService = new SensorService();
+    private final ScheduleService sensorService = ScheduleService.getInstance();
 
     // Wird automatisch beim Laden der FXML aufgerufen
     @FXML

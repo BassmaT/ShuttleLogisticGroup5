@@ -19,7 +19,7 @@ public class RoutineTaskStore {
 
     // Privater Konstruktor: lädt die Aufgaben sofort beim ersten Zugriff
     private RoutineTaskStore() {
-        tasks = new SensorService().loadRoutineTasks();
+        tasks = SensorDataService.getInstance().loadRoutineTasks();
     }
 
     // Gibt die einzige Instanz zurück – erstellt sie beim ersten Aufruf

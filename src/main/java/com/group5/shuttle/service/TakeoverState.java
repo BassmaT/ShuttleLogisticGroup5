@@ -208,16 +208,13 @@ public class TakeoverState {
     // Jedem auffälligen Sensor (WARNING oder REPLACE) wird per Round-Robin ein
     // passendes Lagerteil aus dem Inventar zugewiesen.
     public void generateRepairs(ShuttleData data, Map<String, Map<String, SensorThreshold>> thresholds,
-                                SensorService sensorService) {
-        // Bestehende Reparaturlisten für alle Teile leeren
+                                SensorDataService sensorDataService) {
         for (String key : PART_KEYS) repairs.get(key).clear();
 
-        // Ohne gültige Sensordaten oder Grenzwerte können keine Aufgaben erzeugt werden
         if (data == null || thresholds == null) return;
 
-        // Inventar nach Teil-Anzeigename gruppieren: Anzeigename → Liste der Lagerartikel
         Map<String, List<InventoryItem>> inventoryByPart = new HashMap<>();
-        for (InventoryItem item : sensorService.loadInventory()) {
+        for (InventoryItem item : InventoryService.getInstance().loadInventory()) {
             inventoryByPart.computeIfAbsent(item.getPart(), k -> new ArrayList<>()).add(item);
         }
 
@@ -248,7 +245,7 @@ public class TakeoverState {
                 SensorThreshold t = pt.get(entry.getKey());
                 if (t == null) continue; // kein Grenzwert für diesen Sensor vorhanden
 
-                String result = sensorService.evaluate(entry.getValue(), t);
+                String result = sensorDataService.evaluate(entry.getValue(), t);
 
                 // Nur auffällige Sensoren (WARNING oder REPLACE) erzeugen Reparaturaufgaben
                 if (result.equals("WARNING") || result.equals("REPLACE")) {

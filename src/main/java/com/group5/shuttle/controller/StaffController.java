@@ -6,6 +6,8 @@ import com.group5.shuttle.model.RoutineTask;
 import com.group5.shuttle.service.EmployeeService;
 import com.group5.shuttle.service.RoutineTaskStore;
 import com.group5.shuttle.service.TakeoverState;
+import com.group5.shuttle.util.ColoredTableCell;
+import com.group5.shuttle.util.StatusColors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -140,21 +142,7 @@ public class StaffController extends BaseController {
 
         // Status-Spalte mit Farbcodierung (gelb = WARNING, rot = REPLACE, grün = erledigt)
         colRepairStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-        colRepairStatus.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String status, boolean empty) {
-                super.updateItem(status, empty);
-                if (empty || status == null) { setText(null); setStyle(""); return; }
-                setText(status);
-                // Farbe je nach Status setzen
-                String color = switch (status) {
-                    case "REPLACE"  -> "#ff4444"; // rot
-                    case "WARNING"  -> "#ffcc00"; // gelb
-                    default         -> "#66ff66"; // grün (z. B. "OK" oder erledigt)
-                };
-                setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
-            }
-        });
+        colRepairStatus.setCellFactory(col -> new ColoredTableCell<>(StatusColors::forSensorStatus));
 
         // Hintergrundfarbe der Tabelle und Textfarbe für alle Zellen setzen
         repairTaskTable.setStyle("-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;");

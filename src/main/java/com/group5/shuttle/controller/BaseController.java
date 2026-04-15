@@ -2,6 +2,7 @@ package com.group5.shuttle.controller;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
@@ -31,8 +32,11 @@ public abstract class BaseController {
             stage.getScene().setRoot(root);
 
         } catch (Exception e) {
-            // Fehler ausgeben, falls die FXML-Datei nicht existiert oder fehlerhaft ist.
-            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigationsfehler");
+            alert.setHeaderText("Ansicht konnte nicht geladen werden: " + fxml);
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
     }
 }

@@ -20,7 +20,7 @@ public class EmployeeService {
 
     
     private EmployeeService() {
-        EmployeeRoster roster = new SensorService().loadEmployees();
+        EmployeeRoster roster = SensorDataService.getInstance().loadEmployees();
         // Teams durchgehen und alle Mitglieder in die flache Liste einfügen
         if (roster != null && roster.getTeams() != null) {
             for (var team : roster.getTeams()) {

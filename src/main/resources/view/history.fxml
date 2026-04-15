@@ -53,7 +53,7 @@
 
     <!-- Zurück-Button unten -->
     <bottom>
-        <Button text="← Back to Dashboard"
+        <Button text="← back to Dashboard"
                 fx:id="btnBack"
                 style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-color: #3a3a3a; -fx-text-fill: white;" />
     </bottom>

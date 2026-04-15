@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+
+<!--
+    Interaktiver 3-Tage-Zeitplan.
+    Zeigt alle Tage und Einträge als Tabellen an.
+    Die zugewiesenen Mitarbeiter können per ComboBox geändert werden
+    (z. B. bei Krankheit oder Urlaub).
+    fx:controller verknüpft diese Datei mit ScheduleController.
+-->
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.group5.shuttle.controller.ScheduleController"
+            style="-fx-background-color: #1e1e1e; -fx-padding: 20;">
+
+    <!-- Seitenüberschrift -->
+    <top>
+        <Label text="3-Day Schedule"
+               style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold;"
+               BorderPane.alignment="CENTER"/>
+    </top>
+
+    <!-- Hauptbereich: Tabellen pro Tag, scrollbar -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background: #1e1e1e; -fx-background-color: #1e1e1e; -fx-border-color: transparent;">
+            <!-- scheduleContent wird im Controller dynamisch befüllt (eine Tabelle pro Tag) -->
+            <VBox fx:id="scheduleContent" spacing="20"
+                  style="-fx-padding: 10; -fx-background-color: #1e1e1e;"/>
+        </ScrollPane>
+    </center>
+
+    <!-- Zurück-Button unten -->
+    <bottom>
+        <Button text="← Back to Dashboard"
+                fx:id="btnBack"
+                style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-color: #3a3a3a; -fx-text-fill: white;"/>
+    </bottom>
+
+</BorderPane>

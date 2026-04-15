@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.group5.shuttle.controller.MissionControlController"
+            style="-fx-background-color: #1e1e1e; -fx-padding: 20;">
+
+    <!-- HEADER -->
+    <top>
+        <Label text="Mission Control"
+               style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold;"
+               BorderPane.alignment="CENTER"/>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background: #1e1e1e; -fx-background-color: #1e1e1e; -fx-border-color: transparent;">
+            <VBox spacing="16" style="-fx-padding: 10; -fx-background-color: #1e1e1e;">
+
+                <!-- SCHRITT 1: Part wählen -->
+                <Label text="Step 1 – Select Part"
+                       style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                <HBox spacing="12">
+                    <Button fx:id="btnPartOrbiter" text="Orbiter"
+                            style="-fx-font-size: 13px; -fx-min-width: 120; -fx-background-color: #3a3a3a; -fx-text-fill: white;"/>
+                    <Button fx:id="btnPartSrb" text="SRB"
+                            style="-fx-font-size: 13px; -fx-min-width: 120; -fx-background-color: #3a3a3a; -fx-text-fill: white;"/>
+                    <Button fx:id="btnPartTank" text="External Tank"
+                            style="-fx-font-size: 13px; -fx-min-width: 120; -fx-background-color: #3a3a3a; -fx-text-fill: white;"/>
+                </HBox>
+
+                <!-- SCHRITT 2: Mitarbeiter auswählen (initial versteckt) -->
+                <VBox fx:id="rolePanel" spacing="10"
+                      style="-fx-background-color: #2a2a2a; -fx-padding: 14; -fx-background-radius: 6;">
+                    <Label text="Step 2 – Select Employee"
+                           style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                    <!-- Zeigt das ausgewählte Teil oder eine Fehlermeldung -->
+                    <Label fx:id="lblSelectedPart"
+                           text=""
+                           style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"/>
+                    <HBox spacing="10" style="-fx-alignment: CENTER_LEFT;">
+                        <Label text="Employee:" style="-fx-text-fill: white; -fx-font-size: 13px;"/>
+                        <!-- ComboBox: zeigt alle Mitarbeiter aus employees.json (Name + Rolle) -->
+                        <ComboBox fx:id="cmbEmployee"
+                                  promptText="Select employee"
+                                  prefWidth="260"
+                                  style="-fx-font-size: 13px;"/>
+                    </HBox>
+                    <Button fx:id="btnConfirm" text="Confirm"
+                            style="-fx-font-size: 13px; -fx-background-color: #3a7bd5; -fx-text-fill: white; -fx-padding: 7 20; -fx-font-weight: bold;"/>
+                </VBox>
+
+                <Separator style="-fx-background-color: #444;"/>
+
+                <!-- ARBEITSBEREICH (initial versteckt) -->
+                <VBox fx:id="workPanel" spacing="14">
+
+                    <!-- Repair Tasks -->
+                    <Label fx:id="lblRepairHeader" text=""
+                           wrapText="true"
+                           style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;"/>
+
+                    <TableView fx:id="repairTable"
+                               style="-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;"
+                               prefHeight="180">
+                        <columns>
+                            <TableColumn fx:id="colSensor" text="Sensor"  prefWidth="150"/>
+                            <TableColumn fx:id="colStatus" text="Status"  prefWidth="90"/>
+                            <TableColumn fx:id="colAction" text="Action"  prefWidth="190"/>
+                            <TableColumn fx:id="colParts"  text="Parts"   prefWidth="150"/>
+                            <TableColumn fx:id="colDone"   text="Done"    prefWidth="60"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="No repairs required for this part"
+                                   style="-fx-text-fill: #66ff66;"/>
+                        </placeholder>
+                    </TableView>
+
+                    <Button fx:id="btnTechDone" text="Mark Repairs Done"
+                            style="-fx-font-size: 13px; -fx-background-color: #ffcc00; -fx-text-fill: #1e1e1e; -fx-padding: 7 16; -fx-font-weight: bold;"/>
+
+                    <!-- Routine Tasks für dieses Teil -->
+                    <Label fx:id="lblRoutineHeader" text="Routine Tasks"
+                           style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 6 0 2 0;"/>
+                    <TableView fx:id="routineTable" prefHeight="130"
+                               style="-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;">
+                        <columns>
+                            <TableColumn fx:id="colRtName" text="Task"        prefWidth="200"/>
+                            <TableColumn fx:id="colRtEst"  text="Est. (min)"  prefWidth="80"/>
+                            <TableColumn fx:id="colRtDone" text="Done"        prefWidth="60"/>
+                            <TableColumn fx:id="colRtTime" text="Completed"   prefWidth="130"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="No routine tasks for this part" style="-fx-text-fill: #66ff66;"/>
+                        </placeholder>
+                    </TableView>
+
+                    <Separator style="-fx-background-color: #444;"/>
+
+                    <!-- Inventory -->
+                    <Label fx:id="lblInventoryHeader" text="Required Parts"
+                           style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                    <VBox fx:id="inventoryStatus" spacing="4"/>
+
+                    <Separator style="-fx-background-color: #444;"/>
+
+                    <!-- Security Chief Approval -->
+                    <VBox fx:id="approvalSection" spacing="8"
+                          style="-fx-background-color: #2a2a2a; -fx-padding: 12; -fx-background-radius: 6;">
+                        <Label text="Security Chief Approval"
+                               style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                        <Label fx:id="lblApprovalInfo" text=""
+                               style="-fx-text-fill: #ffcc00; -fx-font-size: 13px;" wrapText="true"/>
+                        <Button fx:id="btnApprove" text="Give Security Chief OK"
+                                style="-fx-font-size: 13px; -fx-background-color: #66ff66; -fx-text-fill: #1e1e1e; -fx-padding: 7 16; -fx-font-weight: bold;"/>
+                    </VBox>
+
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- ZURÜCK -->
+    <bottom>
+        <Button text="← Back to Dashboard"
+                fx:id="btnBack"
+                style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-color: #3a3a3a; -fx-text-fill: white;"/>
+    </bottom>
+
+</BorderPane>
+

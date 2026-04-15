@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Importiert die benötigten JavaFX-Klassen -->
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+
+<!--
+    Lagerübersicht.
+    Zeigt alle verfügbaren Ersatzteile mit Menge und Status.
+    fx:controller verknüpft die Datei mit InventoryController.
+-->
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.group5.shuttle.controller.InventoryController"
+            style="-fx-background-color: #1e1e1e; -fx-padding: 20;">
+
+    <!-- Seitenüberschrift -->
+    <top>
+        <Label text="Inventory Overview"
+               style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold;"
+               BorderPane.alignment="CENTER"/>
+    </top>
+
+    <!-- Hauptbereich mit der Lager-Tabelle -->
+    <center>
+        <VBox spacing="10" style="-fx-padding: 10 0 0 0;">
+            <!-- inventoryTable wird im Controller mit Lagerdaten befüllt -->
+            <!-- -fx-background und -fx-background-color beide nötig, damit der dunkle Hintergrund korrekt angezeigt wird -->
+            <TableView fx:id="inventoryTable"
+                       style="-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;"
+                       VBox.vgrow="ALWAYS">
+                <columns>
+                    <!-- Artikel-ID, z. B. "INV-001" -->
+                    <TableColumn fx:id="colId"       text="ID"        prefWidth="90"/>
+                    <!-- Name des Bauteils -->
+                    <TableColumn fx:id="colName"     text="Component" prefWidth="200"/>
+                    <!-- Shuttle-Teil, zu dem das Bauteil gehört -->
+                    <TableColumn fx:id="colPart"     text="Part"      prefWidth="130"/>
+                    <!-- Verfügbare Menge -->
+                    <TableColumn fx:id="colQuantity" text="Qty"       prefWidth="60"/>
+                    <!-- Lagerstatus (farbig dargestellt) -->
+                    <TableColumn fx:id="colStatus"      text="Status"      prefWidth="130"/>
+                    <!-- Kurzbeschreibung des Bauteils -->
+                    <TableColumn fx:id="colDescription" text="Description" prefWidth="280"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <!-- Zurück-Button unten -->
+    <bottom>
+        <Button text="← Back to Dashboard"
+                fx:id="btnBack"
+                style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-color: #3a3a3a; -fx-text-fill: white;" />
+    </bottom>
+
+</BorderPane>

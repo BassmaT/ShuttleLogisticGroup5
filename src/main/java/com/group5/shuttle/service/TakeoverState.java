@@ -220,9 +220,9 @@ public class TakeoverState {
 
         // Shuttle-Teile den internen Schlüsseln zuordnen
         Map<String, ShuttlePart> parts = new HashMap<>();
-        parts.put("orbiter",      data.orbiter);
-        parts.put("srb",          data.srb);
-        parts.put("externalTank", data.externalTank);
+        parts.put("orbiter",      data.getOrbiter());
+        parts.put("srb",          data.getSrb());
+        parts.put("externalTank", data.getExternalTank());
 
         // Round-Robin-Zähler pro Teil: sorgt dafür, dass aufeinanderfolgende Aufgaben
         // unterschiedliche Lagerartikel desselben Teils erhalten.

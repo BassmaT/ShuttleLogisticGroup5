@@ -91,14 +91,14 @@ public class PredictiveAnalysisService {
         if (t == null || Math.abs(trend) < 0.001) return -1;
 
         // Steigender Trend → nähert sich dem Maximum
-        if (trend > 0 && t.max != null) {
-            double remaining = t.max - current;
+        if (trend > 0 && t.getMax() != null) {
+            double remaining = t.getMax() - current;
             if (remaining <= 0) return 0; // bereits überschritten
             return (int) Math.ceil(remaining / trend);
         }
         // Fallender Trend → nähert sich dem Minimum
-        if (trend < 0 && t.min != null) {
-            double remaining = current - t.min;
+        if (trend < 0 && t.getMin() != null) {
+            double remaining = current - t.getMin();
             if (remaining <= 0) return 0; // bereits unterschritten
             return (int) Math.ceil(remaining / (-trend));
         }
@@ -118,10 +118,10 @@ public class PredictiveAnalysisService {
         String base = sensor + " " + dirStr + " ~" + trendStr;
 
         if (flights == 0) {
-            return base + ". THRESHHOLD REACHED – immediate replacement recommended!";
+            return base + ". THRESHOLD REACHED – immediate replacement recommended!";
         }
         if (flights > 0 && flights <= 3) {
-            return base + ". Replacment in " + flights + " flights recommended.";
+            return base + ". Replacement in " + flights + " flights recommended.";
         }
         if (flights > 0) {
             return base + ". Monitor – Threshold expected to be reached at " + flights + " flights.";

@@ -79,9 +79,9 @@ public class TechnicianController extends BaseController {
 
         // LinkedHashMap behält die Reihenfolge der Einträge bei (Orbiter → SRB → Tank).
         Map<String, ShuttlePart> parts = new LinkedHashMap<>();
-        parts.put("Orbiter",       data.orbiter);
-        parts.put("SRB",           data.srb);
-        parts.put("External Tank", data.externalTank);
+        parts.put("Orbiter",       data.getOrbiter());
+        parts.put("SRB",           data.getSrb());
+        parts.put("External Tank", data.getExternalTank());
 
         // Zuordnung von Anzeigename  für den Threshold-Lookup.
         Map<String, String> partKeys = new LinkedHashMap<>();

@@ -5,6 +5,7 @@ import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.stage.Stage;
@@ -97,7 +98,11 @@ public class LandingController {
             Stage stage = (Stage) progressLanding.getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (Exception e) {
-            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigationsfehler");
+            alert.setHeaderText("Dashboard konnte nicht geladen werden");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
     }
 }

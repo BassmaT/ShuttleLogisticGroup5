@@ -30,11 +30,11 @@ public class ScheduleService {
         day1.label     = "Day 1 – Inspection & Diagnostics";
         day1.entries   = Arrays.asList(
             se("06:00", "Full sensor diagnostic run",        "diagnostic", "EMP-001", "Orbiter"),
-            se("08:00", "Inspect Landing Gear",              "routine",    "EMP-005", "Orbiter"),
-            se("09:00", "Check Fire Suppression System",     "routine",    "EMP-003", "Orbiter"),
-            se("10:00", "Inspect SRB Nozzles",               "routine",    "EMP-003", "SRB"),
+            se("08:00", "Inspect Landing Gear",              "routine",    "EMP-001", "Orbiter"),
+            se("09:00", "Check Fire Suppression System",     "routine",    "EMP-001", "Orbiter"),
+            se("10:00", "Inspect SRB Nozzles",               "routine",    "EMP-001", "SRB"),
             se("12:00", "Lunch Break",                       "break",      null,      null),
-            se("13:00", "Repair: coolantPressure (Orbiter)", "repair",     "EMP-002", "Orbiter"),
+            se("13:00", "Repair: coolantPressure (Orbiter)", "repair",     "EMP-001", "Orbiter"),
             se("15:00", "Security Chief Review – Orbiter",   "approval",   "EMP-004", "Orbiter")
         );
 
@@ -42,11 +42,11 @@ public class ScheduleService {
         day2.dayNumber = 2;
         day2.label     = "Day 2 – Repairs & Systems Check";
         day2.entries   = Arrays.asList(
-            se("07:00", "Repair: casingTemperature (SRB)",   "repair",   "EMP-005", "SRB"),
+            se("07:00", "Repair: casingTemperature (SRB)",   "repair",   "EMP-001", "SRB"),
             se("09:00", "Repair: stress (External Tank)",    "repair",   "EMP-001", "External Tank"),
             se("10:00", "Refuel Main Tanks",                  "routine",  "EMP-001", "External Tank"),
-            se("12:00", "Calibrate Instruments",              "routine",  "EMP-007", "Orbiter"),
-            se("14:00", "Security Chief Review – SRB",        "approval", "EMP-008", "SRB"),
+            se("12:00", "Calibrate Instruments",              "routine",  "EMP-001", "Orbiter"),
+            se("14:00", "Security Chief Review – SRB",        "approval", "EMP-004", "SRB"),
             se("16:00", "Security Chief Review – Ext. Tank",  "approval", "EMP-004", "External Tank")
         );
 
@@ -54,10 +54,10 @@ public class ScheduleService {
         day3.dayNumber = 3;
         day3.label     = "Day 3 – Final Checks & Sign-Off";
         day3.entries   = Arrays.asList(
-            se("07:00", "Clean Cabin",                   "routine",    "EMP-002", "Orbiter"),
-            se("08:00", "Lubricate Docking Mechanism",   "routine",    "EMP-006", "Orbiter"),
-            se("09:00", "Check External Tank Seals",     "routine",    "EMP-006", "External Tank"),
-            se("10:00", "Final systems walkthrough",     "diagnostic", "EMP-007", null),
+            se("07:00", "Clean Cabin",                   "routine",    "EMP-001", "Orbiter"),
+            se("08:00", "Lubricate Docking Mechanism",   "routine",    "EMP-001", "Orbiter"),
+            se("09:00", "Check External Tank Seals",     "routine",    "EMP-001", "External Tank"),
+            se("10:00", "Final systems walkthrough",     "diagnostic", "EMP-001", null),
             se("12:00", "Takeover Complete – Sign-Off",  "approval",   "EMP-004", null)
         );
 

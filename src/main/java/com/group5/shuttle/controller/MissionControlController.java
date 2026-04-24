@@ -10,6 +10,7 @@ import com.group5.shuttle.service.EmployeeService;
 import com.group5.shuttle.service.RoutineTaskStore;
 import com.group5.shuttle.service.InventoryService;
 import com.group5.shuttle.service.ScheduleService;
+import com.group5.shuttle.service.SessionState;
 import com.group5.shuttle.service.TicketStore;
 import com.group5.shuttle.service.TakeoverState;
 import com.group5.shuttle.util.StatusColors;
@@ -225,7 +226,11 @@ public class MissionControlController extends BaseController {
                 Stage stage = (Stage) btnBack.getScene().getWindow();
                 stage.getScene().setRoot(root);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Navigationsfehler");
+                alert.setHeaderText("Ansicht konnte nicht geladen werden");
+                alert.setContentText(ex.getMessage());
+                alert.showAndWait();
             }
         });
     }
@@ -239,41 +244,29 @@ public class MissionControlController extends BaseController {
      *
      * @param partKey interner Schlüssel des Teils ("orbiter", "srb", "externalTank")
      */
-    private void selectPart(String partKey) { //KI
-        // Ausgewählten Teil-Schlüssel global speichern
+    private void selectPart(String partKey) {
         selectedPartKey = partKey;
-        // Ausgewählten Button blau hervorheben, alle anderen zurücksetzen
         highlightPartButton();
 
-        // Anzeigename des Teils ermitteln und im Label anzeigen
         String displayName = TakeoverState.getDisplayName(partKey);
-        lblSelectedPart.setText("Part: " + displayName);
+        Employee user = SessionState.getInstance().getCurrentUser();
 
-        // ComboBox mit gefilterten Mitarbeitern befüllen (nur die für diesen Part eingeplanten)
-        List<Employee> assignedEmps = getAssignedEmployeesForPart(partKey);
-        cmbEmployee.setItems(FXCollections.observableArrayList(assignedEmps));
-        String techName  = state.getTechnicianName(partKey);
-        String chiefName = state.getSecurityChiefName(partKey);
-        String existingName = techName != null ? techName : chiefName;
-        if (existingName != null) {
-            // Passenden Mitarbeiter in der gefilterten Liste vorauswählen
-            assignedEmps.stream()
-                .filter(e -> e.getName().equals(existingName))
-                .findFirst()
-                .ifPresent(e -> cmbEmployee.getSelectionModel().select(e));
-        } else {
-            cmbEmployee.getSelectionModel().clearSelection();
-        }
-
-        // Rollen-Panel einblenden, damit Name und Rolle eingegeben oder bestätigt werden können
-        rolePanel.setVisible(true);
-        rolePanel.setManaged(true);
-
-        // Arbeitsbereich nur anzeigen, wenn bereits ein Mitarbeiter für dieses Teil angemeldet ist
-        if (techName != null || chiefName != null) {
+        if (user != null) {
+            // Auto-register current user by role; keeps existing registration of the other role
+            state.registerWorker(partKey, user.getName(), user.getRole());
+            lblSelectedPart.setText(displayName + " — " + user.getName() + " (" + user.getRole() + ")");
+            lblSelectedPart.setStyle("-fx-text-fill: #66aaff; -fx-font-size: 13px;");
+            rolePanel.setVisible(false);
+            rolePanel.setManaged(false);
             showWorkPanel();
         } else {
-            // Noch kein Mitarbeiter angemeldet – Arbeitsbereich ausblenden
+            // Fallback: manual selection (only reachable if no user is logged in)
+            lblSelectedPart.setText("Part: " + displayName);
+            List<Employee> assignedEmps = getAssignedEmployeesForPart(partKey);
+            cmbEmployee.setItems(FXCollections.observableArrayList(assignedEmps));
+            cmbEmployee.getSelectionModel().clearSelection();
+            rolePanel.setVisible(true);
+            rolePanel.setManaged(true);
             workPanel.setVisible(false);
             workPanel.setManaged(false);
         }
@@ -734,18 +727,20 @@ public class MissionControlController extends BaseController {
             // Nicht erledigte Aufgaben überspringen
             if (!task.isDone()) continue;
 
-            MaintenanceTicket ticket = new MaintenanceTicket();
-            // Ticket-ID im Format "TKT-001", "TKT-002" usw. vergeben
-            ticket.id        = String.format("TKT-%03d", nextId++);
-            ticket.date      = timestamp;
-            ticket.part      = displayName;
-            ticket.sensor    = task.getSensorName();
-            ticket.oldStatus = task.getStatus();
             // Verwendetes Teil (falls vorhanden) an die Aktionsbeschreibung anhängen
-            ticket.action    = task.getAction()
+            String action = task.getAction()
                     + (task.getRequiredItemName() != null
                        ? " – used: " + task.getRequiredItemName() : "");
-            ticket.technician = techName;
+
+            MaintenanceTicket ticket = new MaintenanceTicket(
+                    String.format("TKT-%03d", nextId++),
+                    timestamp,
+                    displayName,
+                    task.getSensorName(),
+                    task.getStatus(),
+                    action,
+                    techName
+            );
             tickets.add(ticket);
         }
         // Alle Tickets dauerhaft speichern

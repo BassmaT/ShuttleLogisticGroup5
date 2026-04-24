@@ -7,10 +7,12 @@ import com.group5.shuttle.model.ScheduleDay;
 import com.group5.shuttle.model.ScheduleEntry;
 import com.group5.shuttle.model.TakeoverSchedule;
 import com.group5.shuttle.model.TrendResult;
+import com.group5.shuttle.model.Employee;
 import com.group5.shuttle.service.EmployeeService;
 import com.group5.shuttle.service.PredictiveAnalysisService;
 import com.group5.shuttle.service.ScheduleService;
 import com.group5.shuttle.service.SensorDataService;
+import com.group5.shuttle.service.SessionState;
 import com.group5.shuttle.service.TakeoverState;
 import com.group5.shuttle.service.TakeoverState.AppPhase;
 import com.group5.shuttle.util.StatusColors;
@@ -19,6 +21,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Tooltip;
@@ -101,6 +104,7 @@ public class MainController {
     @FXML private TextField txtChatInput;
 
     @FXML private StackPane aiDrawer;
+    @FXML private Label lblCurrentUser;
 
     @FXML
 
@@ -167,6 +171,8 @@ public class MainController {
             takeoverState.generateRepairs(data, thresholds, sensorService);
             updateDashboard();
         });
+
+        updateProfileLabel();
     }
 
     // Liest die aktuelle App-Phase und startet den passenden Timer oder wechselt direkt in OPERATIONAL.
@@ -202,6 +208,26 @@ public class MainController {
             aiDrawer.setVisible(!isVisible);
             aiDrawer.setManaged(!isVisible);
         }
+    }
+
+    private void updateProfileLabel() {
+        Employee u = SessionState.getInstance().getCurrentUser();
+        if (lblCurrentUser != null)
+            lblCurrentUser.setText(u != null ? u.getName() + "  ·  " + u.getRole() : "");
+    }
+
+    @FXML
+    private void switchUser() {
+        List<Employee> all = EmployeeService.getInstance().getAllEmployees();
+        Employee current = SessionState.getInstance().getCurrentUser();
+        ChoiceDialog<Employee> dlg = new ChoiceDialog<>(current, all);
+        dlg.setTitle("Switch User");
+        dlg.setHeaderText("Select user — progress is kept:");
+        dlg.showAndWait().ifPresent(sel -> {
+            SessionState.getInstance().setCurrentUser(sel);
+            updateProfileLabel();
+            if (takeoverState.getAppPhase() == AppPhase.OPERATIONAL) applyRoleRestrictions();
+        });
     }
 
     @FXML
@@ -281,6 +307,56 @@ public class MainController {
             lblStatus.setText(phase == AppPhase.LANDING
                 ? "Operations begin after landing"
                 : "Please wait – sensor calibration in progress");
+        }
+
+        // Im Betrieb: Rollenbeschränkungen des eingeloggten Mitarbeiters anwenden
+        if (isOperational) {
+            applyRoleRestrictions();
+        }
+    }
+
+    // Deaktiviert Navigations-Buttons anhand der Rolle des eingeloggten Mitarbeiters.
+    // Security Chief hat vollen Zugriff; alle anderen Rollen sehen nur ihre erlaubten Bereiche.
+    private void applyRoleRestrictions() {
+        for (Button b : List.of(btnMission, btnTechnician, btnInventory,
+                                btnHistory, btnStaff, btnLogistics, btnSchedule))
+            b.setDisable(false);
+
+        String role = SessionState.getInstance().getCurrentRole();
+        switch (role) {
+            case "Security Chief" -> {
+                // Voller Zugriff – nichts deaktivieren
+            }
+            case "Technician" -> {
+                // Erlaubt: Mission Control, Staff
+                btnTechnician.setDisable(true);
+                btnInventory.setDisable(true);
+                btnHistory.setDisable(true);
+                btnLogistics.setDisable(true);
+                btnSchedule.setDisable(true);
+            }
+            case "Planner" -> {
+                // Erlaubt: Schedule, Staff
+                btnMission.setDisable(true);
+                btnTechnician.setDisable(true);
+                btnInventory.setDisable(true);
+                btnHistory.setDisable(true);
+                btnLogistics.setDisable(true);
+            }
+            case "Logistics" -> {
+                // Erlaubt: Inventory, Logistics
+                btnMission.setDisable(true);
+                btnTechnician.setDisable(true);
+                btnHistory.setDisable(true);
+                btnStaff.setDisable(true);
+                btnSchedule.setDisable(true);
+            }
+            default -> {
+                // Unbekannte Rolle: sicherheitshalber alles einschränken
+                for (Button b : List.of(btnMission, btnTechnician, btnInventory,
+                                        btnHistory, btnStaff, btnLogistics, btnSchedule))
+                    b.setDisable(true);
+            }
         }
     }
 
@@ -456,9 +532,9 @@ public class MainController {
         sensorContainer.getChildren().clear();
 
         Map<String, ShuttlePart> parts = new LinkedHashMap<>();
-        parts.put("orbiter",      data.orbiter);
-        parts.put("srb",          data.srb);
-        parts.put("externalTank", data.externalTank);
+        parts.put("orbiter",      data.getOrbiter());
+        parts.put("srb",          data.getSrb());
+        parts.put("externalTank", data.getExternalTank());
 
         for (var partEntry : parts.entrySet()) {
             String partName  = partEntry.getKey();
@@ -592,9 +668,9 @@ public class MainController {
         String worstWarning = "OK"; // Startwert – wird nach oben angepasst
 
         Map<String, ShuttlePart> parts = new LinkedHashMap<>();
-        parts.put("orbiter",      data.orbiter);
-        parts.put("srb",          data.srb);
-        parts.put("externalTank", data.externalTank);
+        parts.put("orbiter",      data.getOrbiter());
+        parts.put("srb",          data.getSrb());
+        parts.put("externalTank", data.getExternalTank());
 
         // Jeden Teil und jeden Sensor durchgehen und schlimmstes Ergebnis merken.
         for (var partEntry : parts.entrySet()) {

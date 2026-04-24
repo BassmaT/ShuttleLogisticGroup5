@@ -3,22 +3,35 @@ package com.group5.shuttle.model;
 public class InventoryItem {
 
     // Eindeutige ID des Lagerartikels, z. B. "INV-001".
-    public String id;
+    private String id;
 
     // Name des Bauteils, z. B. "Heat Shield Panel".
-    public String name;
+    private String name;
 
     // Zu welchem Shuttle-Teil gehört dieses Bauteil, z. B. "Orbiter".
-    public String part;
+    private String part;
 
     // Wie viele Stück davon auf Lager sind.
-    public int quantity;
+    private int quantity;
 
     // Lagerstatus: "IN_STOCK", "LOW" oder "OUT_OF_STOCK".
-    public String status;
+    private String status;
 
     // Kurze Beschreibung: was das Bauteil ist und wofür es gebraucht wird
-    public String description;
+    private String description;
+
+    // Konstruktor – initialisiert einen Lagerartikel vollständig.
+    // status wird über setQuantity() automatisch berechnet,
+    // kann aber durch den expliziten status-Parameter überschrieben werden.
+    public InventoryItem(String id, String name, String part,
+                         int quantity, String status, String description) {
+        this.id          = id;
+        this.name        = name;
+        this.part        = part;
+        this.description = description;
+        this.quantity    = quantity;
+        this.status      = status;
+    }
 
     // Getter-Methoden – werden von PropertyValueFactory für die Tabelle benötigt.
     public String getId()          { return id; }

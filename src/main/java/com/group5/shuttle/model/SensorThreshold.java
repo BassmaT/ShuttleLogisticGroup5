@@ -7,8 +7,16 @@ public class SensorThreshold {
 
     // Untere Grenze – liegt der Sensorwert darunter, ist etwas nicht in Ordnung.
     // Double (groß) statt double (klein), damit der Wert auch leer (null) sein kann.
-    public Double min;
+    private final Double min;
 
     // Obere Grenze – liegt der Sensorwert darüber, ist etwas nicht in Ordnung.
-    public Double max;
+    private final Double max;
+
+    public SensorThreshold(Double min, Double max) {
+        this.min = min;
+        this.max = max;
+    }
+
+    public Double getMin() { return min; }
+    public Double getMax() { return max; }
 }

@@ -12,6 +12,7 @@ Das Shuttle Dashboard ist eine JavaFX-Anwendung zur Steuerung und Überwachung d
 
 | Funktion | Beschreibung |
 |---|---|
+| **Login** | Demo-Anmeldung per Namensauswahl; Rolle steuert Sichtbarkeit der Navigation |
 | **Phasenverwaltung** | Automatischer Ablauf: Landing → Sensor Loading → Operational |
 | **Mission Control** | Reparaturaufgaben pro Shuttle-Teil, Technikerzuweisung, Freigabe |
 | **Logistics** | Bestellworkflow mit Genehmigung durch Security Chief |
@@ -33,7 +34,7 @@ Das Shuttle Dashboard ist eine JavaFX-Anwendung zur Steuerung und Überwachung d
 ### Einstiegspunkt
 
 ```
-Main.java → App.java → main_view.fxml → MainController
+Main.java → App.java → login_view.fxml → LoginController → main_view.fxml → MainController
 ```
 
 ---
@@ -54,8 +55,8 @@ Die Anwendung folgt dem **Model-View-Controller**-Muster mit strikter Schichtent
 | Package | Klassen | Verantwortlichkeit |
 |---|---|---|
 | `com.group5.shuttle` | 2 | App-Einstieg (`Main`, `App`) |
-| `controller` | 11 | UI-Logik, Event-Handling |
-| `service` | 11 | Geschäftslogik, Datenzugriff |
+| `controller` | 12 | UI-Logik, Event-Handling (inkl. `LoginController`) |
+| `service` | 12 | Geschäftslogik, Datenzugriff (inkl. `SessionState`) |
 | `model` | 18 | Datenmodell (POJOs) |
 | `util` | 2 | Querschnittsthemen (Farben, Tabellenzellen) |
 
@@ -63,7 +64,7 @@ Die Anwendung folgt dem **Model-View-Controller**-Muster mit strikter Schichtent
 
 **Singleton**  
 Alle Services halten genau eine Instanz über die gesamte Sitzung:  
-`TakeoverState`, `EmployeeService`, `InventoryService`, `SensorDataService`, `ScheduleService`, `FlightHistoryService`, `TicketStore`, `OrderStore`, `RoutineTaskStore`
+`TakeoverState`, `EmployeeService`, `InventoryService`, `SensorDataService`, `ScheduleService`, `FlightHistoryService`, `TicketStore`, `OrderStore`, `RoutineTaskStore`, `SessionState`
 
 ```java
 // Beispiel: Singleton-Implementierung
@@ -97,6 +98,16 @@ private final BooleanProperty done        = new SimpleBooleanProperty(false);
 private final StringProperty  partStatus  = new SimpleStringProperty("NONE");
 ```
 
+**Strategy**  
+`ColoredTableCell` ist der Context: er nimmt eine `Function<String, String>` als Strategie entgegen. `StatusColors` liefert die konkreten Strategien für Sensor-, Lager- und Bestellstatus:
+
+```java
+// Konkreter Aufruf mit unterschiedlichen Strategien
+new ColoredTableCell<>(StatusColors::forSensorStatus)
+new ColoredTableCell<>(StatusColors::forStockStatus)
+new ColoredTableCell<>(StatusColors::forOrderStatus)
+```
+
 ---
 
 ## 3. UML Klassendiagramm
@@ -117,7 +128,28 @@ classDiagram
     BaseController <|-- StaffController
     BaseController <|-- LogisticsController
     BaseController <|-- ScheduleController
+    BaseController <|-- RoleSelectionController
+    BaseController <|-- LandingController
 
+    class LoginController {
+        -cmbEmployee: ComboBox
+        +initialize()
+        +handleLogin()
+    }
+
+    class SessionState {
+        <<Singleton>>
+        -instance: SessionState
+        -currentUser: Employee
+        +getInstance()$ SessionState
+        +setCurrentUser(employee)
+        +getCurrentUser() Employee
+        +getCurrentRole() String
+    }
+
+    LoginController --> EmployeeService : lädt Mitarbeiter
+    LoginController --> SessionState : setzt currentUser
+    MainController --> SessionState : liest Rolle
     MainController --> TakeoverState : nutzt
     MainController --> SensorDataService : nutzt
     MainController --> ScheduleService : nutzt
@@ -319,9 +351,62 @@ sequenceDiagram
 
 ---
 
+## 4b. UML Sequenzdiagramm — Login & Rollenbasierter Zugriff
+
+Zeigt den Ablauf vom App-Start über die Anmeldung bis zur rollenabhängigen Navigation.
+
+```mermaid
+sequenceDiagram
+    participant OS as Betriebssystem
+    participant App
+    participant LC as LoginController
+    participant ES as EmployeeService
+    participant SS as SessionState
+    participant MC as MainController
+
+    OS->>App: main()
+    App->>LC: initialize() [login_view.fxml geladen]
+    LC->>ES: getAllEmployees()
+    ES-->>LC: List~Employee~ (12 Mitarbeiter, 4 Rollen)
+    LC-->>User: ComboBox mit Namen befüllt
+
+    User->>LC: Wählt Name aus ComboBox
+    LC-->>User: Zeigt Rolle live an (z.B. "Rolle: Technician")
+
+    User->>LC: Klick "Anmelden"
+    LC->>SS: setCurrentUser(selectedEmployee)
+    LC->>MC: loadView("main_view.fxml")
+
+    MC->>SS: getCurrentRole()
+    SS-->>MC: "Technician"
+    MC->>MC: applyRoleRestrictions()
+    Note over MC: Deaktiviert: Technician-View, Inventory,<br/>History, Logistics, Schedule
+    MC-->>User: Dashboard mit eingeschränkter Navigation
+```
+
+---
+
 ## 5. Programmlogik — Kernprozesse
 
-### 5.1 Phasenverwaltung (`TakeoverState`)
+### 5.1 Login & Rollenbasierter Zugriff (`LoginController`, `SessionState`)
+
+Die Anwendung startet mit einem Demo-Login-Screen. Der Benutzer wählt seinen Namen aus einer ComboBox — alle Mitarbeiter sind in `SensorDataService` gespeichert und werden über `EmployeeService` geladen.
+
+Nach der Auswahl speichert `SessionState` (Singleton) den eingeloggten Mitarbeiter für die gesamte Sitzung. `MainController` liest die Rolle nach dem Laden des Dashboards und deaktiviert die nicht erlaubten Navigations-Buttons:
+
+| Rolle | Erlaubter Zugriff |
+|---|---|
+| **Security Chief** | Alles |
+| **Technician** | Dashboard, Mission Control, Staff |
+| **Planner** | Dashboard, Schedule, Staff |
+| **Logistics** | Dashboard, Inventory, Logistics |
+
+```
+App-Start → login_view.fxml → Namensauswahl → SessionState.setCurrentUser()
+         → main_view.fxml → MainController.applyRoleRestrictions()
+```
+
+### 5.2 Phasenverwaltung (`TakeoverState`)
 
 Die Anwendung durchläuft drei Phasen, die automatisch durch JavaFX-Timer (`PauseTransition`) gesteuert werden:
 
@@ -331,7 +416,7 @@ Die Anwendung durchläuft drei Phasen, die automatisch durch JavaFX-Timer (`Paus
 | **SENSOR_LOADING** | 10 Sekunden (= 30 simulierte Minuten) | Eingeschränkt |
 | **OPERATIONAL** | Unbegrenzt | Vollzugriff |
 
-### 5.2 Reparatur-Workflow (pro Shuttle-Teil)
+### 5.3 Reparatur-Workflow (pro Shuttle-Teil)
 
 ```
 1. Techniker wählt Teil → bestätigt Identität
@@ -346,7 +431,7 @@ Die Anwendung durchläuft drei Phasen, die automatisch durch JavaFX-Timer (`Paus
 7. Nach 3 Teilen: isTakeoverComplete() = true → Takeover abgeschlossen
 ```
 
-### 5.3 Logistics-Bestellworkflow (`LogisticsOrder`)
+### 5.4 Logistics-Bestellworkflow (`LogisticsOrder`)
 
 Bestellungen durchlaufen einen mehrstufigen Genehmigungsprozess:
 
@@ -360,16 +445,16 @@ PENDING_APPROVAL → (Approve) → ORDERED → (10s) → DELIVERED
 - Nach Genehmigung: 10-Sekunden-Liefersimulation
 - Bei Lieferung: Lagerbestand wird automatisch erhöht
 
-### 5.4 Prädiktive Analyse (`PredictiveAnalysisService`)
+### 5.5 Prädiktive Analyse (`PredictiveAnalysisService`)
 
 Der Service wertet 5 gespeicherte Flughistorien aus:
 
 1. Für jeden Sensor: Werte der letzten 5 Flüge auslesen
-2. Trend berechnen: letzter Wert vs. Durchschnitt der ersten 4
+2. Trend berechnen: linearer Slope = (letzter Wert − erster Wert) / (Anzahl − 1)
 3. Klassifikation: `RISING` / `FALLING` / `STABLE`
 4. Bei kritischem Trend + aktuell WARNING/REPLACE: Frühwarnung im Dashboard
 
-### 5.5 Schedule-Verwaltung (`ScheduleController`)
+### 5.6 Schedule-Verwaltung (`ScheduleController`)
 
 - 3-Tage-Plan wird aus `schedule.json` geladen
 - Jede Zeile ist editierbar: Mitarbeiter kann per ComboBox umgeplant werden
@@ -411,6 +496,7 @@ shuttle-dashboard/
     │   ├── model/                          ← 18 Datenklassen (POJOs)
     │   └── util/                           ← StatusColors, ColoredTableCell
     └── resources/view/
+        ├── login_view.fxml                 ← Login-Screen (Demo-Anmeldung)
         ├── main_view.fxml                  ← Haupt-Dashboard
         ├── mission_control.fxml            ← Reparatur & Freigabe
         ├── logistics.fxml                  ← Bestellworkflow

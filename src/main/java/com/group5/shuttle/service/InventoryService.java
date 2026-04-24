@@ -56,13 +56,6 @@ public class InventoryService {
 
     private InventoryItem item(String id, String name, String part,
                                int quantity, String status, String description) {
-        InventoryItem it = new InventoryItem();
-        it.id          = id;
-        it.name        = name;
-        it.part        = part;
-        it.quantity    = quantity;
-        it.status      = status;
-        it.description = description;
-        return it;
+        return new InventoryItem(id, name, part, quantity, status, description);
     }
 }

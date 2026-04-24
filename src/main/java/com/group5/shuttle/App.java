@@ -15,9 +15,8 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            // Haupt-Dashboard laden. Der LandingController ist in MainController integriert –
-            // die Landephase wird dort über TakeoverState.AppPhase gesteuert.
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml"));
+            // Zuerst den Login-Screen laden – erst nach Anmeldung wird das Dashboard gezeigt.
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/login_view.fxml"));
 
             // Lädt die FXML-Datei und packt das fertige UI in eine 800×600 Pixel große Scene.
             Scene scene = new Scene(loader.load(), 800, 600);
@@ -32,8 +31,12 @@ public class App extends Application {
             stage.show();
 
         } catch (Exception e) {
-            // Gibt Fehler in der Konsole aus, z. B. wenn die FXML-Datei nicht gefunden wird.
-            e.printStackTrace();
+            // Zeigt einen Fehlerdialog, falls die FXML-Datei nicht geladen werden kann.
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            alert.setTitle("Startfehler");
+            alert.setHeaderText("Anwendung konnte nicht gestartet werden");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
     }
 }

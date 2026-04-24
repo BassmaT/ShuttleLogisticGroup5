@@ -1,4 +1,4 @@
-# Shuttle Dashboard — Technische Dokumentation
+# Shuttle Dashboard — Technische Dokumentation KI-generiert
 
 **Gruppe 5 · Java/JavaFX Projekt**
 

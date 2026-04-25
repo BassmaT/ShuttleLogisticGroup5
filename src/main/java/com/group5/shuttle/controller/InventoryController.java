@@ -43,13 +43,13 @@ public class InventoryController extends BaseController {
     // Spalte für die Kurzbeschreibung des Bauteils.
     @FXML private TableColumn<InventoryItem, String>  colDescription;
 
-    private final InventoryService sensorService = InventoryService.getInstance();
+    private final InventoryService inventoryService = InventoryService.getInstance();
 
     // Wird automatisch aufgerufen, sobald die FXML-Datei vollständig geladen ist.
     @FXML
     public void initialize() {
         // Zurück-Button: Navigiert zum Haupt-Dashboard.
-        btnBack.setOnAction(e -> loadView("main_view.fxml"));
+        setupBackButton(btnBack);
 
         // Tabelle aufbauen und mit Daten füllen.
         setupTable();
@@ -72,7 +72,7 @@ public class InventoryController extends BaseController {
 
     // Lädt alle Lagerpositionen aus der Datei und gibt sie an die Tabelle weiter.
     private void loadInventory() {
-        List<InventoryItem> items = sensorService.loadInventory();
+        List<InventoryItem> items = inventoryService.loadInventory();
         // FXCollections.observableArrayList wandelt die normale Liste in eine JavaFX-Observable-Liste um,
         // damit die Tabelle auf Änderungen reagieren kann.
         inventoryTable.setItems(FXCollections.observableArrayList(items));

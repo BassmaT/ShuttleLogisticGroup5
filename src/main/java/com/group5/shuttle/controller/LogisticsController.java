@@ -3,16 +3,21 @@ package com.group5.shuttle.controller;
 import com.group5.shuttle.model.Employee;
 import com.group5.shuttle.model.InventoryItem;
 import com.group5.shuttle.model.LogisticsOrder;
+import com.group5.shuttle.model.OrderStatus;
 import com.group5.shuttle.service.EmployeeService;
+import com.group5.shuttle.service.IEmployeeService;
+import com.group5.shuttle.service.IInventoryService;
 import com.group5.shuttle.service.InventoryService;
+import com.group5.shuttle.service.OrderApprovalService;
 import com.group5.shuttle.service.OrderStore;
 import com.group5.shuttle.util.ColoredTableCell;
+import com.group5.shuttle.util.Dialogs;
+import com.group5.shuttle.util.EmployeeComboHelper;
 import com.group5.shuttle.util.StatusColors;
-import javafx.animation.PauseTransition;
+import com.group5.shuttle.util.Styles;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -23,7 +28,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 import java.util.List;
 
 // Controller für die Logistik- und Bestellverwaltung.
@@ -70,24 +74,27 @@ public class LogisticsController extends BaseController {
     private final ObservableList<LogisticsOrder> pendingData    = FXCollections.observableArrayList();
     private final ObservableList<LogisticsOrder> allOrdersData  = FXCollections.observableArrayList();
 
-    private final InventoryService sensorService = InventoryService.getInstance();
+    private final IInventoryService inventoryService = InventoryService.getInstance();
+    private final IEmployeeService  employeeService  = EmployeeService.getInstance();
 
     // Wird automatisch beim Laden der FXML aufgerufen
     @FXML
     public void initialize() {
         // Part-ComboBox mit allen Lagerartikeln befüllen; Anzeige: "Name  (Qty: X)"
-        List<InventoryItem> inventory = sensorService.loadInventory();
+        List<InventoryItem> inventory = inventoryService.loadInventory();
         cmbPartName.setItems(FXCollections.observableArrayList(inventory));
         cmbPartName.setConverter(new javafx.util.StringConverter<InventoryItem>() {
             @Override public String toString(InventoryItem item) {
                 return item == null ? "" : item.getName() + "  (Qty: " + item.getQuantity() + ")";
             }
-            @Override public InventoryItem fromString(String s) { return null; }
+            @Override public InventoryItem fromString(String s) {
+                if (s == null) return null;
+                return inventory.stream().filter(i -> toString(i).equals(s)).findFirst().orElse(null);
+            }
         });
 
         // ComboBox mit allen Mitarbeitern befüllen
-        cmbOrderedBy.setItems(FXCollections.observableArrayList(
-            EmployeeService.getInstance().getAllEmployees()));
+        EmployeeComboHelper.setup(cmbOrderedBy);
 
         // Tabellenspalten konfigurieren
         setupPendingTable();
@@ -100,7 +107,7 @@ public class LogisticsController extends BaseController {
         btnPlaceOrder.setOnAction(e -> placeOrder());
 
         // Zurück-Button
-        btnBack.setOnAction(e -> loadView("main_view.fxml"));
+        setupBackButton(btnBack);
     }
 
     // Legt eine neue Bestellanfrage an und fügt sie dem OrderStore hinzu
@@ -113,7 +120,7 @@ public class LogisticsController extends BaseController {
         String reason   = txtReason.getText().trim();
 
         if (partName.isEmpty() || qtyText.isEmpty() || orderedBy == null || reason.isEmpty()) {
-            showAlert("Bitte alle Felder ausfüllen.", Alert.AlertType.WARNING);
+            Dialogs.showWarning("Bitte alle Felder ausfüllen.");
             return;
         }
 
@@ -123,7 +130,7 @@ public class LogisticsController extends BaseController {
             quantity = Integer.parseInt(qtyText);
             if (quantity <= 0) throw new NumberFormatException();
         } catch (NumberFormatException ex) {
-            showAlert("Menge muss eine positive ganze Zahl sein.", Alert.AlertType.WARNING);
+            Dialogs.showWarning("Menge muss eine positive ganze Zahl sein.");
             return;
         }
 
@@ -161,56 +168,23 @@ public class LogisticsController extends BaseController {
                 btnReject.setStyle(
                     "-fx-background-color: #ff4444; -fx-text-fill: white; -fx-font-size: 11px;");
 
-                // Approve: Bestellung genehmigen → 10s Liefersimulation starten
                 btnApprove.setOnAction(e -> {
                     LogisticsOrder order = getTableView().getItems().get(getIndex());
-                    // Ersten Security Chief als Genehmiger verwenden (Simulation)
-                    List<Employee> chiefs = EmployeeService.getInstance().getByRole("Security Chief");
-                    Employee approver = chiefs.isEmpty() ? null : chiefs.get(0);
-                    if (approver == null) return;
-
-                    // Bestellung genehmigen
-                    order.approve(approver);
-                    order.markOrdered();
-                    refreshTables();
-
-                    // 10-Sekunden-Simulation: danach wird Bestellung auf DELIVERED gesetzt
-                    PauseTransition pause = new PauseTransition(Duration.seconds(10));
-                    pause.setOnFinished(ev -> {
-                        order.markDelivered();
-
-                        // Lagerbestand erhöhen: bestellte Menge zum vorhandenen Bestand addieren
-                        List<com.group5.shuttle.model.InventoryItem> inventory =
-                            sensorService.loadInventory();
-                        inventory.stream()
-                            .filter(i -> i.getName().equals(order.getPartName()))
-                            .findFirst()
-                            .ifPresent(item -> {
-                                item.setQuantity(item.getQuantity() + order.getQuantity());
-                                sensorService.saveInventory(inventory);
-                            });
-
-                        refreshTables(); // aktualisiert auch refreshStockDisplay()
-                        // ComboBox neu befüllen, damit neue Mengen sichtbar sind
+                    OrderApprovalService.approve(order, inventoryService, employeeService, () -> {
+                        refreshTables();
                         cmbPartName.setItems(FXCollections.observableArrayList(
-                            sensorService.loadInventory()));
-
-                        // Pop-up-Benachrichtigung: Teil eingetroffen
-                        showAlert("✓ Bestellung " + order.getOrderNumber() + " eingetroffen!\n"
+                            inventoryService.loadInventory()));
+                        Dialogs.showInfo("Lieferung",
+                            "✓ Bestellung " + order.getOrderNumber() + " eingetroffen!\n"
                             + "Teil: " + order.getPartName()
-                            + " (Menge: " + order.getQuantity() + ")",
-                            Alert.AlertType.INFORMATION);
+                            + " (Menge: " + order.getQuantity() + ")");
                     });
-                    pause.play();
+                    refreshTables();
                 });
 
-                // Reject: Bestellung ablehnen
                 btnReject.setOnAction(e -> {
                     LogisticsOrder order = getTableView().getItems().get(getIndex());
-                    List<Employee> chiefs = EmployeeService.getInstance().getByRole("Security Chief");
-                    Employee approver = chiefs.isEmpty() ? null : chiefs.get(0);
-                    if (approver == null) return;
-                    order.reject(approver);
+                    OrderApprovalService.reject(order, employeeService);
                     refreshTables();
                 });
             }
@@ -224,7 +198,7 @@ public class LogisticsController extends BaseController {
         });
 
         pendingTable.setItems(pendingData);
-        pendingTable.setStyle("-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;");
+        pendingTable.setStyle(Styles.TABLE_DARK);
     }
 
     // Konfiguriert die Gesamtübersicht aller Bestellungen
@@ -242,7 +216,7 @@ public class LogisticsController extends BaseController {
         colAllStatus.setCellFactory(col -> new ColoredTableCell<>(StatusColors::forOrderStatus));
 
         allOrdersTable.setItems(allOrdersData);
-        allOrdersTable.setStyle("-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;");
+        allOrdersTable.setStyle(Styles.TABLE_DARK);
     }
 
     // Aktualisiert beide Tabellen aus dem OrderStore
@@ -252,7 +226,7 @@ public class LogisticsController extends BaseController {
         // "Pending"-Tabelle: nur Bestellungen mit Status PENDING_APPROVAL
         pendingData.setAll(
             all.stream()
-               .filter(o -> LogisticsOrder.PENDING_APPROVAL.equals(o.getStatus()))
+               .filter(o -> o.getOrderStatus() == OrderStatus.PENDING_APPROVAL)
                .toList());
 
         // Gesamtübersicht: alle Bestellungen
@@ -266,22 +240,14 @@ public class LogisticsController extends BaseController {
     private void refreshStockDisplay() {
         if (stockContainer == null) return;
         stockContainer.getChildren().clear();
-        List<InventoryItem> items = sensorService.loadInventory();
+        List<InventoryItem> items = inventoryService.loadInventory();
         for (InventoryItem item : items) {
             String color = StatusColors.forStockStatus(item.getStatus());
             Label lbl = new Label(String.format("  %s  (Qty: %d)  [%s]",
                     item.getName(), item.getQuantity(), item.getStatus()));
-            lbl.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 12px;");
+            lbl.setStyle(Styles.label12(color));
             stockContainer.getChildren().add(lbl);
         }
-    }
-
-    // Zeigt einen einfachen Alert-Dialog mit einer Nachricht
-    private void showAlert(String msg, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
     }
 
     // Gibt den Zurück-Button für BaseController zurück

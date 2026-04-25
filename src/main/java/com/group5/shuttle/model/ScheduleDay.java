@@ -6,15 +6,20 @@ import java.util.List;
 public class ScheduleDay {
 
     // Tagnummer: 1, 2 oder 3
-    public int dayNumber;
+    private final int dayNumber;
 
     // Beschriftung des Tages, z. B. "Day 1 – Inspection & Diagnostics"
-    public String label;
+    private final String label;
 
     // Alle Zeitplan-Einträge für diesen Tag
-    public List<ScheduleEntry> entries;
+    private final List<ScheduleEntry> entries;
 
-    // Getter-Methoden
+    public ScheduleDay(int dayNumber, String label, List<ScheduleEntry> entries) {
+        this.dayNumber = dayNumber;
+        this.label     = label;
+        this.entries   = entries;
+    }
+
     public int getDayNumber()               { return dayNumber; }
     public String getLabel()                { return label; }
     public List<ScheduleEntry> getEntries() { return entries; }

@@ -6,15 +6,16 @@ import com.group5.shuttle.model.Employee;
 // Singleton – wird nach erfolgreichem Login einmalig gesetzt.
 public class SessionState {
 
-    private static SessionState instance;
+    private static final class Holder {
+        static final SessionState INSTANCE = new SessionState();
+    }
 
     private Employee currentUser;
 
     private SessionState() {}
 
     public static SessionState getInstance() {
-        if (instance == null) instance = new SessionState();
-        return instance;
+        return Holder.INSTANCE;
     }
 
     public void setCurrentUser(Employee employee) {

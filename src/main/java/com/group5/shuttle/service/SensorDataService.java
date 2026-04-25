@@ -1,31 +1,26 @@
 package com.group5.shuttle.service;
 
-import com.group5.shuttle.model.Employee;
-import com.group5.shuttle.model.EmployeeRoster;
-import com.group5.shuttle.model.EmployeeTeam;
-import com.group5.shuttle.model.RoutineTask;
 import com.group5.shuttle.model.SensorThreshold;
 import com.group5.shuttle.model.ShuttleData;
+import com.group5.shuttle.model.SensorStatus;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Verantwortlich für: Sensordaten, Schwellwerte, Sensorauswertung,
- * Mitarbeiterdaten und Routineaufgaben.
+ * Verantwortlich für: Sensordaten, Schwellwerte, Sensorauswertung.
  * Singleton – wird einmalig pro Sitzung instanziiert.
  */
-public class SensorDataService {
+public class SensorDataService implements ISensorDataService {
 
-    private static SensorDataService instance;
+    private static final class Holder {
+        static final SensorDataService INSTANCE = new SensorDataService();
+    }
 
     private SensorDataService() {}
 
     public static SensorDataService getInstance() {
-        if (instance == null) instance = new SensorDataService();
-        return instance;
+        return Holder.INSTANCE;
     }
 
     // ── Sensordaten ───────────────────────────────────────────────────────────
@@ -58,85 +53,39 @@ public class SensorDataService {
         Map<String, Map<String, SensorThreshold>> result = new HashMap<>();
 
         Map<String, SensorThreshold> orbiter = new HashMap<>();
-        orbiter.put("hullTemperature", threshold(null,  650.0));
-        orbiter.put("cabinPressure",   threshold(95.0,  110.0));
-        orbiter.put("oxygenLevel",     threshold(90.0,  null));
-        orbiter.put("coolantPressure", threshold(3.5,   null));
+        orbiter.put("hullTemperature", threshold(null,  650.0, 5.0));
+        orbiter.put("cabinPressure",   threshold(95.0,  110.0, 2.0));
+        orbiter.put("oxygenLevel",     threshold(90.0,  null,  1.5));
+        orbiter.put("coolantPressure", threshold(3.5,   null,  0.3));
         result.put("orbiter", orbiter);
 
         Map<String, SensorThreshold> srb = new HashMap<>();
-        srb.put("thrust",            threshold(1500.0, null));
-        srb.put("casingTemperature", threshold(null,   800.0));
-        srb.put("vibration",         threshold(null,     0.40));
+        srb.put("thrust",            threshold(1500.0, null,  50.0));
+        srb.put("casingTemperature", threshold(null,   800.0,  3.0));
+        srb.put("vibration",         threshold(null,     0.40, 0.03));
         result.put("srb", srb);
 
         Map<String, SensorThreshold> tank = new HashMap<>();
-        tank.put("fuelTemperature", threshold(-170.0, -120.0));
-        tank.put("fuelPressure",    threshold(4.0,    null));
-        tank.put("stress",          threshold(null,   20.0));
+        tank.put("fuelTemperature", threshold(-170.0, -120.0, 3.0));
+        tank.put("fuelPressure",    threshold(4.0,    null,   0.2));
+        tank.put("stress",          threshold(null,   20.0,   1.5));
         result.put("externalTank", tank);
 
         return result;
     }
 
-    private SensorThreshold threshold(Double min, Double max) {
-        return new SensorThreshold(min, max);
+    private SensorThreshold threshold(Double min, Double max, double buf) {
+        return new SensorThreshold(min, max, buf);
     }
 
     // ── Sensorauswertung ──────────────────────────────────────────────────────
 
-    public String evaluate(double value, SensorThreshold t) {
-        if (t.getMin() != null && value < t.getMin()) return "REPLACE";
-        if (t.getMax() != null && value > t.getMax()) return "REPLACE";
-        if (t.getMin() != null && value < t.getMin() + 5) return "WARNING";
-        if (t.getMax() != null && value > t.getMax() - 5) return "WARNING";
-        return "OK";
-    }
-
-    // ── Mitarbeiter ───────────────────────────────────────────────────────────
-
-    public EmployeeRoster loadEmployees() {
-        EmployeeRoster roster = new EmployeeRoster();
-
-        EmployeeTeam team = new EmployeeTeam();
-        team.name = "Team Alpha";
-        team.members = Arrays.asList(
-            emp("EMP-001", "Ellen Vance",   "Technician",     "Team Alpha"),
-            emp("EMP-002", "Sandra Beck",   "Logistics",      "Logistics"),
-            emp("EMP-003", "Leia Organa",   "Planner",        "Planning"),
-            emp("EMP-004", "Markus Reuter", "Security Chief", "Team Alpha")
-        );
-
-        roster.teams = Arrays.asList(team);
-        return roster;
-    }
-
-    private Employee emp(String id, String name, String role, String team) {
-        return new Employee(id, name, role, team);
-    }
-
-    // ── Routineaufgaben ───────────────────────────────────────────────────────
-
-    public List<RoutineTask> loadRoutineTasks() {
-        return Arrays.asList(
-            rt("RT-001", "Refuel Main Tanks",          "External Tank", 120, "EMP-001"),
-            rt("RT-002", "Clean Cabin",                 "Orbiter",        60, "EMP-001"),
-            rt("RT-003", "Check Fire Suppression",      "Orbiter",        45, "EMP-001"),
-            rt("RT-004", "Inspect Landing Gear",        "Orbiter",        90, "EMP-001"),
-            rt("RT-005", "Lubricate Docking Mechanism", "Orbiter",        30, "EMP-001"),
-            rt("RT-006", "Calibrate Instruments",       "Orbiter",        75, "EMP-001"),
-            rt("RT-007", "Inspect SRB Nozzles",         "SRB",            60, "EMP-001"),
-            rt("RT-008", "Check External Tank Seals",   "External Tank",  50, "EMP-001")
-        );
-    }
-
-    private RoutineTask rt(String id, String name, String part, int minutes, String empId) {
-        RoutineTask t = new RoutineTask();
-        t.id                 = id;
-        t.name               = name;
-        t.shuttlePart        = part;
-        t.estimatedMinutes   = minutes;
-        t.assignedEmployeeId = empId;
-        return t;
+    public SensorStatus evaluate(double value, SensorThreshold t)  {
+        double buf = t.getWarningBuffer();
+        if (t.getMin() != null && value < t.getMin())       return SensorStatus.REPLACE;
+        if (t.getMax() != null && value > t.getMax())       return SensorStatus.REPLACE;
+        if (t.getMin() != null && value < t.getMin() + buf) return SensorStatus.WARNING;
+        if (t.getMax() != null && value > t.getMax() - buf) return SensorStatus.WARNING;
+        return SensorStatus.OK;
     }
 }

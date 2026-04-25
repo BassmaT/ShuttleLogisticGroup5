@@ -49,7 +49,7 @@ public class HistoryController extends BaseController {
     @FXML
     public void initialize() {
         // Zurück-Button: navigiert zurück zum Haupt-Dashboard.
-        btnBack.setOnAction(e -> loadView("main_view.fxml"));
+        setupBackButton(btnBack);
 
         // Tabelle einrichten und mit den aktuellen Tickets befüllen.
         setupTable();

@@ -43,7 +43,7 @@
 
                 <!-- Formularzeile 1: Teilname + Menge + Besteller -->
                 <HBox spacing="12" style="-fx-alignment: CENTER_LEFT;">
-                    <!-- ComboBox: zeigt alle Lagerartikel aus inventory.json -->
+                    <!-- ComboBox: zeigt alle Lagerartikel  -->
                     <ComboBox fx:id="cmbPartName"
                               promptText="Select part"
                               prefWidth="260"
@@ -52,7 +52,7 @@
                                promptText="Qty"
                                prefWidth="60"
                                style="-fx-font-size: 13px;"/>
-                    <!-- ComboBox: zeigt alle Mitarbeiter aus employees.json -->
+                    <!-- ComboBox: zeigt alle Mitarbeiter  -->
                     <ComboBox fx:id="cmbOrderedBy"
                               promptText="Ordered by"
                               prefWidth="190"

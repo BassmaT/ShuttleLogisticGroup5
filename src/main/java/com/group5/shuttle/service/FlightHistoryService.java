@@ -11,20 +11,20 @@ import java.util.Map;
  * Verantwortlich für: historische Flugdaten (wird von PredictiveAnalysisService verwendet).
  * Singleton – Flugdaten sind unveränderlich während der Sitzung.
  */
-public class FlightHistoryService {
+public class FlightHistoryService implements IFlightHistoryService {
 
-    private static FlightHistoryService instance;
+    private static final class Holder {
+        static final FlightHistoryService INSTANCE = new FlightHistoryService();
+    }
 
     private FlightHistoryService() {}
 
     public static FlightHistoryService getInstance() {
-        if (instance == null) instance = new FlightHistoryService();
-        return instance;
+        return Holder.INSTANCE;
     }
 
     public FlightHistory loadFlightHistory() {
-        FlightHistory history = new FlightHistory();
-        history.flights = Arrays.asList(
+        return new FlightHistory(Arrays.asList(
             flight("STS-133", 1,
                 orbiterSensors(480.0, 103.0, 97.0, 4.1),
                 srbSensors(1820.0, 640.0, 0.14),
@@ -45,22 +45,18 @@ public class FlightHistoryService {
                 orbiterSensors(520.0, 101.0, 96.0, 2.8),
                 srbSensors(1800.0, 797.0, 0.22),
                 tankSensors(-150.0, 4.80, 22.0))
-        );
-        return history;
+        ));
     }
 
     private FlightRecord flight(String id, int number,
                                 Map<String, Double> orbiter,
                                 Map<String, Double> srb,
                                 Map<String, Double> tank) {
-        FlightRecord r = new FlightRecord();
-        r.flightId     = id;
-        r.flightNumber = number;
-        r.sensors      = new HashMap<>();
-        r.sensors.put("orbiter",      orbiter);
-        r.sensors.put("srb",          srb);
-        r.sensors.put("externalTank", tank);
-        return r;
+        Map<String, Map<String, Double>> sensors = new HashMap<>();
+        sensors.put("orbiter",      orbiter);
+        sensors.put("srb",          srb);
+        sensors.put("externalTank", tank);
+        return new FlightRecord(id, number, sensors);
     }
 
     private Map<String, Double> orbiterSensors(double hull, double cabin,

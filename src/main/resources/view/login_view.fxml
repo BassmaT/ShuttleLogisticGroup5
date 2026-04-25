@@ -56,7 +56,7 @@
     </VBox>
 
     <!-- Hinweis -->
-    <Label text="Demo-System · Keine echte Authentifizierung"
+    <Label text="Demo-System · No real authentification yet."
            style="-fx-text-fill: #484f58; -fx-font-size: 11px;"/>
 
 </VBox>

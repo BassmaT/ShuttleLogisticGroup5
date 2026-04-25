@@ -51,7 +51,7 @@
                            style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"/>
                     <HBox spacing="10" style="-fx-alignment: CENTER_LEFT;">
                         <Label text="Employee:" style="-fx-text-fill: white; -fx-font-size: 13px;"/>
-                        <!-- ComboBox: zeigt alle Mitarbeiter aus employees.json (Name + Rolle) -->
+                        <!-- ComboBox: zeigt alle Mitarbeiter  (Name + Rolle) -->
                         <ComboBox fx:id="cmbEmployee"
                                   promptText="Select employee"
                                   prefWidth="260"

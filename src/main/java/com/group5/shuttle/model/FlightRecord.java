@@ -6,16 +6,22 @@ import java.util.Map;
 public class FlightRecord {
 
     // Bezeichnung des Fluges, z. B. "STS-133"
-    public String flightId;
+    private final String flightId;
 
     // Flugsnummer (1–5) – wird zur chronologischen Sortierung verwendet
-    public int flightNumber;
+    private final int flightNumber;
 
     // Sensorwerte nach Shuttle-Teil und Sensor-Name:
     // Schlüssel: Teil (z. B. "orbiter") → Sensor (z. B. "hullTemperature") → Wert
-    public Map<String, Map<String, Double>> sensors;
+    private final Map<String, Map<String, Double>> sensors;
 
-    // Getter-Methoden
+    public FlightRecord(String flightId, int flightNumber,
+                        Map<String, Map<String, Double>> sensors) {
+        this.flightId     = flightId;
+        this.flightNumber = flightNumber;
+        this.sensors      = sensors;
+    }
+
     public String getFlightId()                          { return flightId; }
     public int getFlightNumber()                         { return flightNumber; }
     public Map<String, Map<String, Double>> getSensors() { return sensors; }

@@ -1,46 +1,28 @@
 package com.group5.shuttle.service;
 
 import com.group5.shuttle.model.MaintenanceTicket;
-
-import java.util.ArrayList;
 import java.util.List;
 
-// Diese Klasse speichert alle Wartungstickets (History-Einträge) im Arbeitsspeicher.
-// Es wird KEIN File geschrieben – beim Schließen der App sind alle Einträge weg.
-// Das Singleton-Muster stellt sicher, dass es nur eine einzige Instanz gibt,
-// auf die alle Controller zugreifen.
-public class TicketStore {
+// Singleton: hält alle Wartungstickets der aktuellen Sitzung im Arbeitsspeicher.
+public class TicketStore extends AbstractStore<MaintenanceTicket> {
 
-    // Die eine einzige Instanz dieser Klasse – beim ersten Aufruf erstellt, danach wiederverwendet.
-    private static TicketStore instance;
-
-    // Die Liste aller Tickets, die in dieser Sitzung erstellt wurden.
-    private final List<MaintenanceTicket> tickets = new ArrayList<>();
-
-    // Privater Konstruktor – verhindert, dass jemand "new TicketStore()" schreibt.
-    private TicketStore() {}
-
-    // Gibt die einzige Instanz zurück. Falls noch keine existiert, wird sie hier erstellt.
-    public static TicketStore getInstance() {
-        if (instance == null) instance = new TicketStore();
-        return instance;
+    private static final class Holder {
+        static final TicketStore INSTANCE = new TicketStore();
     }
 
-    // Gibt eine Kopie der aktuellen Ticket-Liste zurück.
-    // Eine Kopie (new ArrayList) wird verwendet, damit die interne Liste nicht von außen verändert werden kann.
+    private TicketStore() {}
+
+    public static TicketStore getInstance() {
+        return Holder.INSTANCE;
+    }
+
     public List<MaintenanceTicket> getTickets() {
-        return new ArrayList<>(tickets);
+        return getAll();
     }
 
     // Ersetzt die gesamte Ticket-Liste durch eine neue Liste.
-    // Wird aufgerufen, wenn nach einer Reparatur alle Tickets neu gespeichert werden.
     public void saveTickets(List<MaintenanceTicket> list) {
-        tickets.clear();        // alte Liste leeren
-        tickets.addAll(list);   // neue Einträge hinzufügen
-    }
-
-    // Löscht alle Tickets – kann z. B. nach einem Reset aufgerufen werden.
-    public void clear() {
-        tickets.clear();
+        items.clear();
+        items.addAll(list);
     }
 }

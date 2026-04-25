@@ -5,6 +5,7 @@ import com.group5.shuttle.model.ScheduleDay;
 import com.group5.shuttle.model.ScheduleEntry;
 import com.group5.shuttle.model.TakeoverSchedule;
 import com.group5.shuttle.service.EmployeeService;
+import com.group5.shuttle.service.IScheduleService;
 import com.group5.shuttle.service.ScheduleService;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -19,7 +20,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
+import com.group5.shuttle.util.EmployeeComboHelper;
+import com.group5.shuttle.util.StatusColors;
+import com.group5.shuttle.util.Styles;
 
 import java.util.List;
 
@@ -34,21 +37,21 @@ public class ScheduleController extends BaseController {
     // Zurück-Button zum Haupt-Dashboard
     @FXML private Button btnBack;
 
-    private final ScheduleService sensorService = ScheduleService.getInstance();
+    private final IScheduleService scheduleService = ScheduleService.getInstance();
 
     // Wird automatisch beim Laden der FXML aufgerufen
     @FXML
     public void initialize() {
-        btnBack.setOnAction(e -> loadView("main_view.fxml"));
+        setupBackButton(btnBack);
         buildSchedule();
     }
 
     // Lädt den Schedule und baut für jeden Tag eine eigene Tabelle auf
     private void buildSchedule() {
-        TakeoverSchedule schedule = sensorService.loadSchedule();
+        TakeoverSchedule schedule = scheduleService.loadSchedule();
         if (schedule == null || schedule.getDays() == null) {
             Label err = new Label("Schedule could not be loaded.");
-            err.setStyle("-fx-text-fill: #ff4444; -fx-font-size: 13px;");
+            err.setStyle(Styles.label13("#ff4444"));
             scheduleContent.getChildren().add(err);
             return;
         }
@@ -72,7 +75,7 @@ public class ScheduleController extends BaseController {
     // Erstellt eine TableView für einen einzelnen Tag mit allen Spalten
     private TableView<ScheduleEntry> buildDayTable(List<ScheduleEntry> entries) {
         TableView<ScheduleEntry> table = new TableView<>();
-        table.setStyle("-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;");
+        table.setStyle(Styles.TABLE_DARK);
         table.setPrefHeight(entries.size() * 36.0 + 30);
         table.setEditable(true);
 
@@ -98,15 +101,9 @@ public class ScheduleController extends BaseController {
                     setText(null); setStyle(""); return;
                 }
                 String cat = getTableRow().getItem().getCategory();
-                String color = switch (cat != null ? cat : "") {
-                    case "repair"     -> "#ff6666";
-                    case "approval"   -> "#66ff66";
-                    case "routine"    -> "#ffcc00";
-                    case "diagnostic" -> "#66aaff";
-                    default           -> "#aaaaaa";
-                };
+                String color = StatusColors.forScheduleCategoryFg(cat);
                 setText(task);
-                setStyle("-fx-text-fill: " + color + "; -fx-font-size: 12px;");
+                setStyle(Styles.label12(color));
             }
         });
 
@@ -129,7 +126,7 @@ public class ScheduleController extends BaseController {
         colEmp.setCellValueFactory(cellData -> {
             String empId = cellData.getValue().getAssignedEmployeeId();
             if (empId == null) return new SimpleStringProperty("–");
-            Employee emp = EmployeeService.getInstance().getById(empId);
+            Employee emp = EmployeeService.getInstance().getById(empId).orElse(null);
             return new SimpleStringProperty(emp != null ? emp.getName() : empId);
         });
         // ComboBox-Zelle: ermöglicht Umplanung per Dropdown
@@ -137,15 +134,7 @@ public class ScheduleController extends BaseController {
             private final ComboBox<Employee> combo = new ComboBox<>();
             {
                 // Alle Mitarbeiter zur Auswahl anbieten
-                combo.setItems(FXCollections.observableArrayList(
-                    EmployeeService.getInstance().getAllEmployees()));
-                // Anzeige: "Name (Rolle)"
-                combo.setConverter(new StringConverter<>() {
-                    @Override public String toString(Employee e) {
-                        return e == null ? "–" : e.getName() + " (" + e.getRole() + ")";
-                    }
-                    @Override public Employee fromString(String s) { return null; }
-                });
+                EmployeeComboHelper.setup(combo);
                 combo.setStyle("-fx-font-size: 12px;");
                 // Bei Auswahl: assignedEmployeeId im Eintrag aktualisieren
                 combo.setOnAction(e -> {
@@ -166,7 +155,7 @@ public class ScheduleController extends BaseController {
                 // Aktuell zugewiesenen Mitarbeiter vorauswählen
                 String empId = getTableRow().getItem().getAssignedEmployeeId();
                 if (empId != null) {
-                    Employee current = EmployeeService.getInstance().getById(empId);
+                    Employee current = EmployeeService.getInstance().getById(empId).orElse(null);
                     combo.getSelectionModel().select(current);
                 } else {
                     combo.getSelectionModel().clearSelection();
@@ -187,7 +176,7 @@ public class ScheduleController extends BaseController {
                 super.updateItem(val, empty);
                 if (empty || val == null) { setText(null); setStyle(""); return; }
                 setText(val);
-                setStyle("-fx-text-fill: " + color + "; -fx-font-size: 12px;");
+                setStyle(Styles.label12(color));
             }
         });
     }

@@ -1,5 +1,6 @@
 package com.group5.shuttle;
 
+import com.group5.shuttle.util.Dialogs;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -32,11 +33,7 @@ public class App extends Application {
 
         } catch (Exception e) {
             // Zeigt einen Fehlerdialog, falls die FXML-Datei nicht geladen werden kann.
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
-            alert.setTitle("Startfehler");
-            alert.setHeaderText("Anwendung konnte nicht gestartet werden");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            Dialogs.showError("Startfehler", "Anwendung konnte nicht gestartet werden", e.getMessage());
         }
     }
 }

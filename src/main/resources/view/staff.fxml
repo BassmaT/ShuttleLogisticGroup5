@@ -20,25 +20,25 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group5.shuttle.controller.StaffController"
-            style="-fx-background-color: #1e1e1e; -fx-padding: 20;">
+            style="-fx-background-color: #0D1117; -fx-padding: 20;">
 
     <!-- Seitenüberschrift -->
     <top>
         <Label text="Staff Overview"
-               style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold;"
+               style="-fx-font-size: 28px; -fx-text-fill: #4B9CFF; -fx-font-weight: bold;"
                BorderPane.alignment="CENTER"/>
     </top>
 
     <!-- Linke Seitenleiste: Liste aller Mitarbeiter -->
     <left>
-        <VBox spacing="8" style="-fx-padding: 10 16 10 0; -fx-min-width: 200;">
+        <VBox spacing="8" style="-fx-padding: 10 16 10 0; -fx-min-width: 200; -fx-background-color: #0D1117; -fx-border-color: #21262d; -fx-border-width: 0 1 0 0;">
             <!-- Abschnittsüberschrift -->
             <Label text="Employees"
-                   style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px; -fx-font-weight: bold;"/>
-            <Separator style="-fx-background-color: #444;"/>
+                   style="-fx-text-fill: #8b949e; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+            <Separator style="-fx-background-color: #21262d;"/>
             <!-- ListView zeigt alle Mitarbeiter – beim Klick werden rechts die Tasks angezeigt -->
             <ListView fx:id="employeeList"
-                      style="-fx-background: #2a2a2a; -fx-background-color: #2a2a2a; -fx-border-color: #444;"
+                      style="-fx-background: #0D1117; -fx-background-color: #161B22; -fx-border-color: #21262d;"
                       VBox.vgrow="ALWAYS"
                       prefHeight="500"/>
         </VBox>
@@ -47,8 +47,8 @@
     <!-- Hauptbereich rechts: Details des ausgewählten Mitarbeiters -->
     <center>
         <ScrollPane fitToWidth="true"
-                    style="-fx-background: #1e1e1e; -fx-background-color: #1e1e1e; -fx-border-color: transparent;">
-            <VBox spacing="14" style="-fx-padding: 0 0 10 16; -fx-background-color: #1e1e1e;">
+                    style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+            <VBox spacing="14" style="-fx-padding: 0 0 10 16; -fx-background-color: transparent;">
 
                 <!-- Name des ausgewählten Mitarbeiters (groß, weiß) -->
                 <Label fx:id="lblEmployeeName"
@@ -58,20 +58,20 @@
                 <!-- Rolle und Team des Mitarbeiters -->
                 <HBox spacing="20">
                     <Label fx:id="lblEmployeeRole" text=""
-                           style="-fx-text-fill: #66aaff; -fx-font-size: 14px;"/>
+                           style="-fx-text-fill: #4B9CFF; -fx-font-size: 14px;"/>
                     <Label fx:id="lblEmployeeTeam" text=""
-                           style="-fx-text-fill: #aaaaaa; -fx-font-size: 14px;"/>
+                           style="-fx-text-fill: #8b949e; -fx-font-size: 14px;"/>
                 </HBox>
 
-                <Separator style="-fx-background-color: #444;"/>
+                <Separator style="-fx-background-color: #21262d;"/>
 
                 <!-- Abschnitt: Reparaturaufgaben -->
                 <Label text="Repair Tasks"
-                       style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;"/>
+                       style="-fx-text-fill: #8b949e; -fx-font-size: 15px; -fx-font-weight: bold;"/>
 
                 <!-- Tabelle der Reparaturaufgaben dieses Mitarbeiters -->
                 <TableView fx:id="repairTaskTable"
-                           style="-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;"
+                           style="-fx-background: #0D1117; -fx-background-color: #161B22;"
                            prefHeight="160">
                     <columns>
                         <!-- Shuttle-Teil, auf das sich die Reparatur bezieht -->
@@ -85,20 +85,20 @@
                     </columns>
                     <placeholder>
                         <Label text="No repair tasks assigned"
-                               style="-fx-text-fill: #aaaaaa;"/>
+                               style="-fx-text-fill: #8b949e;"/>
                     </placeholder>
                 </TableView>
 
-                <Separator style="-fx-background-color: #444;"/>
+                <Separator style="-fx-background-color: #21262d;"/>
 
                 <!-- Abschnitt: Routineaufgaben -->
                 <Label text="Routine Tasks"
-                       style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;"/>
+                       style="-fx-text-fill: #8b949e; -fx-font-size: 15px; -fx-font-weight: bold;"/>
 
                 <!-- Tabelle der Routineaufgaben dieses Mitarbeiters -->
                 <!-- Die Done-Spalte enthält eine Checkbox – beim Abhaken wird completedAt gesetzt -->
                 <TableView fx:id="routineTaskTable"
-                           style="-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;"
+                           style="-fx-background: #0D1117; -fx-background-color: #161B22;"
                            prefHeight="200">
                     <columns>
                         <!-- Aufgabenbezeichnung, z. B. "Clean Cabin" -->
@@ -114,7 +114,7 @@
                     </columns>
                     <placeholder>
                         <Label text="No routine tasks assigned"
-                               style="-fx-text-fill: #aaaaaa;"/>
+                               style="-fx-text-fill: #8b949e;"/>
                     </placeholder>
                 </TableView>
 
@@ -126,7 +126,7 @@
     <bottom>
         <Button text="← Back to Dashboard"
                 fx:id="btnBack"
-                style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-color: #3a3a3a; -fx-text-fill: white;"/>
+                style="-fx-font-size: 14px; -fx-padding: 8 16; -fx-background-color: #161B22; -fx-text-fill: #4B9CFF; -fx-border-color: #21262d; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;"/>
     </bottom>
 
 </BorderPane>

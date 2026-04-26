@@ -28,6 +28,8 @@ import javafx.scene.Parent;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +102,15 @@ public class MainController {
 
     @FXML private StackPane aiDrawer;
 
+    // KPI Stat Cards
+    @FXML private Label lblStatMissions;
+    @FXML private Label lblStatTasks;
+    @FXML private Label lblStatWarnings;
+    @FXML private Label lblStatActivity;
+
+    // Echtzeit-Uhr im Header
+    @FXML private Label lblClock;
+
     @FXML
 
     // ── Services & State ──────────────────────────────────────────────────────
@@ -139,6 +150,14 @@ public class MainController {
         // Chat-Eingabe verarbeiten (Wenn User Enter drückt)
         txtChatInput.setOnAction(e -> handleChatInput());
 
+        // --- Echtzeit-Uhr ---
+        DateTimeFormatter clockFmt = DateTimeFormatter.ofPattern("HH:mm:ss");
+        Timeline clock = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            if (lblClock != null) lblClock.setText(LocalTime.now().format(clockFmt));
+        }));
+        clock.setCycleCount(Timeline.INDEFINITE);
+        clock.play();
+
         // --- 2. NAVIGATION & STYLING ---
         if (activeTimer != null) { activeTimer.stop(); activeTimer = null; }
 
@@ -147,8 +166,8 @@ public class MainController {
 
         for (Button btn : navButtons) {
             // Hover-Effekt für mehr "Gefühl" beim Nutzen
-            btn.setOnMouseEntered(e -> btn.setStyle("-fx-background-color: rgba(75, 156, 255, 0.1); -fx-text-fill: white; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"));
-            btn.setOnMouseExited(e -> btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"));
+            btn.setOnMouseEntered(e -> btn.setStyle("-fx-background-color: rgba(75,156,255,0.1); -fx-text-fill: white; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"));
+            btn.setOnMouseExited(e -> btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"));
         }
 
         // Navigations-Buttons verknüpfen
@@ -428,6 +447,12 @@ public class MainController {
         String lastAct = takeoverState.getLastActivity();
         lblLastActivity.setText(lastAct.isEmpty() ? "–" : lastAct);
 
+        // ── KPI Stat Cards aktualisieren ─────────────────────────────────────
+        if (lblStatTasks != null)
+            lblStatTasks.setText(String.valueOf(activeWorkContainer.getChildren().size()));
+        if (lblStatActivity != null)
+            lblStatActivity.setText(lastAct.isEmpty() ? "–" : lastAct);
+
         // "Takeover Complete"-Button und Statusmeldungen aktualisieren.
         if (takeoverState.isTakeoverComplete()) {
             btnFinish.setVisible(true); // Button einblenden, wenn alle Teile freigegeben sind
@@ -603,6 +628,7 @@ public class MainController {
     private void updateWarningLabel(ShuttleData data,
                                     Map<String, Map<String, SensorThreshold>> thresholds) {
         String worstWarning = "OK"; // Startwert – wird nach oben angepasst
+        int warnCount = 0;
 
         Map<String, ShuttlePart> parts = new LinkedHashMap<>();
         parts.put("orbiter",      data.orbiter);
@@ -620,10 +646,12 @@ public class MainController {
                 SensorThreshold t = partThresholds.get(sensorEntry.getKey());
                 if (t == null) continue;
                 String result = sensorService.evaluate(sensorEntry.getValue(), t);
-                if (result.equals("REPLACE")) { worstWarning = "REPLACE"; break; } // schlimmst möglich
-                if (result.equals("WARNING") && worstWarning.equals("OK")) worstWarning = "WARNING";
+                if (result.equals("REPLACE")) { worstWarning = "REPLACE"; warnCount++; }
+                else if (result.equals("WARNING")) { if (worstWarning.equals("OK")) worstWarning = "WARNING"; warnCount++; }
             }
         }
+
+        if (lblStatWarnings != null) lblStatWarnings.setText(String.valueOf(warnCount));
 
         // Je nach schlimmster Warnstufe die Labels einstellen.
         switch (worstWarning) {

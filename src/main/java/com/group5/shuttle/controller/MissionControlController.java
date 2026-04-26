@@ -281,10 +281,8 @@ public class MissionControlController extends BaseController {
      * setzt alle anderen Buttons auf den Standardstil zurück.
      */
     private void highlightPartButton() {
-        // Standardstil für nicht ausgewählte Buttons (dunkelgrau)
-        String normal   = "-fx-font-size: 13px; -fx-min-width: 120; -fx-background-color: #3a3a3a; -fx-text-fill: white;";
-        // Hervorhebungsstil für den ausgewählten Button (blau, fett)
-        String selected = "-fx-font-size: 13px; -fx-min-width: 120; -fx-background-color: #3a7bd5; -fx-text-fill: white; -fx-font-weight: bold;";
+        String normal   = "-fx-font-size: 18px; -fx-background-color: #21262d; -fx-text-fill: #8b949e; -fx-padding: 22 0; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-color: #30363d; -fx-border-radius: 8; -fx-font-weight: bold;";
+        String selected = "-fx-font-size: 18px; -fx-background-color: rgba(75,156,255,0.15); -fx-text-fill: #4B9CFF; -fx-padding: 22 0; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-color: #4B9CFF; -fx-border-radius: 8; -fx-font-weight: bold;";
         // Jeden Button abhängig vom aktuellen selectedPartKey einfärben
         btnPartOrbiter.setStyle("orbiter".equals(selectedPartKey)     ? selected : normal);
         btnPartSrb.setStyle(    "srb".equals(selectedPartKey)          ? selected : normal);
@@ -794,7 +792,7 @@ public class MissionControlController extends BaseController {
             }
         });
 
-        routineTable.setStyle("-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;");
+        routineTable.setStyle("-fx-background: #0D1117; -fx-background-color: #0D1117;");
     }
 
     /**

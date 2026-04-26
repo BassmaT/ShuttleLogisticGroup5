@@ -16,12 +16,12 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group5.shuttle.controller.InventoryController"
-            style="-fx-background-color: #1e1e1e; -fx-padding: 20;">
+            style="-fx-background-color: #0D1117; -fx-padding: 20;">
 
     <!-- Seitenüberschrift -->
     <top>
         <Label text="Inventory Overview"
-               style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold;"
+               style="-fx-font-size: 28px; -fx-text-fill: #4B9CFF; -fx-font-weight: bold;"
                BorderPane.alignment="CENTER"/>
     </top>
 
@@ -31,7 +31,7 @@
             <!-- inventoryTable wird im Controller mit Lagerdaten befüllt -->
             <!-- -fx-background und -fx-background-color beide nötig, damit der dunkle Hintergrund korrekt angezeigt wird -->
             <TableView fx:id="inventoryTable"
-                       style="-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;"
+                       style="-fx-background: #0D1117; -fx-background-color: #161B22;"
                        VBox.vgrow="ALWAYS">
                 <columns>
                     <!-- Artikel-ID, z. B. "INV-001" -->
@@ -55,7 +55,7 @@
     <bottom>
         <Button text="← Back to Dashboard"
                 fx:id="btnBack"
-                style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-color: #3a3a3a; -fx-text-fill: white;" />
+                style="-fx-font-size: 14px; -fx-padding: 8 16; -fx-background-color: #161B22; -fx-text-fill: #4B9CFF; -fx-border-color: #21262d; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;" />
     </bottom>
 
 </BorderPane>

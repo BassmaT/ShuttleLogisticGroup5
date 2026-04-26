@@ -16,22 +16,22 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group5.shuttle.controller.ScheduleController"
-            style="-fx-background-color: #1e1e1e; -fx-padding: 20;">
+            style="-fx-background-color: #0D1117; -fx-padding: 20;">
 
     <!-- Seitenüberschrift -->
     <top>
         <Label text="3-Day Schedule"
-               style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold;"
+               style="-fx-font-size: 28px; -fx-text-fill: #4B9CFF; -fx-font-weight: bold;"
                BorderPane.alignment="CENTER"/>
     </top>
 
     <!-- Hauptbereich: Tabellen pro Tag, scrollbar -->
     <center>
         <ScrollPane fitToWidth="true"
-                    style="-fx-background: #1e1e1e; -fx-background-color: #1e1e1e; -fx-border-color: transparent;">
+                    style="-fx-background: #0D1117; -fx-background-color: #0D1117; -fx-border-color: transparent;">
             <!-- scheduleContent wird im Controller dynamisch befüllt (eine Tabelle pro Tag) -->
             <VBox fx:id="scheduleContent" spacing="20"
-                  style="-fx-padding: 10; -fx-background-color: #1e1e1e;"/>
+                  style="-fx-padding: 10; -fx-background-color: #0D1117;"/>
         </ScrollPane>
     </center>
 
@@ -39,7 +39,7 @@
     <bottom>
         <Button text="← Back to Dashboard"
                 fx:id="btnBack"
-                style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-color: #3a3a3a; -fx-text-fill: white;"/>
+                style="-fx-font-size: 14px; -fx-padding: 8 16; -fx-background-color: #161B22; -fx-text-fill: #4B9CFF; -fx-border-color: #21262d; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;"/>
     </bottom>
 
 </BorderPane>

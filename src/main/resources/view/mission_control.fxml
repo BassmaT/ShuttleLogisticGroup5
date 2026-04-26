@@ -1,129 +1,170 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.Circle?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group5.shuttle.controller.MissionControlController"
-            style="-fx-background-color: #1e1e1e; -fx-padding: 20;">
+            style="-fx-background-color: #0D1117;">
 
-    <!-- HEADER -->
+    <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
     <top>
-        <Label text="Mission Control"
-               style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold;"
-               BorderPane.alignment="CENTER"/>
+        <HBox spacing="15" alignment="CENTER_LEFT"
+              style="-fx-padding: 0 20; -fx-min-height: 64; -fx-background-color: #12161D; -fx-border-color: #21262d; -fx-border-width: 0 0 1 0;">
+            <VBox spacing="1" alignment="CENTER_LEFT">
+                <Label text="MISSION CONTROL"
+                       style="-fx-text-fill: #4B9CFF; -fx-font-weight: bold; -fx-font-size: 20px;"/>
+                <Label text="Shuttle Logistics Group"
+                       style="-fx-text-fill: #4b5563; -fx-font-size: 11px;"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox spacing="8" alignment="CENTER"
+                  style="-fx-background-color: rgba(46,160,67,0.1); -fx-padding: 7 14; -fx-background-radius: 20; -fx-border-color: rgba(46,160,67,0.3); -fx-border-radius: 20;">
+                <Circle radius="4" fill="#2EA043" />
+                <Label text="SYSTEMS NOMINAL"
+                       style="-fx-text-fill: #2EA043; -fx-font-weight: bold; -fx-font-size: 11px;"/>
+            </HBox>
+        </HBox>
     </top>
 
+    <!-- ── SIDEBAR ────────────────────────────────────────────────────────── -->
+    <left>
+        <VBox style="-fx-background-color: #0D1117; -fx-border-color: #21262d; -fx-border-width: 0 1 0 0; -fx-min-width: 200; -fx-pref-width: 200;">
+            <HBox alignment="CENTER"
+                  style="-fx-padding: 18 15 14 15; -fx-border-color: #21262d; -fx-border-width: 0 0 1 0;">
+                <Label text="🛸" style="-fx-font-size: 26px;"/>
+            </HBox>
+            <VBox spacing="2" style="-fx-padding: 10 8;">
+                <Button fx:id="btnBack" text="    Dashboard"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+                <Button text="    Mission Control"
+                        style="-fx-background-color: rgba(75,156,255,0.12); -fx-text-fill: #4B9CFF; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-border-color: transparent transparent transparent #4B9CFF; -fx-border-width: 0 0 0 3; -fx-background-radius: 0 6 6 0; -fx-padding: 9 12; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                <Button text="    Technician"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+                <Button text="    Inventory"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+                <Button text="    History"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+                <Button text="    Staff"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+                <Button text="    Logistics"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+                <Button text="    Schedule"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- ── CENTER CONTENT ────────────────────────────────────────────────── -->
     <center>
         <ScrollPane fitToWidth="true"
-                    style="-fx-background: #1e1e1e; -fx-background-color: #1e1e1e; -fx-border-color: transparent;">
-            <VBox spacing="16" style="-fx-padding: 10; -fx-background-color: #1e1e1e;">
+                    style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+            <VBox spacing="16" style="-fx-padding: 20; -fx-background-color: #0D1117;">
 
-                <!-- SCHRITT 1: Part wählen -->
-                <Label text="Step 1 – Select Part"
-                       style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px; -fx-font-weight: bold;"/>
-                <HBox spacing="12">
-                    <Button fx:id="btnPartOrbiter" text="Orbiter"
-                            style="-fx-font-size: 13px; -fx-min-width: 120; -fx-background-color: #3a3a3a; -fx-text-fill: white;"/>
-                    <Button fx:id="btnPartSrb" text="SRB"
-                            style="-fx-font-size: 13px; -fx-min-width: 120; -fx-background-color: #3a3a3a; -fx-text-fill: white;"/>
-                    <Button fx:id="btnPartTank" text="External Tank"
-                            style="-fx-font-size: 13px; -fx-min-width: 120; -fx-background-color: #3a3a3a; -fx-text-fill: white;"/>
-                </HBox>
-
-                <!-- SCHRITT 2: Mitarbeiter auswählen (initial versteckt) -->
-                <VBox fx:id="rolePanel" spacing="10"
-                      style="-fx-background-color: #2a2a2a; -fx-padding: 14; -fx-background-radius: 6;">
-                    <Label text="Step 2 – Select Employee"
-                           style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px; -fx-font-weight: bold;"/>
-                    <!-- Zeigt das ausgewählte Teil oder eine Fehlermeldung -->
-                    <Label fx:id="lblSelectedPart"
-                           text=""
-                           style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"/>
-                    <HBox spacing="10" style="-fx-alignment: CENTER_LEFT;">
-                        <Label text="Employee:" style="-fx-text-fill: white; -fx-font-size: 13px;"/>
-                        <!-- ComboBox: zeigt alle Mitarbeiter aus employees.json (Name + Rolle) -->
-                        <ComboBox fx:id="cmbEmployee"
-                                  promptText="Select employee"
-                                  prefWidth="260"
-                                  style="-fx-font-size: 13px;"/>
+                <!-- Step 1: Part Selection -->
+                <VBox spacing="12"
+                      style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 0 10 10 0; -fx-border-color: #4B9CFF; -fx-border-width: 0 0 0 4;">
+                    <Label text="STEP 1 – SELECT PART"
+                           style="-fx-text-fill: #4b5563; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                    <HBox spacing="16">
+                        <Button fx:id="btnPartOrbiter" text="  Orbiter"
+                                HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                                style="-fx-font-size: 18px; -fx-background-color: #21262d; -fx-text-fill: #8b949e; -fx-padding: 22 0; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-color: #30363d; -fx-border-radius: 8; -fx-font-weight: bold;"/>
+                        <Button fx:id="btnPartSrb" text="  SRB"
+                                HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                                style="-fx-font-size: 18px; -fx-background-color: #21262d; -fx-text-fill: #8b949e; -fx-padding: 22 0; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-color: #30363d; -fx-border-radius: 8; -fx-font-weight: bold;"/>
+                        <Button fx:id="btnPartTank" text="  External Tank"
+                                HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                                style="-fx-font-size: 18px; -fx-background-color: #21262d; -fx-text-fill: #8b949e; -fx-padding: 22 0; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-color: #30363d; -fx-border-radius: 8; -fx-font-weight: bold;"/>
                     </HBox>
-                    <Button fx:id="btnConfirm" text="Confirm"
-                            style="-fx-font-size: 13px; -fx-background-color: #3a7bd5; -fx-text-fill: white; -fx-padding: 7 20; -fx-font-weight: bold;"/>
                 </VBox>
 
-                <Separator style="-fx-background-color: #444;"/>
+                <!-- Step 2: Employee Selection -->
+                <VBox fx:id="rolePanel" spacing="12"
+                      style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 0 10 10 0; -fx-border-color: #2EA043; -fx-border-width: 0 0 0 4;">
+                    <Label text="STEP 2 – SELECT EMPLOYEE"
+                           style="-fx-text-fill: #4b5563; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblSelectedPart" text=""
+                           style="-fx-text-fill: #8b949e; -fx-font-size: 13px;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Employee:" style="-fx-text-fill: #8b949e; -fx-font-size: 13px;"/>
+                        <ComboBox fx:id="cmbEmployee"
+                                  promptText="Select employee"
+                                  prefWidth="280"
+                                  style="-fx-font-size: 13px;"/>
+                    </HBox>
+                    <Button fx:id="btnConfirm" text="✓   Confirm"
+                            style="-fx-font-size: 13px; -fx-background-color: #1a3a1a; -fx-text-fill: #66ff66; -fx-padding: 8 20; -fx-font-weight: bold; -fx-border-color: #2EA043; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;"/>
+                </VBox>
 
-                <!-- ARBEITSBEREICH (initial versteckt) -->
+                <Separator style="-fx-background-color: #21262d; -fx-opacity: 0.5;"/>
+
+                <!-- Work Panel -->
                 <VBox fx:id="workPanel" spacing="14">
 
                     <!-- Repair Tasks -->
-                    <Label fx:id="lblRepairHeader" text=""
-                           wrapText="true"
-                           style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;"/>
+                    <VBox spacing="10"
+                          style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 0 10 10 0; -fx-border-color: #ff4444; -fx-border-width: 0 0 0 4;">
+                        <Label fx:id="lblRepairHeader" text=""
+                               wrapText="true"
+                               style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;"/>
+                        <TableView fx:id="repairTable"
+                                   style="-fx-background: #0D1117; -fx-background-color: #0D1117;"
+                                   prefHeight="180">
+                            <columns>
+                                <TableColumn fx:id="colSensor" text="Sensor"  prefWidth="150"/>
+                                <TableColumn fx:id="colStatus" text="Status"  prefWidth="90"/>
+                                <TableColumn fx:id="colAction" text="Action"  prefWidth="190"/>
+                                <TableColumn fx:id="colParts"  text="Parts"   prefWidth="150"/>
+                                <TableColumn fx:id="colDone"   text="Done"    prefWidth="60"/>
+                            </columns>
+                            <placeholder>
+                                <Label text="No repairs required for this part"
+                                       style="-fx-text-fill: #2EA043;"/>
+                            </placeholder>
+                        </TableView>
+                        <Button fx:id="btnTechDone" text="✓   Mark Repairs Done"
+                                style="-fx-font-size: 13px; -fx-background-color: #2a1e00; -fx-text-fill: #ffcc00; -fx-padding: 8 16; -fx-font-weight: bold; -fx-border-color: #ffcc00; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;"/>
+                    </VBox>
 
-                    <TableView fx:id="repairTable"
-                               style="-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;"
-                               prefHeight="180">
-                        <columns>
-                            <TableColumn fx:id="colSensor" text="Sensor"  prefWidth="150"/>
-                            <TableColumn fx:id="colStatus" text="Status"  prefWidth="90"/>
-                            <TableColumn fx:id="colAction" text="Action"  prefWidth="190"/>
-                            <TableColumn fx:id="colParts"  text="Parts"   prefWidth="150"/>
-                            <TableColumn fx:id="colDone"   text="Done"    prefWidth="60"/>
-                        </columns>
-                        <placeholder>
-                            <Label text="No repairs required for this part"
-                                   style="-fx-text-fill: #66ff66;"/>
-                        </placeholder>
-                    </TableView>
-
-                    <Button fx:id="btnTechDone" text="Mark Repairs Done"
-                            style="-fx-font-size: 13px; -fx-background-color: #ffcc00; -fx-text-fill: #1e1e1e; -fx-padding: 7 16; -fx-font-weight: bold;"/>
-
-                    <!-- Routine Tasks für dieses Teil -->
-                    <Label fx:id="lblRoutineHeader" text="Routine Tasks"
-                           style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 6 0 2 0;"/>
-                    <TableView fx:id="routineTable" prefHeight="130"
-                               style="-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;">
-                        <columns>
-                            <TableColumn fx:id="colRtName" text="Task"        prefWidth="200"/>
-                            <TableColumn fx:id="colRtEst"  text="Est. (min)"  prefWidth="80"/>
-                            <TableColumn fx:id="colRtDone" text="Done"        prefWidth="60"/>
-                            <TableColumn fx:id="colRtTime" text="Completed"   prefWidth="130"/>
-                        </columns>
-                        <placeholder>
-                            <Label text="No routine tasks for this part" style="-fx-text-fill: #66ff66;"/>
-                        </placeholder>
-                    </TableView>
-
-                    <Separator style="-fx-background-color: #444;"/>
+                    <!-- Routine Tasks -->
+                    <VBox spacing="10"
+                          style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 0 10 10 0; -fx-border-color: #8957e5; -fx-border-width: 0 0 0 4;">
+                        <Label fx:id="lblRoutineHeader" text="ROUTINE TASKS"
+                               style="-fx-text-fill: #4b5563; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                        <TableView fx:id="routineTable" prefHeight="130"
+                                   style="-fx-background: #0D1117; -fx-background-color: #0D1117;">
+                            <columns>
+                                <TableColumn fx:id="colRtName" text="Task"        prefWidth="200"/>
+                                <TableColumn fx:id="colRtEst"  text="Est. (min)"  prefWidth="80"/>
+                                <TableColumn fx:id="colRtDone" text="Done"        prefWidth="60"/>
+                                <TableColumn fx:id="colRtTime" text="Completed"   prefWidth="130"/>
+                            </columns>
+                            <placeholder>
+                                <Label text="No routine tasks for this part" style="-fx-text-fill: #2EA043;"/>
+                            </placeholder>
+                        </TableView>
+                    </VBox>
 
                     <!-- Inventory -->
-                    <Label fx:id="lblInventoryHeader" text="Required Parts"
-                           style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
-                    <VBox fx:id="inventoryStatus" spacing="4"/>
-
-                    <Separator style="-fx-background-color: #444;"/>
+                    <VBox spacing="10"
+                          style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 0 10 10 0; -fx-border-color: #ffcc00; -fx-border-width: 0 0 0 4;">
+                        <Label fx:id="lblInventoryHeader" text="REQUIRED PARTS"
+                               style="-fx-text-fill: #4b5563; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                        <VBox fx:id="inventoryStatus" spacing="4"/>
+                    </VBox>
 
                     <!-- Security Chief Approval -->
-                    <VBox fx:id="approvalSection" spacing="8"
-                          style="-fx-background-color: #2a2a2a; -fx-padding: 12; -fx-background-radius: 6;">
-                        <Label text="Security Chief Approval"
-                               style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                    <VBox fx:id="approvalSection" spacing="10"
+                          style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 0 10 10 0; -fx-border-color: #2EA043; -fx-border-width: 0 0 0 4;">
+                        <Label text="SECURITY CHIEF APPROVAL"
+                               style="-fx-text-fill: #4b5563; -fx-font-size: 10px; -fx-font-weight: bold;"/>
                         <Label fx:id="lblApprovalInfo" text=""
                                style="-fx-text-fill: #ffcc00; -fx-font-size: 13px;" wrapText="true"/>
-                        <Button fx:id="btnApprove" text="Give Security Chief OK"
-                                style="-fx-font-size: 13px; -fx-background-color: #66ff66; -fx-text-fill: #1e1e1e; -fx-padding: 7 16; -fx-font-weight: bold;"/>
+                        <Button fx:id="btnApprove" text="✓   Give Security Chief OK"
+                                style="-fx-font-size: 13px; -fx-background-color: #1a3a1a; -fx-text-fill: #66ff66; -fx-padding: 8 16; -fx-font-weight: bold; -fx-border-color: #2EA043; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;"/>
                     </VBox>
 
                 </VBox>
@@ -132,12 +173,4 @@
         </ScrollPane>
     </center>
 
-    <!-- ZURÜCK -->
-    <bottom>
-        <Button text="← Back to Dashboard"
-                fx:id="btnBack"
-                style="-fx-font-size: 14px; -fx-padding: 8; -fx-background-color: #3a3a3a; -fx-text-fill: white;"/>
-    </bottom>
-
 </BorderPane>
-

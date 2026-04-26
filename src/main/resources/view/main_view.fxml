@@ -7,106 +7,218 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group5.shuttle.controller.MainController"
-            style="-fx-background-color: #0D1117;">
+            style="-fx-background-color: #170d15ff;">
 
+    <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
     <top>
-        <HBox spacing="20" style="-fx-padding: 20; -fx-background-color: #12161D; -fx-border-color: #30363d; -fx-border-width: 0 0 1 0;" alignment="CENTER_LEFT">
-            <Label text="MISSION CONTROL" style="-fx-text-fill: #4B9CFF; -fx-font-weight: bold; -fx-font-size: 20px; -fx-letter-spacing: 2px;"/>
+        <HBox spacing="15" alignment="CENTER_LEFT"
+              style="-fx-padding: 0 20; -fx-min-height: 64; -fx-background-color: #12161D; -fx-border-color: #21262d; -fx-border-width: 0 0 1 0;">
+            <VBox spacing="1" alignment="CENTER_LEFT">
+                <Label text="MISSION CONTROL"
+                       style="-fx-text-fill: #4B9CFF; -fx-font-weight: bold; -fx-font-size: 20px;"/>
+                <Label text="Shuttle Logistics Group"
+                       style="-fx-text-fill: #4b5563; -fx-font-size: 11px;"/>
+            </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button onAction="#toggleAiChat" text="🤖 AI Chat"
-                    style="-fx-background-color: #21262d; -fx-text-fill: #8957e5; -fx-border-color: #8957e5; -fx-border-radius: 5; -fx-cursor: hand;"/>
-            <HBox spacing="10" alignment="CENTER" style="-fx-background-color: rgba(75, 156, 255, 0.1); -fx-padding: 8 15; -fx-background-radius: 20;">
+            <Label fx:id="lblClock" text="--:--:--"
+                   style="-fx-text-fill: #4b5563; -fx-font-family: 'Monospaced'; -fx-font-size: 13px;"/>
+            <Button onAction="#toggleAiChat" text="🤖  AI Advisor"
+                    style="-fx-background-color: #1c1a2e; -fx-text-fill: #8957e5; -fx-border-color: #8957e5; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 7 14;"/>
+            <HBox spacing="8" alignment="CENTER"
+                  style="-fx-background-color: rgba(46,160,67,0.1); -fx-padding: 7 14; -fx-background-radius: 20; -fx-border-color: rgba(46,160,67,0.3); -fx-border-radius: 20;">
                 <Circle radius="4" fill="#2EA043" />
-                <Label fx:id="lblStatus" text="SYSTEMS NOMINAL" style="-fx-text-fill: #2EA043; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                <Label fx:id="lblStatus" text="SYSTEMS NOMINAL"
+                       style="-fx-text-fill: #2EA043; -fx-font-weight: bold; -fx-font-size: 11px;"/>
             </HBox>
         </HBox>
     </top>
 
+    <!-- ── SIDEBAR ────────────────────────────────────────────────────────── -->
     <left>
-        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #0D1117; -fx-border-color: #30363d; -fx-border-width: 0 1 0 0;">
-            <Button text="Dashboard" style="-fx-background-color: #21262d; -fx-text-fill: white; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
-            <Button fx:id="btnMission" text="Mission Control" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
-            <Button fx:id="btnTechnician" text="Technician" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
-            <Button fx:id="btnInventory" text="Inventory" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
-            <Button fx:id="btnHistory" text="History" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
-            <Button fx:id="btnStaff" text="Staff" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
-            <Button fx:id="btnLogistics" text="Logistics" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
-            <Button fx:id="btnSchedule" text="Schedule" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 160; -fx-alignment: BASELINE_LEFT;"/>
+        <VBox style="-fx-background-color: #0D1117; -fx-border-color: #21262d; -fx-border-width: 0 1 0 0; -fx-min-width: 200; -fx-pref-width: 200;">
+            <HBox alignment="CENTER"
+                  style="-fx-padding: 18 15 14 15; -fx-border-color: #21262d; -fx-border-width: 0 0 1 0;">
+                <Label text="" style="-fx-font-size: 26px;"/>
+            </HBox>
+            <VBox spacing="2" style="-fx-padding: 10 8;">
+                <Button text="    Dashboard"
+                        style="-fx-background-color: rgba(75,156,255,0.12); -fx-text-fill: #4B9CFF; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-border-color: transparent transparent transparent #4B9CFF; -fx-border-width: 0 0 0 3; -fx-background-radius: 0 6 6 0; -fx-padding: 9 12; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                <Button fx:id="btnMission"    text="    Mission Control"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+                <Button fx:id="btnTechnician" text="   Technician"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+                <Button fx:id="btnInventory"  text="   Inventory"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+                <Button fx:id="btnHistory"    text="   History"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+                <Button fx:id="btnStaff"      text="   Staff"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+                <Button fx:id="btnLogistics"  text="   Logistics"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+                <Button fx:id="btnSchedule"   text="   Schedule"
+                        style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-min-width: 180; -fx-alignment: BASELINE_LEFT; -fx-padding: 9 12; -fx-cursor: hand; -fx-background-radius: 0 6 6 0;"/>
+            </VBox>
         </VBox>
     </left>
 
+    <!-- ── CENTER CONTENT ────────────────────────────────────────────────── -->
     <center>
         <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
-            <VBox spacing="20" style="-fx-padding: 25;">
+            <VBox spacing="16" style="-fx-padding: 20;">
 
-                <VBox fx:id="landingBanner" spacing="15" style="-fx-background-color: #161B22; -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: #30363d; -fx-border-radius: 12;">
-                    <HBox alignment="CENTER_LEFT">
-                        <Label text="SHUTTLE APPROACH" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                <!-- KPI Stat Cards -->
+                <HBox spacing="14">
+                    <VBox HBox.hgrow="ALWAYS" spacing="5"
+                          style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 10; -fx-border-color: #58a6ff; -fx-border-width: 3 0 0 0; -fx-border-radius: 10 10 0 0;">
+                        <Label text="ACTIVE MISSIONS"  style="-fx-text-fill: #4b5563; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                        <Label fx:id="lblStatMissions" text="3"  style="-fx-text-fill: #58a6ff; -fx-font-size: 28px; -fx-font-weight: bold;"/>
+                        <Label text="Shuttle Parts"    style="-fx-text-fill: #4b5563; -fx-font-size: 11px;"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="5"
+                          style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 10; -fx-border-color: #2EA043; -fx-border-width: 3 0 0 0; -fx-border-radius: 10 10 0 0;">
+                        <Label text="OPEN TASKS"    style="-fx-text-fill: #4b5563; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                        <Label fx:id="lblStatTasks" text="–"    style="-fx-text-fill: #2EA043; -fx-font-size: 28px; -fx-font-weight: bold;"/>
+                        <Label text="In Progress"   style="-fx-text-fill: #4b5563; -fx-font-size: 11px;"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="5"
+                          style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 10; -fx-border-color: #ffcc00; -fx-border-width: 3 0 0 0; -fx-border-radius: 10 10 0 0;">
+                        <Label text="WARNINGS"         style="-fx-text-fill: #4b5563; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                        <Label fx:id="lblStatWarnings" text="–" style="-fx-text-fill: #ffcc00; -fx-font-size: 28px; -fx-font-weight: bold;"/>
+                        <Label text="Sensor Alerts"    style="-fx-text-fill: #4b5563; -fx-font-size: 11px;"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="5"
+                          style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 10; -fx-border-color: #8957e5; -fx-border-width: 3 0 0 0; -fx-border-radius: 10 10 0 0;">
+                        <Label text="LAST ACTIVITY"     style="-fx-text-fill: #4b5563; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                        <Label fx:id="lblStatActivity"  text="–" style="-fx-text-fill: #8957e5; -fx-font-size: 13px; -fx-font-weight: bold;" wrapText="true"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Shuttle Approach Banner -->
+                <VBox fx:id="landingBanner" spacing="12"
+                      style="-fx-background-color: #161B22; -fx-padding: 18 20; -fx-background-radius: 0 10 10 0; -fx-border-color: #58a6ff; -fx-border-width: 0 0 0 4;">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="🛬" style="-fx-font-size: 17px;"/>
+                        <Label text="SHUTTLE APPROACH" style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;"/>
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="lblLandingCountdown" text="T-Minus: --:--" style="-fx-text-fill: #58a6ff; -fx-font-family: 'Monospaced'; -fx-font-size: 16px;"/>
+                        <Label fx:id="lblLandingCountdown" text="T-Minus: --:--"
+                               style="-fx-text-fill: #58a6ff; -fx-font-family: 'Monospaced'; -fx-font-size: 15px; -fx-font-weight: bold;"/>
                     </HBox>
-                    <ProgressBar fx:id="progressLanding" prefWidth="Infinity" progress="0.0" style="-fx-accent: #58a6ff;"/>
-                    <Label fx:id="lblLandingStatus" text="Awaiting data..." style="-fx-text-fill: #8b949e; -fx-font-size: 12px;"/>
+                    <ProgressBar fx:id="progressLanding" prefWidth="Infinity" prefHeight="20" progress="0.0"
+                                 style="-fx-accent: #58a6ff;"/>
+                    <Label fx:id="lblLandingStatus" text="Awaiting data..."
+                           style="-fx-text-fill: #8b949e; -fx-font-size: 12px;"/>
                 </VBox>
 
-                <VBox spacing="10" style="-fx-background-color: #161B22; -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: #30363d;">
-                    <Label text="TAKEOVER PROGRESS" style="-fx-text-fill: #8b949e; -fx-font-weight: bold;"/>
-                    <ProgressBar fx:id="progressTakeover" prefWidth="Infinity" progress="0.0" style="-fx-accent: #66ff66;"/>
-                    <Label fx:id="lblScheduleStatus" text="Schedule: –" style="-fx-text-fill: #aaaaaa; -fx-font-size: 11px;"/>
-                    <Label fx:id="lblApprovalStatus" text="Checking components..." style="-fx-text-fill: white;"/>
-                    <Label fx:id="lblWarning" text="Scanning for anomalies..." style="-fx-text-fill: #ffcc00;"/>
-                    <Button fx:id="btnFinish" text="Complete Takeover" visible="false" style="-fx-background-color: #66ff66; -fx-text-fill: #0D1117; -fx-font-weight: bold;"/>
+                <!-- Takeover Progress -->
+                <VBox spacing="10"
+                      style="-fx-background-color: #161B22; -fx-padding: 18 20; -fx-background-radius: 0 10 10 0; -fx-border-color: #2EA043; -fx-border-width: 0 0 0 4;">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="✅" style="-fx-font-size: 13px;"/>
+                        <Label text="TAKEOVER PROGRESS"
+                               style="-fx-text-fill: #8b949e; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblScheduleStatus" text="Schedule: –"
+                               style="-fx-text-fill: #aaaaaa; -fx-font-size: 11px;"/>
+                    </HBox>
+                    <ProgressBar fx:id="progressTakeover" prefWidth="Infinity" prefHeight="20" progress="0.0"
+                                 style="-fx-accent: #2EA043;"/>
+                    <Label fx:id="lblApprovalStatus" text="Checking components..."
+                           style="-fx-text-fill: white; -fx-font-size: 13px;"/>
+                    <Label fx:id="lblWarning" text="Scanning for anomalies..."
+                           style="-fx-text-fill: #ffcc00; -fx-font-size: 13px;"/>
+                    <Button fx:id="btnFinish" text="✓   Complete Takeover" visible="false"
+                            style="-fx-background-color: #1a3a1a; -fx-text-fill: #66ff66; -fx-font-weight: bold; -fx-border-color: #2EA043; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 18; -fx-cursor: hand;"/>
                 </VBox>
 
-                <GridPane hgap="20" vgap="20">
+                <!-- Sensor Matrix + Active Tasks -->
+                <GridPane hgap="14" vgap="14">
                     <columnConstraints>
                         <ColumnConstraints percentWidth="50" />
                         <ColumnConstraints percentWidth="50" />
                     </columnConstraints>
 
-                    <VBox GridPane.columnIndex="0" spacing="10" style="-fx-background-color: #161B22; -fx-padding: 15; -fx-background-radius: 10;">
-                        <Label text="SENSOR MATRIX" style="-fx-text-fill: #8b949e; -fx-font-weight: bold;"/>
-                        <VBox fx:id="sensorContainer" spacing="8" />
+                    <VBox GridPane.columnIndex="0" spacing="8"
+                          style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 0 10 10 0; -fx-border-color: #ffcc00; -fx-border-width: 0 0 0 4;">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="⚡" style="-fx-font-size: 12px;"/>
+                            <Label text="SENSOR MATRIX"
+                                   style="-fx-text-fill: #8b949e; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                        </HBox>
+                        <VBox fx:id="sensorContainer" spacing="4" />
                     </VBox>
 
-                    <VBox GridPane.columnIndex="1" spacing="10" style="-fx-background-color: #161B22; -fx-padding: 15; -fx-background-radius: 10;">
-                        <Label text="ACTIVE TASKS" style="-fx-text-fill: #8b949e; -fx-font-weight: bold;"/>
-                        <VBox fx:id="activeWorkContainer" spacing="8" />
-                        <Label text="Last Activity:" style="-fx-text-fill: #8b949e; -fx-font-size: 11px; -fx-padding: 10 0 0 0;"/>
-                        <Label fx:id="lblLastActivity" text="None" style="-fx-text-fill: #58a6ff; -fx-font-size: 11px;"/>
+                    <VBox GridPane.columnIndex="1" spacing="8"
+                          style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 0 10 10 0; -fx-border-color: #4B9CFF; -fx-border-width: 0 0 0 4;">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="👷" style="-fx-font-size: 12px;"/>
+                            <Label text="ACTIVE TASKS"
+                                   style="-fx-text-fill: #8b949e; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                        </HBox>
+                        <VBox fx:id="activeWorkContainer" spacing="6" />
+                        <Separator style="-fx-opacity: 0.3;"/>
+                        <Label text="Last Activity" style="-fx-text-fill: #4b5563; -fx-font-size: 11px;"/>
+                        <Label fx:id="lblLastActivity" text="None"
+                               style="-fx-text-fill: #58a6ff; -fx-font-size: 12px;" wrapText="true"/>
                     </VBox>
                 </GridPane>
 
-                <HBox spacing="20">
-                    <VBox HBox.hgrow="ALWAYS" spacing="10" style="-fx-background-color: #161B22; -fx-padding: 15; -fx-background-radius: 10;">
-                        <Label text="3-DAY SCHEDULE" style="-fx-text-fill: #8b949e; -fx-font-weight: bold;"/>
-                        <VBox fx:id="scheduleContainer" spacing="5" />
+                <!-- Schedule + Predictive AI -->
+                <HBox spacing="14">
+                    <VBox HBox.hgrow="ALWAYS" spacing="8"
+                          style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 10; -fx-border-color: #21262d; -fx-border-width: 1;">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="📅" style="-fx-font-size: 12px;"/>
+                            <Label text="3-DAY SCHEDULE"
+                                   style="-fx-text-fill: #8b949e; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                        </HBox>
+                        <VBox fx:id="scheduleContainer" spacing="4" />
                     </VBox>
-                    <VBox HBox.hgrow="ALWAYS" spacing="10" style="-fx-background-color: #161B22; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #8957e5; -fx-border-width: 0.5;">
-                        <Label text="PREDICTIVE AI TRENDS" style="-fx-text-fill: #8957e5; -fx-font-weight: bold;"/>
+                    <VBox HBox.hgrow="ALWAYS" spacing="8"
+                          style="-fx-background-color: #161B22; -fx-padding: 16; -fx-background-radius: 0 10 10 0; -fx-border-color: #8957e5; -fx-border-width: 0 0 0 4;">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Label text="🤖" style="-fx-font-size: 12px;"/>
+                            <Label text="PREDICTIVE AI TRENDS"
+                                   style="-fx-text-fill: #8957e5; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                        </HBox>
                         <VBox fx:id="predictiveContainer" spacing="5" />
                     </VBox>
                 </HBox>
+
             </VBox>
         </ScrollPane>
     </center>
 
+    <!-- ── AI DRAWER ──────────────────────────────────────────────────────── -->
     <right>
-        <StackPane fx:id="aiDrawer" prefWidth="320" style="-fx-background-color: #0D1117; -fx-border-color: #30363d; -fx-border-width: 0 0 0 1;">
+        <StackPane fx:id="aiDrawer" prefWidth="320"
+                   style="-fx-background-color: #0D1117; -fx-border-color: #21262d; -fx-border-width: 0 0 0 1;">
             <VBox spacing="0">
-                <HBox alignment="CENTER_LEFT" style="-fx-padding: 15;">
-                    <Label text="AI ADVISOR" style="-fx-text-fill: #8957e5; -fx-font-weight: bold;"/>
+                <HBox alignment="CENTER_LEFT" spacing="10"
+                      style="-fx-padding: 14 15; -fx-background-color: #12161D; -fx-border-color: #21262d; -fx-border-width: 0 0 1 0;">
+                    <Label text="🤖" style="-fx-font-size: 15px;"/>
+                    <VBox spacing="1">
+                        <Label text="AI ADVISOR"
+                               style="-fx-text-fill: #8957e5; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                        <Label text="Intelligent Analysis"
+                               style="-fx-text-fill: #4b5563; -fx-font-size: 10px;"/>
+                    </VBox>
                     <Region HBox.hgrow="ALWAYS" />
-                    <Button text="→" onAction="#toggleAiChat" style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-cursor: hand;"/>
+                    <Button text="✕" onAction="#toggleAiChat"
+                            style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-cursor: hand; -fx-font-size: 14px;"/>
                 </HBox>
 
-                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
-                    <VBox fx:id="chatHistory" spacing="10" style="-fx-padding: 15;" />
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                            style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+                    <VBox fx:id="chatHistory" spacing="8" style="-fx-padding: 12;" />
                 </ScrollPane>
 
-                <HBox style="-fx-padding: 15; -fx-background-color: #161B22;">
-                    <TextField fx:id="txtChatInput" onAction="#handleChatInput" promptText="Ask AI about costs..." HBox.hgrow="ALWAYS"
-                               style="-fx-background-color: #0D1117; -fx-text-fill: white; -fx-border-color: #30363d;"/>
+                <HBox spacing="8" alignment="CENTER"
+                      style="-fx-padding: 12; -fx-background-color: #12161D; -fx-border-color: #21262d; -fx-border-width: 1 0 0 0;">
+                    <TextField fx:id="txtChatInput" onAction="#handleChatInput"
+                               promptText="Ask AI Advisor..." HBox.hgrow="ALWAYS"
+                               style="-fx-background-color: #161B22; -fx-text-fill: white; -fx-border-color: #30363d; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8;"/>
+                    <Button onAction="#handleChatInput" text="⬆"
+                            style="-fx-background-color: #8957e5; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 12; -fx-background-radius: 6; -fx-cursor: hand;"/>
                 </HBox>
             </VBox>
         </StackPane>

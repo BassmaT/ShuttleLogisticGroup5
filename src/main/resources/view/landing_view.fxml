@@ -15,7 +15,7 @@
 <StackPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.group5.shuttle.controller.LandingController"
-           style="-fx-background-color: #0a0a1a;">
+           style="-fx-background-color: #0D1117;">
 
     <VBox alignment="CENTER" spacing="30"
           style="-fx-padding: 60;">
@@ -27,17 +27,17 @@
         <!-- Countdown-Anzeige, z. B. "Approaching in 15:00 min..." -->
         <Label fx:id="lblCountdown"
                text="Shuttle approaching..."
-               style="-fx-text-fill: #66aaff; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+               style="-fx-text-fill: #4B9CFF; -fx-font-size: 20px; -fx-font-weight: bold;"/>
 
         <!-- Simulierter Fortschrittsbalken für den Landeanflug -->
         <ProgressBar fx:id="progressLanding"
                      prefWidth="400" progress="0.0"
-                     style="-fx-accent: #66aaff;"/>
+                     style="-fx-accent: #58a6ff;"/>
 
         <!-- Status-Text unter dem Balken -->
         <Label fx:id="lblStatus"
                text="Awaiting landing clearance..."
-               style="-fx-text-fill: #aaaaaa; -fx-font-size: 14px;"/>
+               style="-fx-text-fill: #8b949e; -fx-font-size: 14px;"/>
 
     </VBox>
 

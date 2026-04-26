@@ -6,28 +6,35 @@ import javafx.beans.property.SimpleBooleanProperty;
 public class RoutineTask {
 
     // Eindeutige ID der Aufgabe, z. B. "RT-001"
-    public String id;
+    private final String id;
 
     // Beschreibender Name der Aufgabe, z. B. "Refuel Main Tanks"
-    public String name;
+    private final String name;
 
     // Das Shuttle-Teil, auf das sich die Aufgabe bezieht, z. B. "Orbiter"
-    public String shuttlePart;
+    private final String shuttlePart;
 
     // Geschätzte Dauer in Minuten
-    public int estimatedMinutes;
+    private final int estimatedMinutes;
 
     // ID des zuständigen Mitarbeiters, z. B. "EMP-001"
-    public String assignedEmployeeId;
+    private final String assignedEmployeeId;
 
-    // Erledigt-Flag – wird nur im Arbeitsspeicher gespeichert, nicht in JSON
+    // Erledigt-Flag – wird nur im Arbeitsspeicher gespeichert, nicht persistiert
     // SimpleBooleanProperty ermöglicht die Bindung an eine CheckBox in der TableView
     private final SimpleBooleanProperty done = new SimpleBooleanProperty(false);
 
     // Zeitstempel der Erledigung, z. B. "2026-04-06 14:32" – null wenn noch nicht erledigt
     private String completedAt = null;
 
-    // --- Getter-Methoden ---
+    public RoutineTask(String id, String name, String shuttlePart,
+                       int estimatedMinutes, String assignedEmployeeId) {
+        this.id                 = id;
+        this.name               = name;
+        this.shuttlePart        = shuttlePart;
+        this.estimatedMinutes   = estimatedMinutes;
+        this.assignedEmployeeId = assignedEmployeeId;
+    }
 
     public String getId()                 { return id; }
     public String getName()               { return name; }

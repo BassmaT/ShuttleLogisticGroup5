@@ -4,22 +4,30 @@ package com.group5.shuttle.model;
 public class ScheduleEntry {
 
     // Uhrzeit des Eintrags, z. B. "08:00"
-    public String time;
+    private final String time;
 
     // Beschreibung der Aufgabe, z. B. "Inspect Landing Gear"
-    public String task;
+    private final String task;
 
     // Kategorie: "routine", "repair", "approval", "diagnostic" oder "break"
     // Wird für die Farbdarstellung im Dashboard verwendet
-    public String category;
+    private final String category;
 
     // ID des zuständigen Mitarbeiters – kann null sein (z. B. bei Pausen)
-    public String assignedEmployeeId;
+    private String assignedEmployeeId;
 
     // Betroffenes Shuttle-Teil – kann null sein
-    public String shuttlePart;
+    private final String shuttlePart;
 
-    // --- Getter-Methoden für PropertyValueFactory ---
+    public ScheduleEntry(String time, String task, String category,
+                         String assignedEmployeeId, String shuttlePart) {
+        this.time               = time;
+        this.task               = task;
+        this.category           = category;
+        this.assignedEmployeeId = assignedEmployeeId;
+        this.shuttlePart        = shuttlePart;
+    }
+
     public String getTime()               { return time; }
     public String getTask()               { return task; }
     public String getCategory()           { return category; }

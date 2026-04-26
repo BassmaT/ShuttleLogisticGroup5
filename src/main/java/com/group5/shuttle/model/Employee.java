@@ -4,16 +4,24 @@ package com.group5.shuttle.model;
 public class Employee {
 
     // Eindeutige Mitarbeiter-ID, z. B. "EMP-001"
-    public String id;
+    private String id;
 
     // Vollständiger Name des Mitarbeiters, z. B. "Max Müller"
-    public String name;
+    private String name;
 
-    // Rolle: entweder "Technician" oder "Security Chief"
-    public String role;
+    // Rolle: z. B. "Technician", "Security Chief", "Planner", "Logistics"
+    private String role;
 
     // Teamname, z. B. "Team Alpha"
-    public String team;
+    private String team;
+
+    // Konstruktor – erstellt einen vollständigen Mitarbeiter-Datensatz.
+    public Employee(String id, String name, String role, String team) {
+        this.id   = id;
+        this.name = name;
+        this.role = role;
+        this.team = team;
+    }
 
     // Getter-Methoden – werden von PropertyValueFactory in TableView benötigt
     public String getId()   { return id; }
@@ -21,7 +29,6 @@ public class Employee {
     public String getRole() { return role; }
     public String getTeam() { return team; }
 
-    // toString() gibt den Namen zurück – wird von ComboBox zur Anzeige verwendet
     @Override
-    public String toString() { return name; }
+    public String toString() { return name + " (" + role + ")"; }
 }

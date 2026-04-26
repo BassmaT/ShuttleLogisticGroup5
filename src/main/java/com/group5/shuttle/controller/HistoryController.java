@@ -1,12 +1,13 @@
 package com.group5.shuttle.controller;
 
 import com.group5.shuttle.model.MaintenanceTicket;
-import com.group5.shuttle.service.SensorService;
+import com.group5.shuttle.service.TicketStore;
+import com.group5.shuttle.util.ColoredTableCell;
+import com.group5.shuttle.util.StatusColors;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -42,14 +43,13 @@ public class HistoryController extends BaseController {
     // Spalte für den Namen des Technikers, der die Reparatur durchgeführt hat.
     @FXML private TableColumn<MaintenanceTicket, String> colTechnician;
 
-    // SensorService gibt die im Arbeitsspeicher gespeicherten Tickets zurück.
-    private final SensorService sensorService = new SensorService();
+    private final TicketStore ticketStore = TicketStore.getInstance();
 
     // Wird automatisch aufgerufen, sobald die FXML-Datei vollständig geladen ist.
     @FXML
     public void initialize() {
         // Zurück-Button: navigiert zurück zum Haupt-Dashboard.
-        btnBack.setOnAction(e -> loadView("main_view.fxml"));
+        setupBackButton(btnBack);
 
         // Tabelle einrichten und mit den aktuellen Tickets befüllen.
         setupTable();
@@ -67,33 +67,14 @@ public class HistoryController extends BaseController {
         colTechnician.setCellValueFactory(new PropertyValueFactory<>("technician"));
 
         // Benutzerdefinierte Status-Zellen: farbige Texte je nach Schweregrad.
-        //KI-Generiert Anfang
-        colOldStatus.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(item);
-                    // gelb = Warnung, rot = Austausch nötig war, grün = alles OK war
-                    String color = switch (item) {
-                        case "WARNING" -> "#ffcc00";
-                        case "REPLACE" -> "#ff4444";
-                        default        -> "#66ff66";
-                    };
-                    setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
-                }
-            }
-        });
+        colOldStatus.setCellFactory(col -> new ColoredTableCell<>(StatusColors::forSensorStatus));
     }
 //KI-Generiert Ende 
 
     // Lädt alle Tickets der aktuellen Sitzung aus dem Arbeitsspeicher
     // und gibt sie an die Tabelle weiter.
     private void loadHistory() {
-        List<MaintenanceTicket> tickets = sensorService.loadTickets();
+        List<MaintenanceTicket> tickets = ticketStore.getTickets();
         historyTable.setItems(FXCollections.observableArrayList(tickets));
     }
 

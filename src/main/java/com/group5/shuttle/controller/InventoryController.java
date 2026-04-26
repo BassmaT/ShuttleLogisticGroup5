@@ -1,12 +1,13 @@
 package com.group5.shuttle.controller;
 
 import com.group5.shuttle.model.InventoryItem;
-import com.group5.shuttle.service.SensorService;
+import com.group5.shuttle.service.InventoryService;
+import com.group5.shuttle.util.ColoredTableCell;
+import com.group5.shuttle.util.StatusColors;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -42,14 +43,13 @@ public class InventoryController extends BaseController {
     // Spalte für die Kurzbeschreibung des Bauteils.
     @FXML private TableColumn<InventoryItem, String>  colDescription;
 
-    // SensorService lädt die Lagerdaten aus der inventory.json-Datei.
-    private final SensorService sensorService = new SensorService();
+    private final InventoryService inventoryService = InventoryService.getInstance();
 
     // Wird automatisch aufgerufen, sobald die FXML-Datei vollständig geladen ist.
     @FXML
     public void initialize() {
         // Zurück-Button: Navigiert zum Haupt-Dashboard.
-        btnBack.setOnAction(e -> loadView("main_view.fxml"));
+        setupBackButton(btnBack);
 
         // Tabelle aufbauen und mit Daten füllen.
         setupTable();
@@ -67,30 +67,12 @@ public class InventoryController extends BaseController {
         colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
 
         // Benutzerdefinierte Darstellung: Status-Zelle bekommt je nach Wert eine andere Farbe.
-        colStatus.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(item);
-                    // rot = nicht vorrätig, gelb = fast leer, grün = ausreichend
-                    String color = switch (item) {
-                        case "LOW"          -> "#ffcc00";
-                        case "OUT_OF_STOCK" -> "#ff4444";
-                        default             -> "#66ff66";
-                    };
-                    setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
-                }
-            }
-        });
+        colStatus.setCellFactory(col -> new ColoredTableCell<>(StatusColors::forStockStatus));
     }
 
     // Lädt alle Lagerpositionen aus der Datei und gibt sie an die Tabelle weiter.
     private void loadInventory() {
-        List<InventoryItem> items = sensorService.loadInventory();
+        List<InventoryItem> items = inventoryService.loadInventory();
         // FXCollections.observableArrayList wandelt die normale Liste in eine JavaFX-Observable-Liste um,
         // damit die Tabelle auf Änderungen reagieren kann.
         inventoryTable.setItems(FXCollections.observableArrayList(items));

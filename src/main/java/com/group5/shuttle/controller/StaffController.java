@@ -4,21 +4,20 @@ import com.group5.shuttle.model.Employee;
 import com.group5.shuttle.model.RepairTask;
 import com.group5.shuttle.model.RoutineTask;
 import com.group5.shuttle.service.EmployeeService;
+import com.group5.shuttle.service.IRepairAccess;
+import com.group5.shuttle.service.IWorkerRegistry;
 import com.group5.shuttle.service.RoutineTaskStore;
 import com.group5.shuttle.service.TakeoverState;
+import com.group5.shuttle.util.ColoredTableCell;
+import com.group5.shuttle.util.StatusColors;
+import com.group5.shuttle.util.Styles;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,9 +25,6 @@ import java.util.List;
 // Links: Liste aller Mitarbeiter.
 // Rechts: Reparatur- und Routineaufgaben des ausgewählten Mitarbeiters.
 public class StaffController extends BaseController {
-
-    // Zeitformat für den Erledigungszeitstempel
-    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     // --- FXML-Verknüpfungen ---
 
@@ -58,6 +54,9 @@ public class StaffController extends BaseController {
     // Zurück-zum-Dashboard-Button (in BaseController mit Navigation verknüpft)
     @FXML private javafx.scene.control.Button btnBack;
 
+    private final IWorkerRegistry workerRegistry = TakeoverState.getInstance();
+    private final IRepairAccess   repairAccess   = TakeoverState.getInstance();
+
     // BaseController benötigt diesen Button, um das Fenster (Stage) zu ermitteln
     @Override
     protected javafx.scene.control.Button getNavigationButton() { return btnBack; }
@@ -76,7 +75,7 @@ public class StaffController extends BaseController {
             });
 
         // Zurück-Button verknüpfen
-        btnBack.setOnAction(e -> loadView("main_view.fxml"));
+        setupBackButton(btnBack);
     }
 
     // Befüllt die ListView mit allen Mitarbeitern aus EmployeeService
@@ -102,19 +101,15 @@ public class StaffController extends BaseController {
 
     // Zeigt Name, Rolle, Team und Tasks des ausgewählten Mitarbeiters an
     private void showEmployee(Employee emp) {
-        // Kopfzeile aktualisieren
         lblEmployeeName.setText(emp.getName());
         lblEmployeeRole.setText(emp.getRole());
         lblEmployeeTeam.setText(emp.getTeam());
 
-        // Reparaturaufgaben: alle Parts durchsuchen, Aufgaben mit diesem Mitarbeiter zusammensammeln
         List<RepairTask> assignedRepairs = new ArrayList<>();
-        TakeoverState state = TakeoverState.getInstance();
         for (String partKey : TakeoverState.PART_KEYS) {
-            String techName = state.getTechnicianName(partKey);
-            // Wenn dieser Mitarbeiter als Techniker für diesen Part eingetragen ist
+            String techName = workerRegistry.getTechnicianName(partKey);
             if (emp.getName().equals(techName)) {
-                assignedRepairs.addAll(state.getRepairs(partKey));
+                assignedRepairs.addAll(repairAccess.getRepairs(partKey));
             }
         }
         repairTaskTable.setItems(FXCollections.observableArrayList(assignedRepairs));
@@ -140,95 +135,14 @@ public class StaffController extends BaseController {
 
         // Status-Spalte mit Farbcodierung (gelb = WARNING, rot = REPLACE, grün = erledigt)
         colRepairStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-        colRepairStatus.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String status, boolean empty) {
-                super.updateItem(status, empty);
-                if (empty || status == null) { setText(null); setStyle(""); return; }
-                setText(status);
-                // Farbe je nach Status setzen
-                String color = switch (status) {
-                    case "REPLACE"  -> "#ff4444"; // rot
-                    case "WARNING"  -> "#ffcc00"; // gelb
-                    default         -> "#66ff66"; // grün (z. B. "OK" oder erledigt)
-                };
-                setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
-            }
-        });
+        colRepairStatus.setCellFactory(col -> new ColoredTableCell<>(StatusColors::forSensorStatus));
 
         // Hintergrundfarbe der Tabelle und Textfarbe für alle Zellen setzen
-        repairTaskTable.setStyle("-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;");
+        repairTaskTable.setStyle(Styles.TABLE_DARK);
     }
 
-    // Konfiguriert die Spalten der Routineaufgaben-Tabelle
     private void setupRoutineTable() {
-        // Aufgabenname – durchgestrichen und grau, wenn die Aufgabe erledigt ist
-        colRoutineName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        colRoutineName.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String name, boolean empty) {
-                super.updateItem(name, empty);
-                if (empty || name == null || getTableRow() == null || getTableRow().getItem() == null) {
-                    setText(null); setStyle(""); return;
-                }
-                RoutineTask task = getTableRow().getItem();
-                setText(name);
-                boolean done = task.isDone();
-                setStyle(done
-                    ? "-fx-strikethrough: true; -fx-text-fill: #666666;"
-                    : "-fx-strikethrough: false; -fx-text-fill: white;");
-                // Tabelle neu rendern, wenn done-Status sich ändert
-                task.doneProperty().addListener((obs, o, n) -> routineTaskTable.refresh());
-            }
-        });
-
-        // Shuttle-Teil
-        colRoutinePart.setCellValueFactory(new PropertyValueFactory<>("shuttlePart"));
-
-        // Geschätzte Dauer in Minuten
-        colRoutineEst.setCellValueFactory(new PropertyValueFactory<>("estimatedMinutes"));
-
-        // Done-Checkbox: beim Abhaken wird completedAt gesetzt
-        colRoutineDone.setCellValueFactory(data -> data.getValue().doneProperty());
-        colRoutineDone.setCellFactory(col -> {
-            CheckBoxTableCell<RoutineTask, Boolean> cell = new CheckBoxTableCell<>();
-            return cell;
-        });
-        // Wenn eine Checkbox-Zelle geklickt wird, completedAt aktualisieren
-        colRoutineDone.setEditable(true);
-        routineTaskTable.setEditable(true);
-
-        // Listener auf das doneProperty jeder Aufgabe, damit completedAt gesetzt wird
-        routineTaskTable.getItems().addListener(
-            (javafx.collections.ListChangeListener<RoutineTask>) change -> {
-                while (change.next()) {
-                    for (RoutineTask task : change.getAddedSubList()) {
-                        task.doneProperty().addListener((obs, oldVal, newVal) -> {
-                            if (newVal) {
-                                // Erledigt: Zeitstempel setzen
-                                task.setCompletedAt(LocalDateTime.now().format(FMT));
-                            } else {
-                                // Rückgängig gemacht: Zeitstempel löschen
-                                task.setCompletedAt(null);
-                            }
-                            // Tabelle neu zeichnen, damit completedAt-Spalte aktualisiert wird
-                            routineTaskTable.refresh();
-                        });
-                    }
-                }
-            });
-
-        // Erledigungszeitstempel (leer wenn noch nicht erledigt)
-        colRoutineTime.setCellValueFactory(new PropertyValueFactory<>("completedAt"));
-        colRoutineTime.setCellFactory(col -> new TableCell<>() {
-            @Override
-            protected void updateItem(String ts, boolean empty) {
-                super.updateItem(ts, empty);
-                if (empty || ts == null) { setText("–"); setStyle("-fx-text-fill: #666;"); }
-                else { setText(ts); setStyle("-fx-text-fill: #66ff66;"); }
-            }
-        });
-
-        routineTaskTable.setStyle("-fx-background: #2a2a2a; -fx-background-color: #2a2a2a;");
+        RoutineTableHelper.setup(routineTaskTable, colRoutineName, colRoutineEst, colRoutineDone, colRoutineTime);
+        colRoutinePart.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("shuttlePart"));
     }
 }

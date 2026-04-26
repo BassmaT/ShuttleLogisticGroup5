@@ -13,7 +13,7 @@
 
 <!--
     Staff-Übersicht.
-    Links: Liste aller Mitarbeiter (aus employees.json).
+    Links: Liste aller Mitarbeiter 
     Rechts: Beim Klick auf einen Mitarbeiter werden seine Reparatur- und Routineaufgaben angezeigt.
     fx:controller verknüpft diese Datei mit StaffController.
 -->

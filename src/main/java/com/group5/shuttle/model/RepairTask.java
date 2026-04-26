@@ -2,6 +2,8 @@ package com.group5.shuttle.model;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
+import com.group5.shuttle.model.SensorStatus;
+import com.group5.shuttle.model.StockStatus;
 
 // Eine Reparaturaufgabe für einen defekten oder verschlissenen Sensor.
 // Wird automatisch erstellt, wenn ein Sensor den Grenzwert über- oder unterschreitet.
@@ -33,22 +35,19 @@ public class RepairTask {
     // "OUT_OF_STOCK" → Teil ist nicht auf Lager, muss bestellt werden
     // "ORDERED"      → Teil wurde bestellt, kommt in Kürze
     // "ARRIVED"      → Teil ist eingetroffen, Reparatur kann beginnen
-    private final SimpleStringProperty partStatus = new SimpleStringProperty("NONE");
+    private final SimpleStringProperty partStatus = new SimpleStringProperty(StockStatus.NONE.name());
 
     // Gibt an, ob der Techniker die "Erledigt"-Checkbox anklicken darf.
     // Erst true, wenn das Teil verfügbar oder eingetroffen ist.
     private final SimpleBooleanProperty partAvailable = new SimpleBooleanProperty(true);
 
     // Konstruktor – wird aufgerufen, wenn eine neue Reparaturaufgabe erstellt wird.
-    public RepairTask(String partKey, String sensorName, String status) {
+    public RepairTask(String partKey, String sensorName, SensorStatus status, String action) {
         this.partKey    = partKey;
         this.sensorName = new SimpleStringProperty(sensorName);
-        this.status     = new SimpleStringProperty(status);
-        // Je nach Schwere des Fehlers wird automatisch die passende Maßnahme gewählt.
-        this.action     = new SimpleStringProperty(
-            status.equals("REPLACE") ? "Replace component" : "Inspect and adjust"
-        );
-        this.done       = new SimpleBooleanProperty(false); // zu Beginn noch nicht erledigt
+        this.status     = new SimpleStringProperty(status.name());
+        this.action     = new SimpleStringProperty(action);
+        this.done       = new SimpleBooleanProperty(false);
     }
 
     // Gibt den Schlüssel des Shuttle-Teils zurück, z. B. "orbiter".
@@ -76,9 +75,9 @@ public class RepairTask {
     public void   setRequiredItemName(String requiredItemName) { this.requiredItemName = requiredItemName; }
 
     // Lagerstatus des benötigten Teils – Getter, Setter und Property-Zugriff.
-    public String getPartStatus()                    { return partStatus.get(); }
-    public void   setPartStatus(String s)            { partStatus.set(s); }
-    public SimpleStringProperty partStatusProperty() { return partStatus; }
+    public String getPartStatus()                         { return partStatus.get(); }
+    public void   setPartStatus(StockStatus s)            { partStatus.set(s.name()); }
+    public SimpleStringProperty partStatusProperty()      { return partStatus; }
 
     // Gibt an, ob die Erledigt-Checkbox aktiviert ist – Getter, Setter und Property-Zugriff.
     public boolean isPartAvailable()                     { return partAvailable.get(); }

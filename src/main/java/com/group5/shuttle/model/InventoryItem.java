@@ -1,41 +1,55 @@
 package com.group5.shuttle.model;
 
+import com.group5.shuttle.service.InventoryStatusCalculator;
+
 public class InventoryItem {
 
     // Eindeutige ID des Lagerartikels, z. B. "INV-001".
-    public String id;
+    private String id;
 
     // Name des Bauteils, z. B. "Heat Shield Panel".
-    public String name;
+    private String name;
 
     // Zu welchem Shuttle-Teil gehört dieses Bauteil, z. B. "Orbiter".
-    public String part;
+    private String part;
 
     // Wie viele Stück davon auf Lager sind.
-    public int quantity;
+    private int quantity;
 
     // Lagerstatus: "IN_STOCK", "LOW" oder "OUT_OF_STOCK".
-    public String status;
+    //private String status;
 
     // Kurze Beschreibung: was das Bauteil ist und wofür es gebraucht wird
-    public String description;
+    private String description;
+    private StockStatus status;
+
+    // Konstruktor – initialisiert einen Lagerartikel vollständig.
+    // status wird über setQuantity() automatisch berechnet,
+    // kann aber durch den expliziten status-Parameter überschrieben werden.
+    public InventoryItem(String id, String name, String part,
+                         int quantity, StockStatus status, String description) {
+        this.id          = id;
+        this.name        = name;
+        this.part        = part;
+        this.description = description;
+        this.quantity    = quantity;
+        this.status      = status;
+    }
 
     // Getter-Methoden – werden von PropertyValueFactory für die Tabelle benötigt.
     public String getId()          { return id; }
     public String getName()        { return name; }
     public String getPart()        { return part; }
     public int    getQuantity()    { return quantity; }
-    public String getStatus()      { return status; }
+    public StockStatus getStatus()      { return status; }
     public String getDescription() { return description; }
 
     // Setzt die neue Menge und berechnet dabei automatisch den Status neu.
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-        if (quantity <= 0)      this.status = "OUT_OF_STOCK"; // nichts mehr auf Lager
-        else if (quantity <= 2) this.status = "LOW";          // fast leer
-        else                    this.status = "IN_STOCK";     // ausreichend vorhanden
+        this.status = InventoryStatusCalculator.calculate(quantity);
     }
 
     // Ermöglicht das direkte Setzen des Status-Strings von außen.
-    public void setStatus(String status) { this.status = status; }
+    public void setStatus(StockStatus status) { this.status = status; }
 }

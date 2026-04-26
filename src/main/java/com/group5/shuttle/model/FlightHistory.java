@@ -6,8 +6,11 @@ import java.util.List;
 public class FlightHistory {
 
     // Liste aller historischen Flüge (chronologisch sortiert)
-    public List<FlightRecord> flights;
+    private final List<FlightRecord> flights;
 
-    // Getter für die Flugliste
+    public FlightHistory(List<FlightRecord> flights) {
+        this.flights = flights;
+    }
+
     public List<FlightRecord> getFlights() { return flights; }
 }

@@ -13,16 +13,14 @@ import java.util.Map;
 // Analysiert historische Flugdaten und berechnet Trendvorhersagen für jeden Sensor.
 // Gibt TrendResult-Objekte zurück, die im Dashboard als Warnungen angezeigt werden.
 // Kein Singleton – diese Klasse hat keinen veränderbaren Zustand.
-public class PredictiveAnalysisService {
+public class PredictiveAnalysisService implements IPredictiveAnalysisService {
 
-    // SensorService wird für das Laden der Flughistorie und Grenzwerte verwendet
-    private final SensorService sensorService = new SensorService();
+    private final IFlightHistoryService flightHistoryService = FlightHistoryService.getInstance();
+    private final ISensorDataService    sensorDataService    = SensorDataService.getInstance();
 
-    // Analysiert alle Sensoren über die letzten 5 Flüge.
-    // Gibt eine Map zurück: Teilschlüssel (z. B. "srb") → Liste der Trendresultate
     public Map<String, List<TrendResult>> analyzeAll() {
-        FlightHistory history = sensorService.loadFlightHistory();
-        Map<String, Map<String, SensorThreshold>> thresholds = sensorService.loadThresholds();
+        FlightHistory history = flightHistoryService.loadFlightHistory();
+        Map<String, Map<String, SensorThreshold>> thresholds = sensorDataService.loadThresholds();
         Map<String, List<TrendResult>> result = new LinkedHashMap<>();
 
         // Ohne Flugdaten ist keine Analyse möglich
@@ -72,10 +70,10 @@ public class PredictiveAnalysisService {
                 double currentValue = values.get(values.size() - 1);
 
                 // Flüge bis zum Grenzwert berechnen
-                int flightsUntilLimit = computeFlightsUntilLimit(currentValue, trendPerFlight, threshold);
+                int flightsUntilLimit = TrendCalculator.computeFlightsUntilLimit(currentValue, trendPerFlight, threshold);
 
                 // Lesbaren Empfehlungstext erzeugen
-                String recommendation = buildRecommendation(
+                String recommendation = TrendCalculator.buildRecommendation(
                     sensorName, trendPerFlight, direction, flightsUntilLimit);
 
                 partTrends.add(new TrendResult(
@@ -85,48 +83,5 @@ public class PredictiveAnalysisService {
         }
         return result;
     }
-
-    // Berechnet, wie viele Flüge es noch dauert, bis der Grenzwert erreicht wird.
-    // Gibt -1 zurück, wenn keine Berechnung möglich ist (kein Trend oder kein Grenzwert) KI
-    private int computeFlightsUntilLimit(double current, double trend, SensorThreshold t) {
-        if (t == null || Math.abs(trend) < 0.001) return -1;
-
-        // Steigender Trend → nähert sich dem Maximum
-        if (trend > 0 && t.max != null) {
-            double remaining = t.max - current;
-            if (remaining <= 0) return 0; // bereits überschritten
-            return (int) Math.ceil(remaining / trend);
-        }
-        // Fallender Trend → nähert sich dem Minimum
-        if (trend < 0 && t.min != null) {
-            double remaining = current - t.min;
-            if (remaining <= 0) return 0; // bereits unterschritten
-            return (int) Math.ceil(remaining / (-trend));
-        }
-        return -1; // keine passende Grenzwert-Richtung vorhanden
-    }
-
-    // Erzeugt einen verständlichen  Empfehlungstext für die Anzeige im Dashboard mit HILFE von KI erstellt 
-    private String buildRecommendation(String sensor, double trend, String direction, int flights) {
-        String trendStr = String.format("%.2f/Flight", Math.abs(trend));
-
-        if (direction.equals("STABLE")) {
-            return sensor + " is stable – no action required.";
-        }
-
-        // Richtungsangabe 
-        String dirStr = direction.equals("RISING") ? "rising" : "decreases";
-        String base = sensor + " " + dirStr + " ~" + trendStr;
-
-        if (flights == 0) {
-            return base + ". THRESHHOLD REACHED – immediate replacement recommended!";
-        }
-        if (flights > 0 && flights <= 3) {
-            return base + ". Replacment in " + flights + " flights recommended.";
-        }
-        if (flights > 0) {
-            return base + ". Monitor – Threshold expected to be reached at " + flights + " flights.";
-        }
-        return base + ".";
-    }
 }
+

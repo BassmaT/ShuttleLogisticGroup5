@@ -5,25 +5,37 @@ package com.group5.shuttle.model;
 public class MaintenanceTicket {
 
     // Eindeutige Ticket-Nummer, z. B. "TKT-001".
-    public String id;
+    private String id;
 
     // Datum und Uhrzeit der Reparatur, z. B. "2026-04-05 14:32:10".
-    public String date;
+    private String date;
 
     // Welcher Shuttle-Teil wurde repariert, z. B. "Orbiter".
-    public String part;
+    private String part;
 
     // Welcher Sensor hat die Reparatur ausgelöst, z. B. "coolantPressure".
-    public String sensor;
+    private String sensor;
 
     // Welchen Status hatte der Sensor vor der Reparatur: "WARNING" oder "REPLACE".
-    public String oldStatus;
+    private String oldStatus;
 
     // Was wurde konkret gemacht, z. B. "Replace component – used: Heat Shield Panel".
-    public String action;
+    private String action;
 
     // Wer hat die Reparatur durchgeführt – Name des Technikers.
-    public String technician;
+    private String technician;
+
+    // Konstruktor – initialisiert ein vollständiges Ticket in einem Schritt.
+    public MaintenanceTicket(String id, String date, String part, String sensor,
+                             String oldStatus, String action, String technician) {
+        this.id         = id;
+        this.date       = date;
+        this.part       = part;
+        this.sensor     = sensor;
+        this.oldStatus  = oldStatus;
+        this.action     = action;
+        this.technician = technician;
+    }
 
     // Getter-Methoden – werden von PropertyValueFactory für die History-Tabelle benötigt.
     public String getId()         { return id; }

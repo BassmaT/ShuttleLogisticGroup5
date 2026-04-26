@@ -39,13 +39,22 @@ import java.util.List;
 import java.util.Map;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
+import javafx.fxml.FXMLLoader;
+import java.io.IOException;
+import javafx.fxml.FXMLLoader;
+import java.io.IOException;
+import javafx.scene.control.ChoiceDialog;
+import javafx.scene.Parent;
 
 // Controller für das Haupt-Dashboard (main_view.fxml).
 // Zeigt den Übernahme-Fortschritt, aktive Arbeiter, Sensorwarnungen und Sensor-Details.
 // Diese Klasse wird als erstes geladen, wenn die App startet.
 public class MainController extends BaseController {
 
-    @Override protected Button getNavigationButton() { return btnMission; }
+    @Override
+    protected Button getNavigationButton() {
+        return btnMission;
+    }
 
     @Override
     protected void loadView(String fxml) {
@@ -54,82 +63,100 @@ public class MainController extends BaseController {
     }
 
     // Navigations-Buttons in der linken Seitenleiste.
-    @FXML private Button btnMission;    // öffnet Mission Control
-    @FXML private Button btnTechnician; // öffnet das Techniker-Panel
-    @FXML private Button btnInventory;  // öffnet die Lagerübersicht
-    @FXML private Button btnHistory;    // öffnet die Wartungshistorie
-    @FXML private Button btnStaff;      // öffnet die Mitarbeiter-Übersicht
-    @FXML private Button btnLogistics;  // öffnet das Logistik-System
-    @FXML private Button btnSchedule;   // öffnet den interaktiven Zeitplan
+    @FXML
+    private Button btnMission;    // öffnet Mission Control
+    @FXML
+    private Button btnTechnician; // öffnet das Techniker-Panel
+    @FXML
+    private Button btnInventory;  // öffnet die Lagerübersicht
+    @FXML
+    private Button btnHistory;    // öffnet die Wartungshistorie
+    @FXML
+    private Button btnStaff;      // öffnet die Mitarbeiter-Übersicht
+    @FXML
+    private Button btnLogistics;  // öffnet das Logistik-System
+    @FXML
+    private Button btnSchedule;   // öffnet den interaktiven Zeitplan
 
     // Button, der nach vollständiger Übernahme (100%) erscheint.
-    @FXML private Button btnFinish;
+    @FXML
+    private Button btnFinish;
 
     // Fortschrittsbalken – zeigt 0% bis 100% Übernahme-Fortschritt.
-    @FXML private ProgressBar progressTakeover;
+    @FXML
+    private ProgressBar progressTakeover;
 
     // Zeigt die aktuelle Warnstufe an, z. B. "Critical issue detected".
-    @FXML private Label lblWarning;
+    @FXML
+    private Label lblWarning;
 
     // Zeigt den allgemeinen Systemstatus an, z. B. "Systems nominal".
-    @FXML private Label lblStatus;
+    @FXML
+    private Label lblStatus;
 
     // Zeigt den Freigabe-Status aller drei Teile an, z. B. "Orbiter ✓  SRB ✗  External Tank ✗".
-    @FXML private Label lblApprovalStatus;
+    @FXML
+    private Label lblApprovalStatus;
 
     // Zeigt den aktuellen Zeitplan-Status an (grün = im Plan, gelb = Stunden hinter Plan, rot = Tag hinter Plan).
-    @FXML private Label lblScheduleStatus;
+    @FXML
+    private Label lblScheduleStatus;
 
     // Container, der dynamisch befüllt wird mit den aktiven Arbeitern pro Shuttle-Teil.
-    @FXML private VBox sensorContainer;
+    @FXML
+    private VBox sensorContainer;
 
     // Container für die "Aktive Arbeit"-Sektion – wer arbeitet gerade wo.
-    @FXML private VBox activeWorkContainer;
+    @FXML
+    private VBox activeWorkContainer;
 
     // Zeigt die zuletzt durchgeführte Aktion an, z. B. "J. Miller completed repairs on Orbiter".
-    @FXML private Label lblLastActivity;
+    @FXML
+    private Label lblLastActivity;
 
     // Container für die Schedule-Vorschau
-    @FXML private VBox scheduleContainer;
+    @FXML
+    private VBox scheduleContainer;
 
     // Container für Predictive-Maintenance-Warnungen
-    @FXML private VBox predictiveContainer;
+    @FXML
+    private VBox predictiveContainer;
 
     // ── Landing-Banner (sichtbar während LANDING und SENSOR_LOADING) ──────────
 
     // Wrapper-VBox des Landing-Banners
-    @FXML private VBox landingBanner;
+    @FXML
+    private VBox landingBanner;
 
     // Countdown-Text, z. B. "Approaching in 12:00 min..."
-    @FXML private Label lblLandingCountdown;
+    @FXML
+    private Label lblLandingCountdown;
 
     // Fortschrittsbalken des Landing-Countdowns
-    @FXML private ProgressBar progressLanding;
+    @FXML
+    private ProgressBar progressLanding;
 
     // Status-Text unter dem Fortschrittsbalken
-    @FXML private Label lblLandingStatus;
+    @FXML
+    private Label lblLandingStatus;
 
-    @FXML private VBox chatHistory;
-    @FXML private TextField txtChatInput;
-
-    @FXML private StackPane aiDrawer;
-    @FXML private Label lblCurrentUser;
+    @FXML
+    private Label lblCurrentUser;
 
     // ── Services & State ──────────────────────────────────────────────────────
 
-    private final ISensorDataService  sensorService  = SensorDataService.getInstance();
-    private final IScheduleService    scheduleService = ScheduleService.getInstance();
-    private final IPhaseTracker       phaseTracker   = TakeoverState.getInstance();
-    private final IPartApproval       partApproval      = TakeoverState.getInstance();
-    private final ITakeoverProgress   takeoverProgress  = TakeoverState.getInstance();
-    private final IWorkerRegistry     workerReg      = TakeoverState.getInstance();
-    private final IRepairAccess       repairAccess   = TakeoverState.getInstance();
+    private final ISensorDataService sensorService = SensorDataService.getInstance();
+    private final IScheduleService scheduleService = ScheduleService.getInstance();
+    private final IPhaseTracker phaseTracker = TakeoverState.getInstance();
+    private final IPartApproval partApproval = TakeoverState.getInstance();
+    private final ITakeoverProgress takeoverProgress = TakeoverState.getInstance();
+    private final IWorkerRegistry workerReg = TakeoverState.getInstance();
+    private final IRepairAccess repairAccess = TakeoverState.getInstance();
     private final IPredictiveAnalysisService predictiveService = new PredictiveAnalysisService();
 
-    private SensorPanelController     sensorPanel;
-    private SchedulePanelController   schedulePanel;
+    private SensorPanelController sensorPanel;
+    private SchedulePanelController schedulePanel;
     private PredictivePanelController predictivePanel;
-    private AiChatController          aiChat;
 
     private RoleAccessController roleAccess;
 
@@ -139,12 +166,12 @@ public class MainController extends BaseController {
     // initialize() wird automatisch aufgerufen, wenn das FXML geladen ist.
     @FXML
     public void initialize() {
-        sensorPanel     = new SensorPanelController(sensorContainer, sensorService, partApproval);
-        schedulePanel   = new SchedulePanelController(scheduleContainer, scheduleService,
-                              EmployeeService.getInstance());
+        sensorPanel = new SensorPanelController(sensorContainer, sensorService, partApproval);
+        schedulePanel = new SchedulePanelController(scheduleContainer, scheduleService,
+                EmployeeService.getInstance());
         predictivePanel = new PredictivePanelController(predictiveContainer, predictiveService);
-        aiChat          = new AiChatController(chatHistory, txtChatInput, aiDrawer);
-        aiChat.initialize();
+
+        initAiChat();
         initNavigation();
         initPhase();
     }
@@ -154,7 +181,7 @@ public class MainController extends BaseController {
         phaseTimer.stop();
 
         List<Button> navButtons = List.of(btnMission, btnTechnician, btnInventory,
-                                          btnHistory, btnStaff, btnLogistics, btnSchedule);
+                btnHistory, btnStaff, btnLogistics, btnSchedule);
         for (Button btn : navButtons) {
             btn.setOnMouseEntered(e -> btn.setStyle(Styles.NAV_BTN_HOVER));
             btn.setOnMouseExited(e -> btn.setStyle(Styles.NAV_BTN_NORMAL));
@@ -181,20 +208,20 @@ public class MainController extends BaseController {
         updateProfileLabel();
 
         Map<String, Button> btnMap = Map.of(
-            "btnMission",    btnMission,
-            "btnTechnician", btnTechnician,
-            "btnInventory",  btnInventory,
-            "btnHistory",    btnHistory,
-            "btnStaff",      btnStaff,
-            "btnLogistics",  btnLogistics,
-            "btnSchedule",   btnSchedule);
+                "btnMission", btnMission,
+                "btnTechnician", btnTechnician,
+                "btnInventory", btnInventory,
+                "btnHistory", btnHistory,
+                "btnStaff", btnStaff,
+                "btnLogistics", btnLogistics,
+                "btnSchedule", btnSchedule);
         roleAccess = new RoleAccessController(RoleConfig.RESTRICTED_BUTTONS, btnMap);
     }
 
     // Liest die aktuelle App-Phase und startet den passenden Timer oder wechselt direkt in OPERATIONAL.
     private void initPhase() {
-        AppPhase phase  = phaseTracker.getAppPhase();
-        int remaining   = phaseTracker.getRemainingSeconds();
+        AppPhase phase = phaseTracker.getAppPhase();
+        int remaining = phaseTracker.getRemainingSeconds();
 
         if (phase == AppPhase.LANDING) {
             applyPhase(AppPhase.LANDING);
@@ -219,32 +246,58 @@ public class MainController extends BaseController {
 
     @FXML
     private void toggleAiChat() {
-        aiChat.toggle();
+        if (aiDrawer != null) {
+            boolean wirdSichtbar = !aiDrawer.isVisible();
+            aiDrawer.setVisible(wirdSichtbar);
+            aiDrawer.setManaged(wirdSichtbar); // WICHTIG: Reserviert den Platz im Layout
+
+            if (wirdSichtbar) {
+                aiDrawer.setMinWidth(300); // Breite erzwingen
+                aiDrawer.setPrefWidth(300);
+
+                // Falls der Chat noch nie geladen wurde, jetzt initialisieren
+                if (aiChat == null) {
+                    initAiChat();
+                }
+            }
+        }
     }
 
     private void updateProfileLabel() {
-        Employee u = SessionState.getInstance().getCurrentUser();
-        if (lblCurrentUser != null)
-            lblCurrentUser.setText(u != null ? u.getName() + "  ·  " + u.getRole() : "");
+        Employee current = SessionState.getInstance().getCurrentUser();
+        if (current != null && lblCurrentUser != null) {
+            lblCurrentUser.setText(current.getName() + " (" + current.getRole() + ")");
+        }
     }
 
     @FXML
     private void switchUser() {
         List<Employee> all = EmployeeService.getInstance().getAllEmployees();
         Employee current = SessionState.getInstance().getCurrentUser();
+
         ChoiceDialog<Employee> dlg = new ChoiceDialog<>(current, all);
         dlg.setTitle("Switch User");
         dlg.setHeaderText("Select user — progress is kept:");
+
+        // Styling für das Dialog-Fenster (optional, damit es zum Dark-Theme passt)
+        dlg.getDialogPane().setStyle("-fx-background-color: #161B22; -fx-text-fill: white;");
+
         dlg.showAndWait().ifPresent(sel -> {
             SessionState.getInstance().setCurrentUser(sel);
-            updateProfileLabel();
-            if (phaseTracker.getAppPhase() == AppPhase.OPERATIONAL) applyRoleRestrictions();
-        });
-    }
 
-    @FXML
-    private void handleChatInput() {
-        aiChat.handleInput();
+            // WICHTIG: Hier muss der Name stehen, der in deinem Controller definiert ist
+            updateProfileLabel();
+
+            // Falls du Rollen-Einschränkungen hast:
+            if (phaseTracker.getAppPhase() == AppPhase.OPERATIONAL) {
+                applyRoleRestrictions();
+            }
+
+            // Bonus für die KI: Kontext beim Wechsel aktualisieren
+            if (aiChat != null) {
+                aiChat.setContext(sel.getRole().toString());
+            }
+        });
     }
 
     // ── Phase-Management ──────────────────────────────────────────────────────
@@ -278,12 +331,12 @@ public class MainController extends BaseController {
         // Warn- und Status-Label während Landung überschreiben
         if (!isOperational) {
             lblWarning.setText(phase == AppPhase.LANDING
-                ? "Shuttle is landing – pre-order parts in Logistics"
-                : "Loading sensor data...");
+                    ? "Shuttle is landing – pre-order parts in Logistics"
+                    : "Loading sensor data...");
             lblWarning.setStyle("-fx-text-fill: #66aaff; -fx-font-size: 15px;");
             lblStatus.setText(phase == AppPhase.LANDING
-                ? "Operations begin after landing"
-                : "Please wait – sensor calibration in progress");
+                    ? "Operations begin after landing"
+                    : "Please wait – sensor calibration in progress");
         }
 
         // Im Betrieb: Rollenbeschränkungen des eingeloggten Mitarbeiters anwenden
@@ -294,7 +347,7 @@ public class MainController extends BaseController {
 
     private void applyRoleRestrictions() {
         roleAccess.applyRestrictions(List.of(btnMission, btnTechnician, btnInventory,
-                                             btnHistory, btnStaff, btnLogistics, btnSchedule));
+                btnHistory, btnStaff, btnLogistics, btnSchedule));
     }
 
     // Startet den 1-Sekunden-Takt für den Landecountdown mit HILFE von KI erstellt
@@ -380,9 +433,9 @@ public class MainController extends BaseController {
         IPhaseTracker.ScheduleStatus schedStatus = phaseTracker.getScheduleStatus();
         progressTakeover.setStyle(schedStatus.getProgressStyle());
 
-        double simH  = phaseTracker.getSimulatedHoursElapsed();
-        int simDay   = Math.min((int)(simH / 24) + 1, 3);
-        int simHour  = (int)(simH % 24);
+        double simH = phaseTracker.getSimulatedHoursElapsed();
+        int simDay = Math.min((int) (simH / 24) + 1, 3);
+        int simHour = (int) (simH % 24);
         String timeText = String.format("Day %d, %02d:00 (sim)", simDay, simHour);
         lblScheduleStatus.setText(timeText + "  –  " + schedStatus.getLabel());
         lblScheduleStatus.setStyle("-fx-text-fill: " + schedStatus.getColor() + "; -fx-font-size: 11px;");
@@ -390,9 +443,9 @@ public class MainController extends BaseController {
 
     // Aktualisiert die Freigabe-Übersicht, aktive Arbeiter und letzte Aktivität.
     private void updateApprovalAndWorkers() {
-        String orbiterStatus = partApproval.isPartApproved("orbiter")     ? "Orbiter ✓"      : "Orbiter ✗";
-        String srbStatus     = partApproval.isPartApproved("srb")          ? "SRB ✓"           : "SRB ✗";
-        String tankStatus    = partApproval.isPartApproved("externalTank") ? "External Tank ✓" : "External Tank ✗";
+        String orbiterStatus = partApproval.isPartApproved("orbiter") ? "Orbiter ✓" : "Orbiter ✗";
+        String srbStatus = partApproval.isPartApproved("srb") ? "SRB ✓" : "SRB ✗";
+        String tankStatus = partApproval.isPartApproved("externalTank") ? "External Tank ✓" : "External Tank ✗";
         lblApprovalStatus.setText(orbiterStatus + "   " + srbStatus + "   " + tankStatus);
 
         activeWorkContainer.getChildren().clear();
@@ -401,7 +454,7 @@ public class MainController extends BaseController {
             if (worker == null) continue;
             boolean approved = partApproval.isPartApproved(partKey);
             String suffix = approved ? " – Approved ✓" : " – In Progress";
-            String color  = approved ? "#66ff66" : "#ffcc00";
+            String color = approved ? "#66ff66" : "#ffcc00";
             Label lbl = new Label(TakeoverState.getDisplayName(partKey) + ": " + worker + suffix);
             lbl.setStyle(Styles.label13(color));
             activeWorkContainer.getChildren().add(lbl);
@@ -446,6 +499,7 @@ public class MainController extends BaseController {
     private void updatePredictiveWarnings() {
         predictivePanel.update();
     }
+
     // und aktualisiert die Warn- und Status-Labels entsprechend.
     private void updateWarningLabel(ShuttleData data,
                                     Map<String, Map<String, SensorThreshold>> thresholds) {
@@ -468,4 +522,29 @@ public class MainController extends BaseController {
         }
     }
 
+    @FXML
+    private StackPane aiDrawer;
+    private AiChatController aiChat;
+
+
+    private void initAiChat() {
+        try {
+            FXMLLoader loader =
+                    new FXMLLoader(getClass().getResource("/view/ai_chat.fxml"));
+            Parent root = loader.load();
+
+            aiChat = loader.getController();
+
+            aiDrawer.getChildren().clear();
+            aiDrawer.getChildren().add(root);
+
+            var user = SessionState.getInstance().getCurrentUser();
+            if (user != null) {
+                aiChat.setContext(user.getRole().toString());
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -81,7 +81,7 @@ classDiagram
     }
 
     class AiChatController {
-        +toggle()
+        +setContext(role: String)
         +handleInput()
     }
 
@@ -144,6 +144,7 @@ classDiagram
         +getAllEmployees() List~Employee~
         +getById(id: String) Optional~Employee~
         +getByRole(role: String) List~Employee~
+        +getByTeam(team: String) List~Employee~
     }
 
     class IInventoryService {
@@ -193,6 +194,7 @@ classDiagram
     class IWorkerRegistry {
         <<interface>>
         +registerWorker(partKey, name, role)
+        +getWorkerInfo(partKey: String) String
         +getTechnicianName(partKey: String) String
         +getSecurityChiefName(partKey: String) String
     }
@@ -201,8 +203,10 @@ classDiagram
         <<interface>>
         +getAppPhase() AppPhase
         +getRemainingSeconds() int
+        +getSimulatedHoursElapsed() double
         +getScheduleStatus() ScheduleStatus
         +beginLanding()
+        +beginSensorLoading()
         +setOperational()
         +reset()
     }
@@ -271,6 +275,7 @@ classDiagram
         +getAllTasks() List~RoutineTask~
         +getTasksForEmployee(empId: String) List~RoutineTask~
         +getTasksForPart(part: String) List~RoutineTask~
+        +getById(id: String) Optional~RoutineTask~
         +reset()
     }
 
@@ -418,6 +423,7 @@ classDiagram
     StaffController --> IWorkerRegistry
     StaffController --> IRepairAccess
     ScheduleController --> IScheduleService
+    ScheduleController --> EmployeeService
     TechnicianController --> ISensorDataService
     SensorPanelController --> SensorEvaluator
     SensorPanelController --> IPartApproval

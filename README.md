@@ -221,8 +221,7 @@ classDiagram
     }
 
     class AiChatController {
-        +initialize()
-        +toggle()
+        +setContext(role: String)
         +handleInput()
     }
 
@@ -260,7 +259,7 @@ classDiagram
     MissionControlController --> InventoryStatusPanelController : creates
     MissionControlController ..> RoutineTableHelper : uses
     StaffController ..> RoutineTableHelper : uses
-    AiChatController ..> AiAdvisorService : calls
+    AiChatController ..> AiAdvisorService : calls (nicht aktiv genutzt)
 ```
 
 ### 3b. Service-Interfaces und Implementierungen
@@ -333,6 +332,7 @@ classDiagram
     class IWorkerRegistry {
         <<interface>>
         +registerWorker(partKey, name, role)
+        +getWorkerInfo(partKey: String) String
         +getTechnicianName(partKey: String) String
         +getSecurityChiefName(partKey: String) String
     }
@@ -341,8 +341,10 @@ classDiagram
         <<interface>>
         +getAppPhase() AppPhase
         +getRemainingSeconds() int
+        +getSimulatedHoursElapsed() double
         +getScheduleStatus() ScheduleStatus
         +beginLanding()
+        +beginSensorLoading()
         +setOperational()
         +reset()
     }
@@ -440,6 +442,8 @@ classDiagram
         +getInstance()$ RoutineTaskStore
         +getTasksForEmployee(empId: String) List
         +getTasksForPart(part: String) List
+        +getById(id: String) Optional~RoutineTask~
+        +reset()
     }
 
     class PhaseTimerService {
@@ -872,6 +876,7 @@ classDiagram
     StaffController --> IWorkerRegistry
     StaffController --> IRepairAccess
     ScheduleController --> IScheduleService
+    ScheduleController --> EmployeeService
     TechnicianController --> ISensorDataService
     SensorPanelController --> SensorEvaluator
     SensorPanelController --> IPartApproval
@@ -974,7 +979,7 @@ sequenceDiagram
     OS->>App: main()
     App->>LC: initialize() [login_view.fxml geladen]
     LC->>ES: getAllEmployees()
-    ES-->>LC: List~Employee~ (12 Mitarbeiter, 4 Rollen)
+    ES-->>LC: List~Employee~ (4 Mitarbeiter, 4 Rollen)
     LC-->>User: ComboBox mit EmployeeListCell befüllt
 
     User->>LC: Wählt Name aus ComboBox

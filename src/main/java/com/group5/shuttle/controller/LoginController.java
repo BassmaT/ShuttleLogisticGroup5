@@ -3,6 +3,8 @@ package com.group5.shuttle.controller;
 import com.group5.shuttle.model.Employee;
 import com.group5.shuttle.service.EmployeeService;
 import com.group5.shuttle.service.SessionState;
+import com.group5.shuttle.model.UserRole;
+import com.group5.shuttle.service.SessionState;
 
 import com.group5.shuttle.util.Dialogs;
 import com.group5.shuttle.util.EmployeeListCell;
@@ -55,10 +57,20 @@ public class LoginController {
             return;
         }
 
-        // Eingeloggten User in SessionState speichern
-        SessionState.getInstance().setCurrentUser(selected);
+        // UserRole aus Employee ableiten
+        UserRole role = switch (selected.getRole()) {
+            case "Planner" -> UserRole.PLANNER;
+            case "Security" -> UserRole.SECURITY;
+            case "Technician" -> UserRole.TECHNICIAN;
+            case "Logistician" -> UserRole.LOGISTICIAN;
+            default -> throw new IllegalStateException(
+                    "Unknown role: " + selected.getRole()
+            );
+        };
 
-        // Zum Haupt-Dashboard wechseln
+        SessionState.getInstance().setCurrentUser(selected);
+        SessionState.getInstance().setUserRole(role);
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml"));
             Parent root = loader.load();

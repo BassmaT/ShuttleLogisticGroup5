@@ -1,6 +1,7 @@
 package com.group5.shuttle.service;
 
 import com.group5.shuttle.model.Employee;
+import com.group5.shuttle.model.UserRole;
 
 // Speichert den aktuell eingeloggten Mitarbeiter für die gesamte Sitzung.
 // Singleton – wird nach erfolgreichem Login einmalig gesetzt.
@@ -11,6 +12,7 @@ public class SessionState {
     }
 
     private Employee currentUser;
+    private UserRole currentUserRole;
 
     private SessionState() {}
 
@@ -20,6 +22,14 @@ public class SessionState {
 
     public void setCurrentUser(Employee employee) {
         this.currentUser = employee;
+    }
+
+    public void setUserRole(UserRole role) {
+        this.currentUserRole = role;
+    }
+
+    public UserRole getUserRole() {
+        return currentUserRole;
     }
 
     public Employee getCurrentUser() {

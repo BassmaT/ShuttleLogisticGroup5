@@ -6,6 +6,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import com.group5.shuttle.model.UserRole;
+import com.group5.shuttle.service.SessionState;
+
+/**
+ * AI Chat Controller.
+ * Provides a role-dependent advisory dialog based on a finite state machine.
+ * Currently implemented for the Planner role.
+ */
 
 public class AiChatController {
 
@@ -16,11 +24,11 @@ public class AiChatController {
     private enum AiState { IDLE, SENSOR_WARNING, TECHNICIAN_RECOMMENDATION, SCHEDULE_PROPOSED, FINISHED }
     private AiState aiState = AiState.IDLE;
     private String currentContext = "DEFAULT";
-    private String role = "UNKNOWN";
+    private UserRole userRole;
 
 
-    public void setContext(String role) {
-        this.role = role;
+    public void setContext(UserRole role) {
+        this.userRole = role;
 
         chatHistory.getChildren().clear();
         addAiMessage("AI Advisor online for role: " + role);
@@ -29,11 +37,16 @@ public class AiChatController {
 
     @FXML
     private void initialize() {
+        userRole = SessionState.getInstance().getUserRole();
+
+        chatHistory.getChildren().clear();
+        addAiMessage("Chat started for role: " + userRole);
+
+        startStory();
     }
 
-
     private void startStory() {
-        if (!"PLANNER".equalsIgnoreCase(role)) {
+        if (userRole != UserRole.PLANNER) {
             addAiMessage("Access denied. Planner role required.");
             return;
         }

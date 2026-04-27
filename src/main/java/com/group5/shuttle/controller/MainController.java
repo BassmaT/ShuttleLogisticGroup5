@@ -46,9 +46,16 @@ import java.io.IOException;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.Parent;
 
-// Controller für das Haupt-Dashboard (main_view.fxml).
-// Zeigt den Übernahme-Fortschritt, aktive Arbeiter, Sensorwarnungen und Sensor-Details.
-// Diese Klasse wird als erstes geladen, wenn die App startet.
+/**
+ * Main dashboard controller coordinating navigation, application phases,
+ * role-based access control and the AI advisory chat.
+ *
+ * This controller is responsible for displaying takeover progress,
+ * active workers, sensor warnings and sensor details.
+ * It is the first controller loaded when the application starts
+ * (main_view.fxml).
+ */
+
 public class MainController extends BaseController {
 
     @Override
@@ -295,7 +302,7 @@ public class MainController extends BaseController {
 
             // Bonus für die KI: Kontext beim Wechsel aktualisieren
             if (aiChat != null) {
-                aiChat.setContext(sel.getRole().toString());
+                aiChat.setContext(SessionState.getInstance().getUserRole());
             }
         });
     }
@@ -540,7 +547,7 @@ public class MainController extends BaseController {
 
             var user = SessionState.getInstance().getCurrentUser();
             if (user != null) {
-                aiChat.setContext(user.getRole().toString());
+                aiChat.setContext(SessionState.getInstance().getUserRole());
             }
 
         } catch (IOException e) {

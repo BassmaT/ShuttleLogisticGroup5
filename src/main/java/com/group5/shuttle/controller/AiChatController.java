@@ -25,7 +25,7 @@ public class AiChatController {
     private AiState aiState = AiState.IDLE;
     private String currentContext = "DEFAULT";
     private UserRole userRole;
-
+    private boolean interactionEnabled = false;
 
     public void setContext(UserRole role) {
         this.userRole = role;
@@ -40,8 +40,14 @@ public class AiChatController {
         userRole = SessionState.getInstance().getUserRole();
 
         chatHistory.getChildren().clear();
-        addAiMessage("Chat started for role: " + userRole);
 
+        addAiMessage("AI Advisor online for role: " + userRole);
+        addAiMessage("Waiting for sensor data...");
+    }
+
+    public void enableInteraction() {
+        interactionEnabled = true;
+        addAiMessage("Sensor data available. Analysis started.");
         startStory();
     }
 
@@ -121,6 +127,7 @@ public class AiChatController {
         aiState = AiState.SCHEDULE_PROPOSED;
         addAiMessage("AI: Elena Vance assigned.\nRecommended schedule: 6 days total.\nAccept?");
         addAiButton("Accept schedule", () -> {
+            clearButtons();
             addAiMessage("AI: Schedule accepted. Maintenance order forwarded.");
             aiState = AiState.FINISHED;
         });
@@ -129,11 +136,16 @@ public class AiChatController {
     // --- HILFSMETHODEN FÜR UI ---
 
     private void addAiButton(String text, Runnable action) {
+        if (!interactionEnabled) {
+            return;
+        }
+
         Button btn = new Button(text);
         btn.setMaxWidth(Double.MAX_VALUE);
-        btn.setStyle("-fx-background-color: #21262d; -fx-text-fill: white; -fx-border-color: #8957e5; -fx-cursor: hand; -fx-padding: 5;");
+        btn.setStyle("...");
         btn.setOnAction(e -> action.run());
         chatHistory.getChildren().add(btn);
+
     }
 
     private void clearButtons() {

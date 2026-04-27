@@ -164,8 +164,8 @@ public class MainController extends BaseController {
     private SensorPanelController sensorPanel;
     private SchedulePanelController schedulePanel;
     private PredictivePanelController predictivePanel;
-
     private RoleAccessController roleAccess;
+    private boolean aiChatActivated = false;
 
     // Aktiver Timer – Singleton-Service, damit er beim Navigieren gestoppt werden kann
     private final PhaseTimerService phaseTimer = PhaseTimerService.getInstance();
@@ -181,6 +181,14 @@ public class MainController extends BaseController {
         initAiChat();
         initNavigation();
         initPhase();
+    }
+
+    private void onSensorDataReady() {
+        applyPhase(AppPhase.OPERATIONAL);
+
+        if (aiChat != null) {
+            aiChat.enableInteraction();
+        }
     }
 
     // Verknüpft alle Navigations-Buttons mit ihren Ziel-Views und setzt Hover-Effekte.
@@ -349,6 +357,12 @@ public class MainController extends BaseController {
         // Im Betrieb: Rollenbeschränkungen des eingeloggten Mitarbeiters anwenden
         if (isOperational) {
             applyRoleRestrictions();
+
+            if (!aiChatActivated && aiChat != null) {
+                aiChat.enableInteraction();
+                aiChatActivated = true;
+            }
+
         }
     }
 

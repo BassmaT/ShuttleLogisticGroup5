@@ -60,9 +60,9 @@ public class LoginController {
         // UserRole aus Employee ableiten
         UserRole role = switch (selected.getRole()) {
             case "Planner" -> UserRole.PLANNER;
-            case "Security" -> UserRole.SECURITY;
+            case "Security Chief" -> UserRole.SECURITY;
             case "Technician" -> UserRole.TECHNICIAN;
-            case "Logistician" -> UserRole.LOGISTICIAN;
+            case "Logistics" -> UserRole.LOGISTICIAN;
             default -> throw new IllegalStateException(
                     "Unknown role: " + selected.getRole()
             );

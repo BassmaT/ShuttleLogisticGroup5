@@ -63,7 +63,9 @@ public class InventoryController extends BaseController {
         colName.setCellValueFactory(new PropertyValueFactory<>("name"));
         colPart.setCellValueFactory(new PropertyValueFactory<>("part"));
         colQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+        colStatus.setCellValueFactory(cell ->
+                new javafx.beans.property.SimpleStringProperty(
+                        cell.getValue().getStatus().getLabel()));
         colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
 
         // Benutzerdefinierte Darstellung: Status-Zelle bekommt je nach Wert eine andere Farbe.

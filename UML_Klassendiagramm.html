@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>UML_Klassendiagramm.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid@9/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    });
+  </script>
+<h1 id="uml-klassendiagramm--shuttle-dashboard">UML Klassendiagramm — Shuttle Dashboard</h1>
+<p><strong>Gruppe 5 · Architekturübersicht</strong></p>
+<blockquote>
+<p>Dargestellt: öffentliche, protected und package-private Methoden/Attribute.
+Private Members werden nur gezeigt, wenn sie für das Architekturverständnis unbedingt nötig sind.</p>
+</blockquote>
+<hr>
+<h2 id="controller-schicht">Controller-Schicht</h2>
+<pre><code class="language-mermaid"><div class="mermaid">classDiagram
+    class Main {
+        +main(args: String[])$
+    }
+
+    class App {
+        +start(stage: Stage)
+    }
+
+    class BaseController {
+        <<abstract>>
+        #getNavigationButton()* Button
+        #setupBackButton(btn: Button)
+        #loadView(fxml: String)
+    }
+
+    class LoginController {
+        +initialize()
+        +handleLogin()
+    }
+
+    class MainController {
+        +initialize()
+        +updateDashboard()
+    }
+
+    class MissionControlController {
+        +initialize()
+    }
+
+    class TechnicianController {
+        +initialize()
+    }
+
+    class HistoryController {
+        +initialize()
+    }
+
+    class InventoryController {
+        +initialize()
+    }
+
+    class LogisticsController {
+        +initialize()
+    }
+
+    class ScheduleController {
+        +initialize()
+    }
+
+    class StaffController {
+        +initialize()
+    }
+
+    class SensorPanelController {
+        +update(data: ShuttleData, thresholds: Map)
+    }
+
+    class SchedulePanelController {
+        +update()
+    }
+
+    class PredictivePanelController {
+        +update()
+    }
+
+    class InventoryStatusPanelController {
+        +update(displayName: String)
+    }
+
+    class AiChatController {
+        +setContext(role: String)
+        +handleInput()
+    }
+
+    class RoleAccessController {
+        ~applyRestrictions(allNavButtons: List)
+    }
+
+    class RoleConfig {
+        <<utility>>
+        ~RESTRICTED_BUTTONS: Map$
+    }
+
+    class RoutineTableHelper {
+        <<utility>>
+        ~setup(table, colName, colDone, colTime)$
+        ~setup(table, colName, colEst, colDone, colTime)$
+    }
+
+    Main --> App
+
+    BaseController <|-- MainController
+    BaseController <|-- MissionControlController
+    BaseController <|-- TechnicianController
+    BaseController <|-- HistoryController
+    BaseController <|-- InventoryController
+    BaseController <|-- LogisticsController
+    BaseController <|-- ScheduleController
+    BaseController <|-- StaffController
+
+    MainController --> SensorPanelController : erstellt
+    MainController --> SchedulePanelController : erstellt
+    MainController --> PredictivePanelController : erstellt
+    MainController --> AiChatController : erstellt
+    MainController --> RoleAccessController : erstellt
+    RoleAccessController ..> RoleConfig : liest
+    MissionControlController --> InventoryStatusPanelController : erstellt
+    MissionControlController ..> RoutineTableHelper : nutzt
+    StaffController ..> RoutineTableHelper : nutzt
+</div></code></pre>
+<hr>
+<h2 id="service-schicht--interfaces-und-implementierungen">Service-Schicht — Interfaces und Implementierungen</h2>
+<pre><code class="language-mermaid"><div class="mermaid">classDiagram
+    class SensorEvaluator {
+        <<interface>>
+        +evaluate(value: double, threshold: SensorThreshold) SensorStatus
+    }
+
+    class ISensorDataService {
+        <<interface>>
+        +loadSensorData() ShuttleData
+        +loadThresholds() Map
+    }
+
+    class IEmployeeService {
+        <<interface>>
+        +getAllEmployees() List~Employee~
+        +getById(id: String) Optional~Employee~
+        +getByRole(role: String) List~Employee~
+        +getByTeam(team: String) List~Employee~
+    }
+
+    class IInventoryService {
+        <<interface>>
+        +loadInventory() List~InventoryItem~
+        +saveInventory(items: List)
+    }
+
+    class IScheduleService {
+        <<interface>>
+        +loadSchedule() TakeoverSchedule
+    }
+
+    class IFlightHistoryService {
+        <<interface>>
+        +loadFlightHistory() FlightHistory
+    }
+
+    class IPredictiveAnalysisService {
+        <<interface>>
+        +analyzeAll() Map~String, List~TrendResult~~
+    }
+
+    class IPartApproval {
+        <<interface>>
+        +isPartApproved(partKey: String) boolean
+        +canApprove(partKey: String) boolean
+        +approve(partKey: String, chiefName: String)
+    }
+
+    class IRepairAccess {
+        <<interface>>
+        +getRepairs(partKey: String) List~RepairTask~
+        +allRepairsDone(partKey: String) boolean
+        +isTechnicianDone(partKey: String) boolean
+        +markTechnicianDone(partKey: String, techName: String)
+        +generateRepairs(data, thresholds, evaluator)
+    }
+
+    class ITakeoverProgress {
+        <<interface>>
+        +getProgress() double
+        +isTakeoverComplete() boolean
+        +getLastActivity() String
+    }
+
+    class IWorkerRegistry {
+        <<interface>>
+        +registerWorker(partKey, name, role)
+        +getWorkerInfo(partKey: String) String
+        +getTechnicianName(partKey: String) String
+        +getSecurityChiefName(partKey: String) String
+    }
+
+    class IPhaseTracker {
+        <<interface>>
+        +getAppPhase() AppPhase
+        +getRemainingSeconds() int
+        +getSimulatedHoursElapsed() double
+        +getScheduleStatus() ScheduleStatus
+        +beginLanding()
+        +beginSensorLoading()
+        +setOperational()
+        +reset()
+    }
+
+    ISensorDataService --|> SensorEvaluator
+
+    class TakeoverState {
+        <<Singleton>>
+        +getInstance()$ TakeoverState
+        +getDisplayName(partKey: String)$ String
+        +PART_KEYS: String[]$
+        +reset()
+    }
+
+    class EmployeeService {
+        <<Singleton>>
+        +getInstance()$ EmployeeService
+        +getAllEmployees() List~Employee~
+        +getById(id: String) Optional~Employee~
+        +getByTeam(team: String) List~Employee~
+    }
+
+    class SensorDataService {
+        <<Singleton>>
+        +getInstance()$ SensorDataService
+        +loadSensorData() ShuttleData
+        +loadThresholds() Map
+        +evaluate(value: double, t: SensorThreshold) SensorStatus
+    }
+
+    class InventoryService {
+        <<Singleton>>
+        +getInstance()$ InventoryService
+        +loadInventory() List~InventoryItem~
+        +saveInventory(items: List)
+    }
+
+    class ScheduleService {
+        <<Singleton>>
+        +getInstance()$ ScheduleService
+        +loadSchedule() TakeoverSchedule
+    }
+
+    class FlightHistoryService {
+        <<Singleton>>
+        +getInstance()$ FlightHistoryService
+        +loadFlightHistory() FlightHistory
+    }
+
+    class PredictiveAnalysisService {
+        +analyzeAll() Map~String, List~TrendResult~~
+    }
+
+    class SessionState {
+        <<Singleton>>
+        +getInstance()$ SessionState
+        +setCurrentUser(e: Employee)
+        +getCurrentUser() Employee
+        +getCurrentRole() String
+        +isLoggedIn() boolean
+    }
+
+    class RoutineTaskStore {
+        <<Singleton>>
+        +getInstance()$ RoutineTaskStore
+        +getAllTasks() List~RoutineTask~
+        +getTasksForEmployee(empId: String) List~RoutineTask~
+        +getTasksForPart(part: String) List~RoutineTask~
+        +getById(id: String) Optional~RoutineTask~
+        +reset()
+    }
+
+    class PhaseTimerService {
+        <<Singleton>>
+        +getInstance()$ PhaseTimerService
+        +start(seconds: int, onTick: Consumer, onComplete: Runnable)
+        +stop()
+    }
+
+    class AbstractStore~T~ {
+        <<abstract>>
+        +getAll() List~T~
+        +clear()
+    }
+
+    class OrderStore {
+        <<Singleton>>
+        +getInstance()$ OrderStore
+        +createOrder(partName, qty, orderedBy, reason) LogisticsOrder
+        +getOrders() List~LogisticsOrder~
+    }
+
+    class TicketStore {
+        <<Singleton>>
+        +getInstance()$ TicketStore
+        +getTickets() List~MaintenanceTicket~
+        +saveTickets(tickets: List)
+    }
+
+    TakeoverState ..|> IWorkerRegistry
+    TakeoverState ..|> IRepairAccess
+    TakeoverState ..|> IPartApproval
+    TakeoverState ..|> ITakeoverProgress
+    TakeoverState ..|> IPhaseTracker
+    EmployeeService ..|> IEmployeeService
+    SensorDataService ..|> ISensorDataService
+    InventoryService ..|> IInventoryService
+    ScheduleService ..|> IScheduleService
+    FlightHistoryService ..|> IFlightHistoryService
+    PredictiveAnalysisService ..|> IPredictiveAnalysisService
+    AbstractStore <|-- OrderStore
+    AbstractStore <|-- TicketStore
+
+    PredictiveAnalysisService --> IFlightHistoryService
+    PredictiveAnalysisService --> ISensorDataService
+
+    class AiAdvisorService {
+        <<utility>>
+        +getResponse(message: String)$ String
+    }
+
+    class OrderApprovalService {
+        <<utility>>
+        +approve(order, invService, empService, onDelivered)$
+        +reject(order, empService)$
+    }
+
+    class RepairInventoryService {
+        <<utility>>
+        +initTaskStatuses(tasks, inventoryService)$
+        +placeOrder(task, inventoryService, onArrived)$
+        +deductInventory(task, inventoryService, onDeducted)$
+    }
+
+    class MaintenanceHistoryService {
+        <<utility>>
+        +logRepairs(partKey, repairAccess, workerRegistry)$
+    }
+
+    class RepairPlanningService {
+        <<utility>>
+        +plan(data, thresholds, evaluator, inventoryService)$ Map
+    }
+</div></code></pre>
+<hr>
+<h2 id="controller-%E2%86%92-service-abh%C3%A4ngigkeiten-dependency-inversion">Controller → Service Abhängigkeiten (Dependency Inversion)</h2>
+<pre><code class="language-mermaid"><div class="mermaid">classDiagram
+    class LoginController
+    class MainController
+    class MissionControlController
+    class LogisticsController
+    class ScheduleController
+    class StaffController
+    class TechnicianController
+    class SensorPanelController
+    class SchedulePanelController
+    class PredictivePanelController
+    class InventoryStatusPanelController
+
+    class IEmployeeService { <<interface>> }
+    class ISensorDataService { <<interface>> }
+    class IInventoryService { <<interface>> }
+    class IScheduleService { <<interface>> }
+    class IPredictiveAnalysisService { <<interface>> }
+    class IPartApproval { <<interface>> }
+    class IRepairAccess { <<interface>> }
+    class ITakeoverProgress { <<interface>> }
+    class IWorkerRegistry { <<interface>> }
+    class IPhaseTracker { <<interface>> }
+    class SensorEvaluator { <<interface>> }
+
+    class SessionState { <<Singleton>> }
+    class TakeoverState { <<Singleton>> }
+    class EmployeeService { <<Singleton>> }
+    class SensorDataService { <<Singleton>> }
+    class InventoryService { <<Singleton>> }
+    class ScheduleService { <<Singleton>> }
+    class PredictiveAnalysisService
+
+    TakeoverState ..|> IPartApproval
+    TakeoverState ..|> IRepairAccess
+    TakeoverState ..|> ITakeoverProgress
+    TakeoverState ..|> IWorkerRegistry
+    TakeoverState ..|> IPhaseTracker
+    EmployeeService ..|> IEmployeeService
+    SensorDataService ..|> ISensorDataService
+    SensorDataService ..|> SensorEvaluator
+    InventoryService ..|> IInventoryService
+    ScheduleService ..|> IScheduleService
+    PredictiveAnalysisService ..|> IPredictiveAnalysisService
+
+    LoginController --> IEmployeeService
+    LoginController --> SessionState
+    MainController --> ISensorDataService
+    MainController --> IScheduleService
+    MainController --> IPhaseTracker
+    MainController --> IPartApproval
+    MainController --> ITakeoverProgress
+    MainController --> IWorkerRegistry
+    MainController --> IRepairAccess
+    MainController --> IPredictiveAnalysisService
+    MainController --> SessionState
+    MissionControlController --> IWorkerRegistry
+    MissionControlController --> IRepairAccess
+    MissionControlController --> IPartApproval
+    MissionControlController --> IInventoryService
+    MissionControlController --> IScheduleService
+    LogisticsController --> IInventoryService
+    LogisticsController --> IEmployeeService
+    StaffController --> IWorkerRegistry
+    StaffController --> IRepairAccess
+    ScheduleController --> IScheduleService
+    ScheduleController --> EmployeeService
+    TechnicianController --> ISensorDataService
+    SensorPanelController --> SensorEvaluator
+    SensorPanelController --> IPartApproval
+    SchedulePanelController --> IScheduleService
+    SchedulePanelController --> IEmployeeService
+    PredictivePanelController --> IPredictiveAnalysisService
+    InventoryStatusPanelController --> IInventoryService
+</div></code></pre>
+<hr>
+<h2 id="util-schicht">Util-Schicht</h2>
+<pre><code class="language-mermaid"><div class="mermaid">classDiagram
+    class ColoredTableCell~T~ {
+        +ColoredTableCell(colorMapper: Function~String, String~)
+        +updateItem(item: String, empty: boolean)
+    }
+
+    class EmployeeStringConverter {
+        +INSTANCE: EmployeeStringConverter$
+        +toString(e: Employee) String
+        +fromString(s: String) Employee
+    }
+
+    class EmployeeListCell {
+        +updateItem(emp: Employee, empty: boolean)
+    }
+
+    class EmployeeComboHelper {
+        <<utility>>
+        +setup(combo: ComboBox~Employee~)$
+    }
+
+    class ShuttleDataHelper {
+        <<utility>>
+        +evaluateSensor(sensorName, value, thresholds, evaluator)$ SensorStatus
+    }
+
+    class StatusColors {
+        <<utility>>
+        +forSensorStatus(status: SensorStatus)$ String
+        +forStockStatus(status: StockStatus)$ String
+        +forOrderStatus(status: OrderStatus)$ String
+        +forScheduleCategoryFg(category: String)$ String
+        +forTrendUrgency(flights: int)$ String
+    }
+
+    class Styles {
+        <<utility>>
+        +TABLE_DARK: String$
+        +PART_BTN_NORMAL: String$
+        +PART_BTN_SELECTED: String$
+        +ACCENT_SUCCESS: String$
+        +ACCENT_WARNING: String$
+        +ACCENT_ERROR: String$
+        +label12(color: String)$ String
+        +label13(color: String)$ String
+    }
+
+    class Dialogs {
+        <<utility>>
+        +showError(title, header, msg)$
+        +showInfo(title, msg)$
+        +showWarning(msg)$
+    }
+
+    EmployeeListCell ..> EmployeeStringConverter
+    EmployeeComboHelper ..> EmployeeStringConverter
+    ShuttleDataHelper ..> SensorEvaluator
+</div></code></pre>
+
+</body>
+</html>

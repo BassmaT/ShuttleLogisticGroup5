@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>README.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid@9/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+    });
+  </script>
+<h1 id="shuttle-dashboard--technische-dokumentation">Shuttle Dashboard — Technische Dokumentation</h1>
+<p><strong>Gruppe 5 · Java/JavaFX Projekt</strong></p>
+<hr>
+<h2 id="1-projekt%C3%BCbersicht">1. Projektübersicht</h2>
+<p>Das Shuttle Dashboard ist eine JavaFX-Anwendung zur Steuerung und Überwachung des Übergabeprozesses einer Raumfähre. Es simuliert den vollständigen Ablauf nach der Landung: von der Sensor-Kalibrierung über die Reparatur defekter Komponenten bis zur Freigabe durch den Security Chief.</p>
+<h3 id="kernfunktionen">Kernfunktionen</h3>
+<table>
+<thead>
+<tr>
+<th>Funktion</th>
+<th>Beschreibung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Login</strong></td>
+<td>Demo-Anmeldung per Namensauswahl; Rolle steuert Sichtbarkeit der Navigation</td>
+</tr>
+<tr>
+<td><strong>Phasenverwaltung</strong></td>
+<td>Automatischer Ablauf: Landing → Sensor Loading → Operational</td>
+</tr>
+<tr>
+<td><strong>Mission Control</strong></td>
+<td>Reparaturaufgaben pro Shuttle-Teil, Technikerzuweisung, Freigabe</td>
+</tr>
+<tr>
+<td><strong>Logistics</strong></td>
+<td>Bestellworkflow mit Genehmigung durch Security Chief</td>
+</tr>
+<tr>
+<td><strong>Predictive Analysis</strong></td>
+<td>Trendauswertung über 5 Flughistorien; Frühwarnsystem</td>
+</tr>
+<tr>
+<td><strong>Schedule</strong></td>
+<td>Interaktiver 3-Tage-Übergabeplan mit Umplanungsfunktion</td>
+</tr>
+<tr>
+<td><strong>Staff</strong></td>
+<td>Mitarbeiterverwaltung und Teamübersicht</td>
+</tr>
+<tr>
+<td><strong>Inventory</strong></td>
+<td>Lagerbestandsanzeige mit Statusfarbkodierung</td>
+</tr>
+<tr>
+<td><strong>History</strong></td>
+<td>Protokoll abgeschlossener Wartungstickets</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tech-stack">Tech Stack</h3>
+<table>
+<thead>
+<tr>
+<th>Komponente</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Java</td>
+<td>17</td>
+</tr>
+<tr>
+<td>JavaFX</td>
+<td>21.0.2</td>
+</tr>
+<tr>
+<td>Build-Tool</td>
+<td>Maven</td>
+</tr>
+<tr>
+<td>UI-Definition</td>
+<td>FXML</td>
+</tr>
+</tbody>
+</table>
+<h3 id="einstiegspunkt">Einstiegspunkt</h3>
+<pre class="hljs"><code><div>Main.java → App.java → login_view.fxml → LoginController → main_view.fxml → MainController
+</div></code></pre>
+<hr>
+<h2 id="2-architektur">2. Architektur</h2>
+<h3 id="architekturmuster-mvc">Architekturmuster: MVC</h3>
+<p>Die Anwendung folgt dem <strong>Model-View-Controller</strong>-Muster mit strikter Schichtentrennung:</p>
+<ul>
+<li><strong>Model</strong> (<code>model/</code>): Plain Java Objects (POJOs) und Enums — keine Logik, nur Daten und JavaFX-Properties</li>
+<li><strong>View</strong> (<code>resources/view/*.fxml</code>): Deklarative UI-Definitionen in FXML</li>
+<li><strong>Controller</strong> (<code>controller/</code>): Verbinden UI-Events mit Services; keine Datenzugriffslogik</li>
+<li><strong>Service</strong> (<code>service/</code>): Geschäftslogik, Datenzugriff; alle zustandsbehafteten Services als Singletons</li>
+</ul>
+<h3 id="package-struktur">Package-Struktur</h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Klassen / Interfaces</th>
+<th>Verantwortlichkeit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>com.group5.shuttle</code></td>
+<td>2 Klassen</td>
+<td>App-Einstieg (<code>Main</code>, <code>App</code>)</td>
+</tr>
+<tr>
+<td><code>controller</code></td>
+<td>20 Klassen</td>
+<td>UI-Logik, Event-Handling, Panel-Controller, Helper</td>
+</tr>
+<tr>
+<td><code>service</code></td>
+<td>24 Klassen + 12 Interfaces</td>
+<td>Geschäftslogik, Datenzugriff, statische Helfer</td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td>17 Klassen + 5 Enums</td>
+<td>Datenmodell (POJOs, JavaFX-Properties, Enums)</td>
+</tr>
+<tr>
+<td><code>util</code></td>
+<td>8 Klassen</td>
+<td>Querschnittsthemen (Farben, Konverter, Tabellenzellen)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="verwendete-entwurfsmuster">Verwendete Entwurfsmuster</h3>
+<p><strong>Singleton</strong>
+Alle zustandsbehafteten Services halten genau eine Instanz über die gesamte Sitzung. Implementiert mit Holder-Klasse oder einfacher statischer Instanz:
+<code>TakeoverState</code>, <code>SessionState</code>, <code>EmployeeService</code>, <code>InventoryService</code>, <code>SensorDataService</code>, <code>ScheduleService</code>, <code>FlightHistoryService</code>, <code>PhaseTimerService</code>, <code>TicketStore</code>, <code>OrderStore</code>, <code>RoutineTaskStore</code></p>
+<p><strong>Template Method</strong>
+<code>BaseController</code> definiert <code>loadView(fxml)</code> als Template: <code>getNavigationButton()</code> ist abstrakt — Subklassen liefern den konkreten Button, damit <code>loadView</code> das aktive Fenster findet. <code>setupBackButton(btn)</code> kapselt das Back-Button-Muster:</p>
+<pre class="hljs"><code><div><span class="hljs-comment">// BaseController (abstrakte Vorlage)</span>
+<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">loadView</span><span class="hljs-params">(String fxml)</span> </span>{
+    Parent root = <span class="hljs-keyword">new</span> FXMLLoader(...).load();
+    Stage stage = (Stage) getNavigationButton().getScene().getWindow();
+    stage.getScene().setRoot(root);
+}
+<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setupBackButton</span><span class="hljs-params">(Button btn)</span> </span>{
+    btn.setOnAction(e -&gt; loadView(<span class="hljs-string">"main_view.fxml"</span>));
+}
+
+<span class="hljs-comment">// Subklasse (konkrete Implementierung)</span>
+<span class="hljs-meta">@Override</span> <span class="hljs-function"><span class="hljs-keyword">protected</span> Button <span class="hljs-title">getNavigationButton</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> btnBack; }
+</div></code></pre>
+<p><strong>Strategy</strong>
+<code>ColoredTableCell</code> ist der Context; er nimmt eine <code>Function&lt;String, String&gt;</code> als Strategie. <code>StatusColors</code> liefert die konkreten Strategien für Sensor-, Lager- und Bestellstatus:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">new</span> ColoredTableCell&lt;&gt;(StatusColors::forSensorStatus)
+<span class="hljs-keyword">new</span> ColoredTableCell&lt;&gt;(StatusColors::forStockStatus)
+<span class="hljs-keyword">new</span> ColoredTableCell&lt;&gt;(StatusColors::forOrderStatus)
+</div></code></pre>
+<p><strong>Observer (JavaFX Properties)</strong>
+<code>RepairTask</code> und <code>LogisticsOrder</code> verwenden JavaFX Properties (<code>SimpleBooleanProperty</code>, <code>SimpleStringProperty</code>), damit Tabellenzeilen sich automatisch aktualisieren, wenn sich der Zustand ändert:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BooleanProperty done       = <span class="hljs-keyword">new</span> SimpleBooleanProperty(<span class="hljs-keyword">false</span>);
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> StringProperty  partStatus = <span class="hljs-keyword">new</span> SimpleStringProperty(<span class="hljs-string">"NONE"</span>);
+</div></code></pre>
+<p><strong>Enum-carried Metadata (OCP)</strong>
+Enums tragen fachliche Metadaten (Farbe, Label, Stil), sodass switch-Anweisungen entfallen. Neue Ausprägung = ein neuer Enum-Eintrag:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">enum</span> ScheduleStatus {
+    ON_TIME(Styles.ACCENT_SUCCESS, <span class="hljs-string">"On Schedule"</span>, <span class="hljs-string">"#66ff66"</span>),
+    HOURS_BEHIND(Styles.ACCENT_WARNING, <span class="hljs-string">"Behind Schedule"</span>, <span class="hljs-string">"#ffcc00"</span>),
+    DAY_BEHIND(Styles.ACCENT_ERROR, <span class="hljs-string">"1+ Day Behind"</span>, <span class="hljs-string">"#ff4444"</span>);
+    <span class="hljs-comment">// ...</span>
+}
+</div></code></pre>
+<hr>
+<h2 id="3-uml-klassendiagramm">3. UML Klassendiagramm</h2>
+<h3 id="3a-controller-hierarchie">3a. Controller-Hierarchie</h3>
+<pre><code class="language-mermaid"><div class="mermaid">classDiagram
+    class BaseController {
+        <<abstract>>
+        #getNavigationButton()* Button
+        #setupBackButton(btn: Button)
+        #loadView(fxml: String)
+    }
+
+    class LoginController {
+        -employeeService: EmployeeService
+        +initialize()
+        +handleLogin()
+    }
+
+    class MainController {
+        -sensorService: ISensorDataService
+        -scheduleService: IScheduleService
+        -phaseTracker: IPhaseTracker
+        -partApproval: IPartApproval
+        -takeoverProgress: ITakeoverProgress
+        -workerReg: IWorkerRegistry
+        -repairAccess: IRepairAccess
+        -predictiveService: IPredictiveAnalysisService
+        +initialize()
+        +updateDashboard()
+    }
+
+    class MissionControlController {
+        -workerRegistry: IWorkerRegistry
+        -repairAccess: IRepairAccess
+        -partApproval: IPartApproval
+        -inventoryService: IInventoryService
+        -scheduleService: IScheduleService
+        -partButtons: Map~String, Button~
+        +initialize()
+    }
+
+    class TechnicianController {
+        -sensorService: ISensorDataService
+        +initialize()
+    }
+
+    class HistoryController {
+        -ticketStore: TicketStore
+        +initialize()
+    }
+
+    class InventoryController {
+        -inventoryService: InventoryService
+        +initialize()
+    }
+
+    class LogisticsController {
+        -inventoryService: IInventoryService
+        -employeeService: IEmployeeService
+        +initialize()
+    }
+
+    class ScheduleController {
+        -scheduleService: IScheduleService
+        +initialize()
+    }
+
+    class StaffController {
+        -workerRegistry: IWorkerRegistry
+        -repairAccess: IRepairAccess
+        +initialize()
+    }
+
+    BaseController <|-- MainController
+    BaseController <|-- MissionControlController
+    BaseController <|-- TechnicianController
+    BaseController <|-- HistoryController
+    BaseController <|-- InventoryController
+    BaseController <|-- LogisticsController
+    BaseController <|-- ScheduleController
+    BaseController <|-- StaffController
+
+    class SensorPanelController {
+        -sensorService: SensorEvaluator
+        -partApproval: IPartApproval
+        +update(data: ShuttleData, thresholds: Map)
+    }
+
+    class SchedulePanelController {
+        -scheduleService: IScheduleService
+        -employeeService: IEmployeeService
+        +update()
+    }
+
+    class PredictivePanelController {
+        -predictiveService: IPredictiveAnalysisService
+        +update()
+    }
+
+    class InventoryStatusPanelController {
+        -inventoryService: IInventoryService
+        +update(displayName: String)
+    }
+
+    class AiChatController {
+        +setContext(role: String)
+        +handleInput()
+    }
+
+    class RoleAccessController {
+        -restrictionIds: Map~String, List~
+        -buttonLookup: Map~String, Button~
+        +applyRestrictions(allNavButtons: List)
+    }
+
+    class RoleConfig {
+        <<utility>>
+        +RESTRICTED_BUTTONS: Map$
+    }
+
+    class RoutineTableHelper {
+        <<utility>>
+        +setup(table, colName, colDone, colTime)$
+        +setup(table, colName, colEst, colDone, colTime)$
+    }
+
+    class PartStatusCell {
+        +updateItem(status: String, empty: boolean)
+    }
+
+    class SensorStatusCell {
+        +updateItem(item: String, empty: boolean)
+    }
+
+    MainController --> SensorPanelController : creates
+    MainController --> SchedulePanelController : creates
+    MainController --> PredictivePanelController : creates
+    MainController --> AiChatController : creates
+    MainController --> RoleAccessController : creates
+    RoleAccessController ..> RoleConfig : reads
+    MissionControlController --> InventoryStatusPanelController : creates
+    MissionControlController ..> RoutineTableHelper : uses
+    StaffController ..> RoutineTableHelper : uses
+    AiChatController ..> AiAdvisorService : calls (nicht aktiv genutzt)
+</div></code></pre>
+<h3 id="3b-service-interfaces-und-implementierungen">3b. Service-Interfaces und Implementierungen</h3>
+<pre><code class="language-mermaid"><div class="mermaid">classDiagram
+    class SensorEvaluator {
+        <<interface>>
+        +evaluate(value: double, threshold: SensorThreshold) SensorStatus
+    }
+
+    class ISensorDataService {
+        <<interface>>
+        +loadSensorData() ShuttleData
+        +loadThresholds() Map
+    }
+
+    class IEmployeeService {
+        <<interface>>
+        +getAllEmployees() List~Employee~
+        +getById(id: String) Optional~Employee~
+        +getByRole(role: String) List~Employee~
+        +getByTeam(team: String) List~Employee~
+    }
+
+    class IInventoryService {
+        <<interface>>
+        +loadInventory() List~InventoryItem~
+        +saveInventory(items: List)
+    }
+
+    class IScheduleService {
+        <<interface>>
+        +loadSchedule() TakeoverSchedule
+    }
+
+    class IFlightHistoryService {
+        <<interface>>
+        +loadFlightHistory() FlightHistory
+    }
+
+    class IPredictiveAnalysisService {
+        <<interface>>
+        +analyzeAll() Map~String, List~TrendResult~~
+    }
+
+    class IPartApproval {
+        <<interface>>
+        +isPartApproved(partKey: String) boolean
+        +canApprove(partKey: String) boolean
+        +approve(partKey: String, chiefName: String)
+    }
+
+    class IRepairAccess {
+        <<interface>>
+        +getRepairs(partKey: String) List~RepairTask~
+        +allRepairsDone(partKey: String) boolean
+        +isTechnicianDone(partKey: String) boolean
+        +markTechnicianDone(partKey: String, techName: String)
+        +generateRepairs(data, thresholds, evaluator)
+    }
+
+    class ITakeoverProgress {
+        <<interface>>
+        +getProgress() double
+        +isTakeoverComplete() boolean
+        +getLastActivity() String
+    }
+
+    class IWorkerRegistry {
+        <<interface>>
+        +registerWorker(partKey, name, role)
+        +getWorkerInfo(partKey: String) String
+        +getTechnicianName(partKey: String) String
+        +getSecurityChiefName(partKey: String) String
+    }
+
+    class IPhaseTracker {
+        <<interface>>
+        +getAppPhase() AppPhase
+        +getRemainingSeconds() int
+        +getSimulatedHoursElapsed() double
+        +getScheduleStatus() ScheduleStatus
+        +beginLanding()
+        +beginSensorLoading()
+        +setOperational()
+        +reset()
+    }
+
+    ISensorDataService --|> SensorEvaluator
+
+    class TakeoverState {
+        <<Singleton>>
+        +PART_KEYS: String[]$
+        +getInstance()$ TakeoverState
+        +getDisplayName(partKey: String)$ String
+    }
+
+    class EmployeeService {
+        <<Singleton>>
+        +getInstance()$ EmployeeService
+    }
+
+    class SensorDataService {
+        <<Singleton>>
+        +getInstance()$ SensorDataService
+    }
+
+    class InventoryService {
+        <<Singleton>>
+        +getInstance()$ InventoryService
+    }
+
+    class ScheduleService {
+        <<Singleton>>
+        +getInstance()$ ScheduleService
+    }
+
+    class FlightHistoryService {
+        <<Singleton>>
+        +getInstance()$ FlightHistoryService
+    }
+
+    class PredictiveAnalysisService {
+        -flightHistoryService: IFlightHistoryService
+        -sensorDataService: ISensorDataService
+        +analyzeAll() Map
+    }
+
+    TakeoverState ..|> IWorkerRegistry
+    TakeoverState ..|> IRepairAccess
+    TakeoverState ..|> IPartApproval
+    TakeoverState ..|> ITakeoverProgress
+    TakeoverState ..|> IPhaseTracker
+    EmployeeService ..|> IEmployeeService
+    SensorDataService ..|> ISensorDataService
+    InventoryService ..|> IInventoryService
+    ScheduleService ..|> IScheduleService
+    FlightHistoryService ..|> IFlightHistoryService
+    PredictiveAnalysisService ..|> IPredictiveAnalysisService
+
+    PredictiveAnalysisService --> IFlightHistoryService
+    PredictiveAnalysisService --> ISensorDataService
+
+    class AbstractStore~T~ {
+        <<abstract>>
+        #items: List~T~
+        +getAll() List~T~
+        +clear()
+    }
+
+    class OrderStore {
+        <<Singleton>>
+        +getInstance()$ OrderStore
+        +createOrder(partName, qty, orderedBy, reason) LogisticsOrder
+        +getOrders() List~LogisticsOrder~
+    }
+
+    class TicketStore {
+        <<Singleton>>
+        +getInstance()$ TicketStore
+        +getTickets() List~MaintenanceTicket~
+        +saveTickets(tickets: List)
+    }
+
+    AbstractStore <|-- OrderStore
+    AbstractStore <|-- TicketStore
+
+    class SessionState {
+        <<Singleton>>
+        -currentUser: Employee
+        +getInstance()$ SessionState
+        +setCurrentUser(e: Employee)
+        +getCurrentUser() Employee
+        +getCurrentRole() String
+    }
+
+    class RoutineTaskStore {
+        <<Singleton>>
+        +getInstance()$ RoutineTaskStore
+        +getTasksForEmployee(empId: String) List
+        +getTasksForPart(part: String) List
+        +getById(id: String) Optional~RoutineTask~
+        +reset()
+    }
+
+    class PhaseTimerService {
+        <<Singleton>>
+        +getInstance()$ PhaseTimerService
+        +start(seconds: int, onTick: Consumer, onComplete: Runnable)
+        +stop()
+    }
+
+    class AiAdvisorService {
+        <<utility>>
+        +getResponse(message: String)$ String
+    }
+
+    class AppPhaseState {
+        -appPhase: AppPhase
+        -MILESTONES: Map~String, Double~$
+        +beginLanding()
+        +beginSensorLoading()
+        +setOperational()
+        +getScheduleStatus(approval: IPartApproval) ScheduleStatus
+        +getSimulatedHoursElapsed() double
+    }
+
+    TakeoverState *-- AppPhaseState
+
+    class OrderApprovalService {
+        <<utility>>
+        +approve(order, invService, empService, onDelivered)$
+        +reject(order, empService)$
+    }
+
+    class OrderDeliveryService {
+        <<utility>>
+        +DELIVERY_SECONDS: int$
+        +scheduleDelivery(onDelivered: Runnable)$
+    }
+
+    class RepairInventoryService {
+        <<utility>>
+        +initTaskStatuses(tasks, inventoryService)$
+        +placeOrder(task, inventoryService, onArrived)$
+        +deductInventory(task, inventoryService, onDeducted)$
+    }
+
+    class RepairPlanningService {
+        <<utility>>
+        +plan(data, thresholds, evaluator, inventoryService)$ Map
+    }
+
+    class MaintenanceHistoryService {
+        <<utility>>
+        +logRepairs(partKey, repairAccess, workerRegistry)$
+    }
+
+    class SensorStatusAggregator {
+        <<utility>>
+        +findWorstSensorStatus(data, thresholds, evaluator)$ SensorStatus
+    }
+
+    class InventoryStatusCalculator {
+        <<utility>>
+        +calculate(quantity: int)$ StockStatus
+    }
+
+    class TrendCalculator {
+        <<utility>>
+        +computeFlightsUntilLimit(current, trend, threshold)$ int
+        +buildRecommendation(sensor, trend, direction, flights)$ String
+    }
+
+    class LogisticsOrderService {
+        <<utility>>
+        +approve(order, chief)$
+        +reject(order, chief)$
+        +markOrdered(order)$
+        +markDelivered(order)$
+    }
+
+    TakeoverState ..> RepairPlanningService
+    OrderApprovalService ..> OrderDeliveryService
+    OrderApprovalService ..> LogisticsOrderService
+    RepairInventoryService ..> OrderDeliveryService
+</div></code></pre>
+<h3 id="3c-model-klassen-und-enums">3c. Model-Klassen und Enums</h3>
+<pre><code class="language-mermaid"><div class="mermaid">classDiagram
+    class Employee {
+        -id: String
+        -name: String
+        -role: String
+        -team: String
+        +toString() String
+    }
+
+    class InventoryItem {
+        -id: String
+        -name: String
+        -part: String
+        -quantity: int
+        -status: StockStatus
+        -description: String
+        +setQuantity(qty: int)
+        +setStatus(s: StockStatus)
+    }
+
+    class LogisticsOrder {
+        -orderNumber: String
+        -partName: String
+        -quantity: int
+        -orderedByName: String
+        -status: OrderStatus
+        -statusProperty: SimpleStringProperty
+        +getOrderStatus() OrderStatus
+        +setStatus(s: OrderStatus)
+        +statusProperty() SimpleStringProperty
+    }
+
+    class RepairTask {
+        -partKey: String
+        -sensorName: SimpleStringProperty
+        -status: SimpleStringProperty
+        -action: SimpleStringProperty
+        -done: SimpleBooleanProperty
+        -requiredItemName: String
+        -partStatus: SimpleStringProperty
+        -partAvailable: SimpleBooleanProperty
+        +doneProperty() BooleanProperty
+        +partStatusProperty() StringProperty
+        +setDone(done: boolean)
+        +setPartStatus(s: StockStatus)
+    }
+
+    class RoutineTask {
+        -id: String
+        -name: String
+        -shuttlePart: String
+        -estimatedMinutes: int
+        -assignedEmployeeId: String
+        -done: SimpleBooleanProperty
+        -completedAt: String
+        +doneProperty() BooleanProperty
+        +setCompletedAt(ts: String)
+    }
+
+    class MaintenanceTicket {
+        -date: String
+        -part: String
+        -sensor: String
+        -oldStatus: String
+        -action: String
+        -technician: String
+    }
+
+    class ShuttleData {
+        -parts: Map~String, ShuttlePart~
+        +getAllParts() Map~String, ShuttlePart~
+        +setOrbiter(p: ShuttlePart)
+        +setSrb(p: ShuttlePart)
+        +setExternalTank(p: ShuttlePart)
+    }
+
+    class ShuttlePart {
+        -sensors: Map~String, Double~
+        +getSensors() Map~String, Double~
+        +setSensor(key: String, value: Double)
+    }
+
+    class SensorThreshold {
+        -min: Double
+        -max: Double
+        -warningBuffer: double
+    }
+
+    class SensorRow {
+        -part: SimpleStringProperty
+        -sensor: SimpleStringProperty
+        -value: SimpleStringProperty
+        -status: SimpleStringProperty
+    }
+
+    class PartState {
+        -technicianName: String
+        -securityChiefName: String
+        -securityApproved: boolean
+        -technicianDone: boolean
+        -repairs: List~RepairTask~
+        +reset()
+    }
+
+    class TrendResult {
+        -partKey: String
+        -sensorName: String
+        -trendPerFlight: double
+        -direction: String
+        -recommendation: String
+        -flightsUntilLimit: int
+    }
+
+    class TakeoverSchedule {
+        -takeoverTitle: String
+        -days: List~ScheduleDay~
+    }
+
+    class ScheduleDay {
+        -dayNumber: int
+        -label: String
+        -entries: List~ScheduleEntry~
+    }
+
+    class ScheduleEntry {
+        -time: String
+        -task: String
+        -category: String
+        -assignedEmployeeId: String
+        -shuttlePart: String
+        +setAssignedEmployeeId(id: String)
+    }
+
+    class FlightHistory {
+        -flights: List~FlightRecord~
+    }
+
+    class FlightRecord {
+        -flightId: String
+        -flightNumber: int
+        -sensors: Map~String, Map~String, Double~~
+    }
+
+    class OrderStatus {
+        <<enum>>
+        PENDING_APPROVAL
+        APPROVED
+        REJECTED
+        ORDERED
+        DELIVERED
+        +getColor() String
+    }
+
+    class SensorStatus {
+        <<enum>>
+        OK
+        WARNING
+        REPLACE
+        +getColor() String
+    }
+
+    class StockStatus {
+        <<enum>>
+        NONE
+        IN_STOCK
+        LOW
+        OUT_OF_STOCK
+        ORDERED
+        ARRIVED
+        +getLabel() String
+        +getColor() String
+        +showsButton() boolean
+        +skipsStatusInit() boolean
+    }
+
+    class AppPhase {
+        <<enum>>
+        LANDING
+        SENSOR_LOADING
+        OPERATIONAL
+    }
+
+    class ScheduleStatus {
+        <<enum>>
+        ON_TIME
+        HOURS_BEHIND
+        DAY_BEHIND
+        +getProgressStyle() String
+        +getLabel() String
+        +getColor() String
+    }
+
+    ShuttleData *-- ShuttlePart
+    TakeoverSchedule *-- ScheduleDay
+    ScheduleDay *-- ScheduleEntry
+    FlightHistory *-- FlightRecord
+    PartState *-- RepairTask
+    InventoryItem --> StockStatus
+    RepairTask --> SensorStatus
+    RepairTask --> StockStatus
+    LogisticsOrder --> OrderStatus
+</div></code></pre>
+<h3 id="3d-util-klassen">3d. Util-Klassen</h3>
+<pre><code class="language-mermaid"><div class="mermaid">classDiagram
+    class ColoredTableCell~T~ {
+        -colorMapper: Function~String, String~
+        +ColoredTableCell(colorMapper: Function)
+        +updateItem(item: String, empty: boolean)
+    }
+
+    class EmployeeStringConverter {
+        +INSTANCE: EmployeeStringConverter$
+        -employeeService: IEmployeeService
+        +toString(e: Employee) String
+        +fromString(s: String) Employee
+    }
+
+    class EmployeeListCell {
+        +updateItem(emp: Employee, empty: boolean)
+    }
+
+    class EmployeeComboHelper {
+        <<utility>>
+        +setup(combo: ComboBox~Employee~)$
+    }
+
+    class ShuttleDataHelper {
+        <<utility>>
+        +evaluateSensor(name, value, thresholds, evaluator)$ SensorStatus
+    }
+
+    class StatusColors {
+        <<utility>>
+        +forSensorStatus(status: SensorStatus)$ String
+        +forSensorStatus(status: String)$ String
+        +forStockStatus(status: StockStatus)$ String
+        +forStockStatus(status: String)$ String
+        +forOrderStatus(status: OrderStatus)$ String
+        +forOrderStatus(status: String)$ String
+        +forTrendUrgency(flights: int)$ String
+        +forScheduleCategoryBg(category: String)$ String
+        +forScheduleCategoryFg(category: String)$ String
+    }
+
+    class Styles {
+        <<utility>>
+        +TABLE_DARK: String$
+        +NAV_BTN_NORMAL: String$
+        +NAV_BTN_HOVER: String$
+        +PART_BTN_NORMAL: String$
+        +PART_BTN_SELECTED: String$
+        +ACCENT_SUCCESS: String$
+        +ACCENT_WARNING: String$
+        +ACCENT_ERROR: String$
+        +label12(color: String)$ String
+        +label13(color: String)$ String
+        +label16(color: String)$ String
+    }
+
+    class Dialogs {
+        <<utility>>
+        +showError(title, header, msg)$
+        +showInfo(title, msg)$
+        +showWarning(msg)$
+    }
+
+    EmployeeListCell ..> EmployeeStringConverter : uses
+    EmployeeComboHelper ..> EmployeeStringConverter : uses
+    EmployeeComboHelper ..> EmployeeService : calls getInstance()
+    ShuttleDataHelper ..> SensorEvaluator : uses
+</div></code></pre>
+<h3 id="3e-controller-%E2%86%92-service-abh%C3%A4ngigkeiten">3e. Controller → Service Abhängigkeiten</h3>
+<pre><code class="language-mermaid"><div class="mermaid">classDiagram
+    class LoginController
+    class MainController
+    class MissionControlController
+    class LogisticsController
+    class ScheduleController
+    class StaffController
+    class TechnicianController
+    class SensorPanelController
+    class SchedulePanelController
+    class PredictivePanelController
+    class InventoryStatusPanelController
+
+    class IEmployeeService { <<interface>> }
+    class ISensorDataService { <<interface>> }
+    class IInventoryService { <<interface>> }
+    class IScheduleService { <<interface>> }
+    class IPredictiveAnalysisService { <<interface>> }
+    class IPartApproval { <<interface>> }
+    class IRepairAccess { <<interface>> }
+    class ITakeoverProgress { <<interface>> }
+    class IWorkerRegistry { <<interface>> }
+    class IPhaseTracker { <<interface>> }
+    class SensorEvaluator { <<interface>> }
+
+    class SessionState { <<Singleton>> }
+    class TakeoverState { <<Singleton>> }
+    class EmployeeService { <<Singleton>> }
+    class SensorDataService { <<Singleton>> }
+    class InventoryService { <<Singleton>> }
+    class ScheduleService { <<Singleton>> }
+    class PredictiveAnalysisService
+
+    TakeoverState ..|> IPartApproval
+    TakeoverState ..|> IRepairAccess
+    TakeoverState ..|> ITakeoverProgress
+    TakeoverState ..|> IWorkerRegistry
+    TakeoverState ..|> IPhaseTracker
+    EmployeeService ..|> IEmployeeService
+    SensorDataService ..|> ISensorDataService
+    SensorDataService ..|> SensorEvaluator
+    InventoryService ..|> IInventoryService
+    ScheduleService ..|> IScheduleService
+    PredictiveAnalysisService ..|> IPredictiveAnalysisService
+
+    LoginController --> IEmployeeService
+    LoginController --> SessionState
+    MainController --> ISensorDataService
+    MainController --> IScheduleService
+    MainController --> IPhaseTracker
+    MainController --> IPartApproval
+    MainController --> ITakeoverProgress
+    MainController --> IWorkerRegistry
+    MainController --> IRepairAccess
+    MainController --> IPredictiveAnalysisService
+    MainController --> SessionState
+    MissionControlController --> IWorkerRegistry
+    MissionControlController --> IRepairAccess
+    MissionControlController --> IPartApproval
+    MissionControlController --> IInventoryService
+    MissionControlController --> IScheduleService
+    LogisticsController --> IInventoryService
+    LogisticsController --> IEmployeeService
+    StaffController --> IWorkerRegistry
+    StaffController --> IRepairAccess
+    ScheduleController --> IScheduleService
+    ScheduleController --> EmployeeService
+    TechnicianController --> ISensorDataService
+    SensorPanelController --> SensorEvaluator
+    SensorPanelController --> IPartApproval
+    SchedulePanelController --> IScheduleService
+    SchedulePanelController --> IEmployeeService
+    PredictivePanelController --> IPredictiveAnalysisService
+    InventoryStatusPanelController --> IInventoryService
+</div></code></pre>
+<hr>
+<h2 id="4-uml-sequenzdiagramm--takeover-workflow">4. UML Sequenzdiagramm — Takeover-Workflow</h2>
+<p>Zeigt den vollständigen Ablauf vom App-Start bis zur Freigabe eines Shuttle-Teils durch den Security Chief.</p>
+<pre><code class="language-mermaid"><div class="mermaid">sequenceDiagram
+    participant OS as Betriebssystem
+    participant App
+    participant Main as MainController
+    participant TS as TakeoverState
+    participant PTS as PhaseTimerService
+    participant SDS as SensorDataService
+    participant MCC as MissionControlController
+    participant IS as InventoryService
+
+    OS->>App: main()
+    App->>Main: initialize() [FXML geladen]
+    Main->>TS: getInstance() → IPhaseTracker
+    Main->>PTS: getInstance()
+    Main->>TS: beginLanding()
+    Main->>PTS: start(15s, onTick, onComplete)
+
+    Note over Main,TS: Nach 15 Sekunden...
+    PTS-->>Main: onComplete()
+    Main->>TS: beginSensorLoading()
+    Main->>PTS: start(10s, onTick, onComplete)
+
+    Note over Main,TS: Nach 10 Sekunden...
+    PTS-->>Main: onComplete()
+    Main->>SDS: loadSensorData()
+    SDS-->>Main: ShuttleData
+    Main->>SDS: loadThresholds()
+    SDS-->>Main: Map(part → sensor → threshold)
+    Main->>TS: setOperational()
+    Main->>TS: generateRepairs(data, thresholds, sds)
+    TS-->>Main: RepairTasks für Orbiter, SRB, External Tank
+    Main-->>User: Dashboard zeigt Sensor-Warnungen
+
+    User->>Main: Klick "Mission Control"
+    Main->>MCC: loadView("mission_control.fxml")
+    MCC->>TS: getRepairs("orbiter")
+    MCC->>IS: loadInventory()
+    MCC-->>User: Reparaturtabelle + Inventar
+
+    User->>MCC: selectPart("orbiter")
+    MCC->>TS: registerWorker("orbiter", name, "Technician")
+    MCC-->>User: Arbeits-Panel eingeblendet
+
+    loop Für jede Reparaturaufgabe
+        User->>MCC: Done-Checkbox angehakt
+        MCC->>IS: loadInventory()
+        MCC->>IS: saveInventory() [qty - 1]
+        MCC->>TS: RepairTask.setDone(true)
+    end
+
+    User->>MCC: Klick "Technician Done"
+    MCC->>TS: markTechnicianDone("orbiter", techName)
+    MCC->>MaintenanceHistoryService: logRepairs("orbiter", repairAccess, workerRegistry)
+
+    User->>MCC: Klick "Give Security Chief OK"
+    MCC->>TS: canApprove("orbiter") → true
+    MCC->>TS: approve("orbiter", chiefName)
+    MCC-->>User: Header "Orbiter – APPROVED ✓"
+
+    User->>MCC: Klick "Back"
+    MCC->>Main: loadView("main_view.fxml") + updateDashboard()
+    Main->>TS: getProgress() → 0.33
+    Main->>TS: isTakeoverComplete() → false
+
+    Note over Main,TS: Ablauf für SRB und External Tank wiederholen...
+    Note over Main,TS: Nach 3. Freigabe: isTakeoverComplete() = true
+    Main-->>User: "Takeover Complete" Button erscheint
+</div></code></pre>
+<hr>
+<h2 id="4b-uml-sequenzdiagramm--login--rollenbasierter-zugriff">4b. UML Sequenzdiagramm — Login &amp; Rollenbasierter Zugriff</h2>
+<pre><code class="language-mermaid"><div class="mermaid">sequenceDiagram
+    participant OS as Betriebssystem
+    participant App
+    participant LC as LoginController
+    participant ES as EmployeeService
+    participant SS as SessionState
+    participant MC as MainController
+    participant RAC as RoleAccessController
+
+    OS->>App: main()
+    App->>LC: initialize() [login_view.fxml geladen]
+    LC->>ES: getAllEmployees()
+    ES-->>LC: List~Employee~ (4 Mitarbeiter, 4 Rollen)
+    LC-->>User: ComboBox mit EmployeeListCell befüllt
+
+    User->>LC: Wählt Name aus ComboBox
+    LC-->>User: Rolle live anzeigen (z. B. "Rolle: Technician")
+
+    User->>LC: Klick "Anmelden"
+    LC->>SS: setCurrentUser(selectedEmployee)
+    LC->>MC: loadView("main_view.fxml")
+
+    MC->>SS: getCurrentRole()
+    SS-->>MC: "Technician"
+    MC->>RAC: new RoleAccessController(RoleConfig.RESTRICTED_BUTTONS, buttonLookup)
+    MC->>RAC: applyRestrictions(allNavButtons)
+    Note over RAC: Deaktiviert laut RoleConfig:<br/>btnTechnician, btnInventory,<br/>btnHistory, btnLogistics, btnSchedule
+    MC-->>User: Dashboard mit eingeschränkter Navigation
+</div></code></pre>
+<hr>
+<h2 id="5-programmlogik--kernprozesse">5. Programmlogik — Kernprozesse</h2>
+<h3 id="51-login--rollenbasierter-zugriff">5.1 Login &amp; Rollenbasierter Zugriff</h3>
+<p>Die Anwendung startet mit einem Demo-Login-Screen. Der Benutzer wählt seinen Namen aus einer ComboBox — alle Mitarbeiter werden über <code>EmployeeService.getAllEmployees()</code> geladen und mit <code>EmployeeListCell</code> (nutzt <code>EmployeeStringConverter</code>) dargestellt.</p>
+<p>Nach der Auswahl speichert <code>SessionState</code> (Singleton) den eingeloggten Mitarbeiter für die gesamte Sitzung. <code>MainController</code> liest die Rolle und delegiert die Button-Sperrung an <code>RoleAccessController</code>, der seine Konfiguration aus <code>RoleConfig.RESTRICTED_BUTTONS</code> liest (OCP: neue Rolle = ein Eintrag in <code>RoleConfig</code>, kein Code ändert sich):</p>
+<table>
+<thead>
+<tr>
+<th>Rolle</th>
+<th>Gesperrte Navigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Security Chief</strong></td>
+<td>nichts — Vollzugriff</td>
+</tr>
+<tr>
+<td><strong>Technician</strong></td>
+<td>Technician-View, Inventory, History, Logistics, Schedule</td>
+</tr>
+<tr>
+<td><strong>Planner</strong></td>
+<td>Mission Control, Technician-View, Inventory, History, Logistics</td>
+</tr>
+<tr>
+<td><strong>Logistics</strong></td>
+<td>Mission Control, Technician-View, History, Staff, Schedule</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-phasenverwaltung">5.2 Phasenverwaltung</h3>
+<p>Die Anwendung durchläuft drei Phasen, gesteuert durch <code>PhaseTimerService</code> (JavaFX <code>Timeline</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Dauer</th>
+<th>Beschreibung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>LANDING</strong></td>
+<td>15 Sekunden</td>
+<td>Shuttle landet; nur Logistics zugänglich</td>
+</tr>
+<tr>
+<td><strong>SENSOR_LOADING</strong></td>
+<td>10 Sekunden</td>
+<td>Sensordaten werden simuliert geladen</td>
+</tr>
+<tr>
+<td><strong>OPERATIONAL</strong></td>
+<td>Unbegrenzt</td>
+<td>Vollbetrieb; Reparaturen können starten</td>
+</tr>
+</tbody>
+</table>
+<p><code>AppPhaseState</code> berechnet simulierte Stunden seit Operational-Start. Anhand von Meilensteinen (<code>orbiter</code> = 15 h, <code>srb</code> = 38 h, <code>externalTank</code> = 40 h) wird der <code>ScheduleStatus</code> bestimmt (<code>ON_TIME</code>, <code>HOURS_BEHIND</code>, <code>DAY_BEHIND</code>). Der <code>ScheduleStatus</code>-Enum trägt Farbe, Label und CSS-Stil (OCP).</p>
+<h3 id="53-reparatur-workflow">5.3 Reparatur-Workflow</h3>
+<pre class="hljs"><code><div>1. Techniker wählt Teil → System registriert ihn via IWorkerRegistry
+2. RepairPlanningService erzeugt RepairTasks aus Sensordaten (WARNING/REPLACE)
+3. Pro Aufgabe: Lagerbestand prüfen via IInventoryService
+   → IN_STOCK:    Checkbox → Bestand -1 via RepairInventoryService
+   → OUT_OF_STOCK: Order → OrderDeliveryService simuliert 10s Lieferung → ARRIVED
+4. Alle Aufgaben erledigt → &quot;Technician Done&quot;
+   → MaintenanceHistoryService schreibt Tickets in TicketStore
+5. Security Chief logt ein → canApprove() = true → &quot;Approve&quot;
+   → IPartApproval.approve() → Progress +33%
+6. Nach 3 Teilen: ITakeoverProgress.isTakeoverComplete() = true
+</div></code></pre>
+<h3 id="54-logistics-bestellworkflow">5.4 Logistics-Bestellworkflow</h3>
+<pre class="hljs"><code><div>PENDING_APPROVAL → (Approve) → ORDERED → (10 s Lieferung) → DELIVERED
+                 → (Reject)  → REJECTED
+</div></code></pre>
+<p><code>OrderApprovalService</code> delegiert an <code>LogisticsOrderService</code> (Status-Update) und <code>OrderDeliveryService</code> (10-Sekunden-Timer). Nach Lieferung erhöht <code>InventoryService</code> den Lagerbestand automatisch.</p>
+<h3 id="55-pr%C3%A4diktive-analyse">5.5 Prädiktive Analyse</h3>
+<p><code>PredictiveAnalysisService</code> (implementiert <code>IPredictiveAnalysisService</code>) wertet 5 gespeicherte Flughistorien aus:</p>
+<ol>
+<li>Für jeden Sensor: Werte der letzten 5 Flüge aus <code>FlightHistoryService</code></li>
+<li>Trend = linearer Slope = (letzter − erster Wert) / (Anzahl − 1)</li>
+<li>Klassifikation: <code>RISING</code> / <code>FALLING</code> / <code>STABLE</code></li>
+<li><code>TrendCalculator.computeFlightsUntilLimit()</code> berechnet, in wie vielen Flügen ein Sensor den Grenzwert überschreitet</li>
+<li>Kritische Trends werden im Dashboard-Panel via <code>PredictivePanelController</code> angezeigt</li>
+</ol>
+<h3 id="56-solid-konformit%C3%A4t-der-architektur">5.6 SOLID-Konformität der Architektur</h3>
+<table>
+<thead>
+<tr>
+<th>Prinzip</th>
+<th>Umsetzung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>S</strong></td>
+<td>Jede Klasse hat eine klar abgegrenzte Verantwortung; Panel-Controller trennen Dashboard-Abschnitte</td>
+</tr>
+<tr>
+<td><strong>O</strong></td>
+<td>Enums tragen Metadaten (Farbe, Label); <code>RoleConfig</code> ist der einzige Änderungspunkt für neue Rollen; <code>AiAdvisorService</code> nutzt Maps statt if-Ketten</td>
+</tr>
+<tr>
+<td><strong>L</strong></td>
+<td>Alle Interface-Implementierungen erfüllen die Schnittstellenverträge vollständig</td>
+</tr>
+<tr>
+<td><strong>I</strong></td>
+<td>12 fokussierte Interfaces (<code>IPartApproval</code>, <code>IRepairAccess</code>, <code>ITakeoverProgress</code>, <code>IWorkerRegistry</code>, <code>IPhaseTracker</code>, …) statt einer monolithischen Schnittstelle</td>
+</tr>
+<tr>
+<td><strong>D</strong></td>
+<td>Controller-Felder sind als Interface typisiert; <code>getInstance()</code>-Aufrufe nur im Composition-Root (Feld-Initialisierung)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="6-setup--ausf%C3%BChrung">6. Setup &amp; Ausführung</h2>
+<h3 id="voraussetzungen">Voraussetzungen</h3>
+<ul>
+<li>Java 17 oder höher</li>
+<li>Maven 3.6+</li>
+</ul>
+<h3 id="starten">Starten</h3>
+<pre class="hljs"><code><div><span class="hljs-built_in">cd</span> shuttle-dashboard
+mvn clean javafx:run
+</div></code></pre>
+<h3 id="kompilieren-ohne-ausf%C3%BChren">Kompilieren ohne Ausführen</h3>
+<pre class="hljs"><code><div>mvn compile
+</div></code></pre>
+<h3 id="projektstruktur">Projektstruktur</h3>
+<pre class="hljs"><code><div>shuttle-dashboard/
+├── pom.xml
+└── src/main/
+    ├── java/com/group5/shuttle/
+    │   ├── App.java                              ← JavaFX Application-Einstieg
+    │   ├── Main.java                             ← OS-Einstieg (Launcher-Wrapper)
+    │   ├── controller/
+    │   │   ├── BaseController.java               ← abstrakte Basisklasse (Template Method)
+    │   │   ├── LoginController.java              ← Login-Screen
+    │   │   ├── MainController.java               ← Haupt-Dashboard
+    │   │   ├── MissionControlController.java     ← Reparatur &amp; Freigabe
+    │   │   ├── TechnicianController.java         ← Sensor-Übersicht
+    │   │   ├── HistoryController.java            ← Wartungsprotokoll
+    │   │   ├── InventoryController.java          ← Lagerbestand
+    │   │   ├── LogisticsController.java          ← Bestellworkflow
+    │   │   ├── ScheduleController.java           ← 3-Tage-Plan
+    │   │   ├── StaffController.java              ← Mitarbeiterverwaltung
+    │   │   ├── SensorPanelController.java        ← Dashboard-Panel: Sensoren
+    │   │   ├── SchedulePanelController.java      ← Dashboard-Panel: Zeitplan
+    │   │   ├── PredictivePanelController.java    ← Dashboard-Panel: Vorhersage
+    │   │   ├── InventoryStatusPanelController.java ← Dashboard-Panel: Lager
+    │   │   ├── AiChatController.java             ← KI-Chat-Drawer
+    │   │   ├── RoleAccessController.java         ← Rollen-Zugriffssteuerung
+    │   │   ├── RoleConfig.java                   ← Rollen-Konfiguration (OCP)
+    │   │   ├── RoutineTableHelper.java           ← Tabellen-Setup (DRY)
+    │   │   ├── PartStatusCell.java               ← Tabellenzelle: Teil-Status
+    │   │   └── SensorStatusCell.java             ← Tabellenzelle: Sensor-Status
+    │   ├── service/
+    │   │   ├── interfaces: IEmployeeService, IInventoryService, IScheduleService,
+    │   │   │               IFlightHistoryService, IPredictiveAnalysisService,
+    │   │   │               ISensorDataService, SensorEvaluator,
+    │   │   │               IPartApproval, IRepairAccess, ITakeoverProgress,
+    │   │   │               IWorkerRegistry, IPhaseTracker
+    │   │   ├── TakeoverState.java                ← Kern-Singleton (5 Interfaces)
+    │   │   ├── AppPhaseState.java                ← Phasen-Logik
+    │   │   ├── SessionState.java                 ← Angemeldeter Benutzer
+    │   │   ├── PhaseTimerService.java            ← JavaFX-Timer
+    │   │   ├── EmployeeService.java              ← Mitarbeiterdaten
+    │   │   ├── InventoryService.java             ← Lagerverwaltung
+    │   │   ├── SensorDataService.java            ← Sensordaten &amp; Grenzwerte
+    │   │   ├── ScheduleService.java              ← Zeitplandaten
+    │   │   ├── FlightHistoryService.java         ← Flughistorien
+    │   │   ├── PredictiveAnalysisService.java    ← Trendanalyse
+    │   │   ├── RoutineTaskStore.java             ← Routineaufgaben
+    │   │   ├── OrderStore.java                   ← Bestellungen
+    │   │   ├── TicketStore.java                  ← Wartungstickets
+    │   │   ├── AbstractStore.java                ← Generische Store-Basis
+    │   │   ├── AiAdvisorService.java             ← KI-Demo-Antworten
+    │   │   ├── OrderApprovalService.java         ← Bestellgenehmigung
+    │   │   ├── OrderDeliveryService.java         ← Liefersimulation
+    │   │   ├── RepairInventoryService.java       ← Reparatur-Lager-Logik
+    │   │   ├── RepairPlanningService.java        ← Reparaturplanung
+    │   │   ├── MaintenanceHistoryService.java    ← Ticket-Protokollierung
+    │   │   ├── SensorStatusAggregator.java       ← Sensor-Status-Aggregation
+    │   │   ├── InventoryStatusCalculator.java    ← Lager-Status-Berechnung
+    │   │   ├── TrendCalculator.java              ← Trend-Berechnung
+    │   │   └── LogisticsOrderService.java        ← Bestellstatus-Updates
+    │   ├── model/
+    │   │   ├── Employee.java, InventoryItem.java, LogisticsOrder.java
+    │   │   ├── RepairTask.java, RoutineTask.java, MaintenanceTicket.java
+    │   │   ├── ShuttleData.java, ShuttlePart.java, SensorThreshold.java
+    │   │   ├── SensorRow.java, PartState.java, TrendResult.java
+    │   │   ├── TakeoverSchedule.java, ScheduleDay.java, ScheduleEntry.java
+    │   │   ├── FlightHistory.java, FlightRecord.java
+    │   │   └── enums: OrderStatus, SensorStatus, StockStatus
+    │   │              (AppPhase, ScheduleStatus als nested enums in IPhaseTracker)
+    │   └── util/
+    │       ├── ColoredTableCell.java             ← generische Tabellenzelle (Strategy)
+    │       ├── EmployeeStringConverter.java      ← StringConverter für ComboBox
+    │       ├── EmployeeListCell.java             ← ListCell für ComboBox/ListView
+    │       ├── EmployeeComboHelper.java          ← ComboBox-Setup (DRY)
+    │       ├── ShuttleDataHelper.java            ← Sensor-Evaluierung (DRY)
+    │       ├── StatusColors.java                 ← Farbkodierung nach Status
+    │       ├── Styles.java                       ← CSS-Konstanten
+    │       └── Dialogs.java                      ← Alert-Hilfsmethoden
+    └── resources/view/
+        ├── login_view.fxml                       ← Login-Screen
+        ├── main_view.fxml                        ← Haupt-Dashboard
+        ├── mission_control.fxml                  ← Reparatur &amp; Freigabe
+        ├── logistics.fxml                        ← Bestellworkflow
+        ├── schedule_view.fxml                    ← 3-Tage-Plan
+        ├── technician.fxml                       ← Sensor-Übersicht
+        ├── staff.fxml                            ← Mitarbeiterverwaltung
+        ├── inventory.fxml                        ← Lagerbestand
+        └── history.fxml                          ← Wartungsprotokoll
+</div></code></pre>
+
+</body>
+</html>

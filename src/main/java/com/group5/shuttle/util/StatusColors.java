@@ -17,7 +17,12 @@ public final class StatusColors {
     public static String forSensorStatus(String status)       { return forSensorStatus(SensorStatus.valueOf(status)); }
 
     public static String forStockStatus(StockStatus status)   { return status.getColor(); }
-    public static String forStockStatus(String status)        { return forStockStatus(StockStatus.valueOf(status)); }
+    public static String forStockStatus(String status) {
+        for (StockStatus s : StockStatus.values()) {
+            if (status.equals(s.getLabel())) return s.getColor();
+        }
+        return "#ffffff";
+    }
 
     public static String forOrderStatus(OrderStatus status)   { return status.getColor(); }
     public static String forOrderStatus(String status)        { return forOrderStatus(OrderStatus.valueOf(status)); }

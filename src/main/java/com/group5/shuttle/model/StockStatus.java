@@ -5,7 +5,7 @@ public enum StockStatus {
     NONE        ("–",              "#555555", false, false),
     IN_STOCK    ("✓ In Stock",     "#66ff66", false, false),
     LOW         ("▲ Low",          "#ffcc00", false, false),
-    OUT_OF_STOCK(null,             "#ff4444", true,  false),
+    OUT_OF_STOCK("✗ Out of Stock", "#ff4444", true,  false),
     ORDERED     ("⏳ Ordered...",  "#ffcc00", false, true),
     ARRIVED     ("✓ Arrived",      "#66ff66", false, true);
 

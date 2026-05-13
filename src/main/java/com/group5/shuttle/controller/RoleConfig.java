@@ -10,7 +10,7 @@ final class RoleConfig {
     private RoleConfig() {}
 
     static final Map<String, List<String>> RESTRICTED_BUTTONS = Map.of(
-        "Technician", List.of("btnTechnician", "btnInventory", "btnHistory", "btnLogistics", "btnSchedule"),
+        "Technician", List.of("btnInventory",   "btnHistory",   "btnStaff",  "btnLogistics", "btnSchedule"),
         "Planner",    List.of("btnMission",    "btnTechnician", "btnInventory", "btnHistory",  "btnLogistics"),
         "Logistics",  List.of("btnMission",    "btnTechnician", "btnHistory",   "btnStaff",    "btnSchedule")
     );

@@ -38,12 +38,18 @@ public class ScheduleController extends BaseController {
     @FXML private Button btnBack;
 
     private final IScheduleService scheduleService = ScheduleService.getInstance();
+    private static ScheduleController instance;
 
     // Wird automatisch beim Laden der FXML aufgerufen
     @FXML
     public void initialize() {
         setupBackButton(btnBack);
         buildSchedule();
+        instance = this;
+    }
+
+    public static ScheduleController getInstance() {
+        return instance;
     }
 
     // Lädt den Schedule und baut für jeden Tag eine eigene Tabelle auf
@@ -76,11 +82,17 @@ public class ScheduleController extends BaseController {
     private TableView<ScheduleEntry> buildDayTable(List<ScheduleEntry> entries) {
         TableView<ScheduleEntry> table = new TableView<>();
         table.setStyle(Styles.TABLE_DARK);
-        table.setPrefHeight(entries.size() * 36.0 + 30);
         table.setEditable(true);
 
         ObservableList<ScheduleEntry> data = FXCollections.observableArrayList(entries);
         table.setItems(data);
+
+        table.setFixedCellSize(35);
+        table.prefHeightProperty().bind(
+                javafx.beans.binding.Bindings.size(table.getItems())
+                        .multiply(table.getFixedCellSize())
+                        .add(30)
+        );
 
         // Spalte: Zeit
         TableColumn<ScheduleEntry, String> colTime = new TableColumn<>("Time");
@@ -180,6 +192,12 @@ public class ScheduleController extends BaseController {
             }
         });
     }
+
+    public void refreshSchedule() {
+        scheduleContent.getChildren().clear();
+        buildSchedule();
+    }
+
 
     // Gibt den Zurück-Button zurück – wird von BaseController.loadView() benötigt
     @Override

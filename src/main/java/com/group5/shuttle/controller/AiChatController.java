@@ -8,6 +8,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import com.group5.shuttle.model.UserRole;
 import com.group5.shuttle.service.SessionState;
+import com.group5.shuttle.model.TakeoverSchedule;
+import com.group5.shuttle.model.ScheduleDay;
+import com.group5.shuttle.model.ScheduleEntry;
+import com.group5.shuttle.service.ScheduleService;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.application.Platform;
+import java.util.List;
 
 /**
  * AI Chat Controller.
@@ -125,7 +133,7 @@ public class AiChatController {
              - Loss of launch slot
     
             If repaired now:
-             - Duration: 6 days (planned)
+             - Duration: 2 days (planned)
              - Cost: ~€90,000
              - No additional delays expected
             
@@ -156,13 +164,13 @@ public class AiChatController {
                 Qualified technicians available:
                 
                 Elena Vance
-                - Duration: 6 days
+                - Duration: 2 days
                 - Cost: ~€90,000
                 - No delay
                 
                 Marco Stein
-                - Duration: 7–8 days
-                - Extra delay: +1–2 days
+                - Duration: 3 days
+                - Extra delay: +1 days
                 - Additional cost: ~€120,000
                 
                 Recommendation:
@@ -183,7 +191,7 @@ public class AiChatController {
             Elena Vance assigned
             
             Outcome:
-            - Duration: 6 days
+            - Duration: 2 days
             - No launch delay
             - Cost: ~€90,000
             
@@ -195,8 +203,8 @@ public class AiChatController {
             Marco Stein assigned
             
             Outcome:
-            - Duration: 7–8 days
-            - Launch delay: +1–2 days
+            - Duration: 3 days
+            - Launch delay: +1 days
             - Total cost: ~€120,000
             
             Confirm schedule?
@@ -205,6 +213,7 @@ public class AiChatController {
 
         addAiButton("Accept schedule", () -> {
             clearButtons();
+            assignTechnician(technician);
             addAiMessage("""
             AI Advisor:
             - Maintenance scheduled
@@ -289,7 +298,60 @@ public class AiChatController {
 
             aiState = AiState.SCHEDULE_PROPOSED;
         });
+    }
 
+    private void assignTechnician(String technician) {
+        TakeoverSchedule schedule = ScheduleService.getInstance().loadSchedule();
+        ScheduleEntry newEntry = null;
+
+        for (ScheduleDay day : schedule.getDays()) {
+
+            if (day.getDayNumber() == 1) {
+                newEntry = new ScheduleEntry(
+                        "13:00",
+                        "Repair: coolantPressure (Orbiter)",
+                        "repair",
+                        null,
+                        "Orbiter"
+                );
+
+                List<ScheduleEntry> entries = day.getEntries();
+
+                int insertIndex = entries.size();
+
+                for (int i = 0; i < entries.size(); i++) {
+                    if (entries.get(i).getTime().compareTo("13:00") > 0) {
+                        insertIndex = i;
+                        break;
+                    }
+                }
+
+                entries.add(insertIndex, newEntry);
+
+                if ("ELENA".equals(technician)) {
+                    newEntry.setAssignedEmployeeId("EMP-001");
+                } else {
+                    newEntry.setAssignedEmployeeId("EMP-002");
+                }
+
+                break;
+            }
+        }
+
+        if (newEntry != null) {
+            System.out.println("TASK ADDED: " + newEntry.getTask());
+        }
+
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml"));
+                Parent root = loader.load();
+
+                scrollPane.getScene().setRoot(root);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     // --- HILFSMETHODEN FÜR UI ---

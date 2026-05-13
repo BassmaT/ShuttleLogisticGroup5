@@ -3,7 +3,7 @@ package com.group5.shuttle.service;
 import com.group5.shuttle.model.ScheduleDay;
 import com.group5.shuttle.model.ScheduleEntry;
 import com.group5.shuttle.model.TakeoverSchedule;
-
+import javafx.collections.FXCollections;
 import java.util.Arrays;
 
 /**
@@ -17,25 +17,31 @@ public class ScheduleService implements IScheduleService {
     }
 
     private ScheduleService() {}
+    private TakeoverSchedule schedule;
 
     public static ScheduleService getInstance() {
         return Holder.INSTANCE;
     }
 
     public TakeoverSchedule loadSchedule() {
-        ScheduleDay day1 = new ScheduleDay(1, "Day 1 – Inspection & Diagnostics", Arrays.asList(
+
+        if (schedule != null) {
+            return schedule;
+        }
+
+        ScheduleDay day1 = new ScheduleDay(1, "Day 1 – Inspection & Diagnostics", FXCollections.observableArrayList(
             se("06:00", "Full sensor diagnostic run",        "diagnostic", "EMP-001", "Orbiter"),
             se("08:00", "Inspect Landing Gear",              "routine",    "EMP-001", "Orbiter"),
             se("09:00", "Check Fire Suppression System",     "routine",    "EMP-001", "Orbiter"),
             se("10:00", "Inspect SRB Nozzles",               "routine",    "EMP-001", "SRB"),
             se("12:00", "Lunch Break",                       "break",      null,      null),
-            se("13:00", "Repair: coolantPressure (Orbiter)", "repair",     "EMP-001", "Orbiter"),
+          //  se("13:00", "Repair: coolantPressure (Orbiter)", "repair",     null, "Orbiter"),
             se("15:00", "Security Chief Review – Orbiter",   "approval",   "EMP-004", "Orbiter")
         ));
 
         ScheduleDay day2 = new ScheduleDay(2, "Day 2 – Repairs & Systems Check", Arrays.asList(
-            se("07:00", "Repair: casingTemperature (SRB)",   "repair",   "EMP-001", "SRB"),
-            se("09:00", "Repair: stress (External Tank)",    "repair",   "EMP-001", "External Tank"),
+            se("07:00", "Repair: casingTemperature (SRB)",   "repair",   null, "SRB"),
+            se("09:00", "Repair: stress (External Tank)",    "repair",   null, "External Tank"),
             se("10:00", "Refuel Main Tanks",                  "routine",  "EMP-001", "External Tank"),
             se("12:00", "Calibrate Instruments",              "routine",  "EMP-001", "Orbiter"),
             se("14:00", "Security Chief Review – SRB",        "approval", "EMP-004", "SRB"),
@@ -50,8 +56,10 @@ public class ScheduleService implements IScheduleService {
             se("12:00", "Takeover Complete – Sign-Off",  "approval",   "EMP-004", null)
         ));
 
-        return new TakeoverSchedule("Pre-Launch Processing – Takeover Session",
+        schedule = new TakeoverSchedule("Pre-Launch Processing – Takeover Session",
                                     Arrays.asList(day1, day2, day3));
+
+        return schedule;
     }
 
     private ScheduleEntry se(String time, String task, String category,

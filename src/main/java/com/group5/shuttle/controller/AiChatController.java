@@ -32,7 +32,6 @@ public class AiChatController {
 
         chatHistory.getChildren().clear();
         addAiMessage("AI Advisor online for role: " + role);
-        startStory();
     }
 
     @FXML
@@ -68,7 +67,13 @@ public class AiChatController {
         addUserMessage(text);
         inputField.clear();
 
-        addAiMessage("Acknowledged: " + text);
+        addAiMessage("""
+            AI:
+            Custom adjustment received
+            Applying requested changes to schedule...
+            Updated plan forwarded to technician.
+        """);
+        aiState = AiState.FINISHED;
     }
     private void addAiMessage(String text) {
         Label lbl = new Label(text);
@@ -98,39 +103,193 @@ public class AiChatController {
 
     private void handleSensorRecommendation() {
         aiState = AiState.SENSOR_WARNING;
-        addAiMessage("AI Advisor:\nCritical sensor warning...");
-        addAiButton("Yes! Dispatch technician", this::handleDecisionYes);
-        addAiButton("No! Postpone", () -> addAiMessage("AI: Decision postponed. Monitoring mode."));
+
+        addAiMessage("""
+            AI Advisor:
+             ⚠ Critical issue detected
+    
+            Sensor: coolantPressure
+             Value: 2.80 (critical)
+    
+            If ignored:
+             - High risk of failure during pre-launch check
+             - Possible launch abort or system shutdown
+    
+            Impact:
+             - Expected delay: 2–4 days
+             - Additional cost: €180,000 – €300,000
+    
+            Reason:
+             - Unplanned repair
+             - Increased damage to cooling system
+             - Loss of launch slot
+    
+            If repaired now:
+             - Duration: 6 days (planned)
+             - Cost: ~€90,000
+             - No additional delays expected
+            
+            Recommendation:
+            Immediate maintenance required.
+            """);
+
+                    addAiButton("Dispatch technician", this::handleDecisionYes);
+                    addAiButton("Postpone", () ->
+                            addAiMessage("""
+            AI Advisor:
+            Decision postponed.
+            
+            Updated risk:
+            - Launch delay risk increases to 4–6 days
+            - Potential cost escalation: ~€350,000
+            
+            Monitoring continues.
+            """));
     }
 
     private void handleDecisionYes() {
         clearButtons();
         if (aiState == AiState.SENSOR_WARNING) {
             aiState = AiState.TECHNICIAN_RECOMMENDATION;
-            addAiMessage("AI: Qualified technicians identified:\n- Elena Vance\n- Marco Stein\n\nPlease select.");
-            addAiButton("Select Elena Vance", this::handleTechnicianSelected);
-            addAiButton("Select Marco Stein", this::handleMarcoSelected);
+            addAiMessage("""
+                AI Advisor:
+                Qualified technicians available:
+                
+                Elena Vance
+                - Duration: 6 days
+                - Cost: ~€90,000
+                - No delay
+                
+                Marco Stein
+                - Duration: 7–8 days
+                - Extra delay: +1–2 days
+                - Additional cost: ~€120,000
+                
+                Recommendation:
+                Elena Vance (faster & cheaper)
+                """);
+            addAiButton("Assign Elena Vance", () -> handleTechnicianSelected("ELENA"));
+            addAiButton("Assign Marco Stein", () -> handleTechnicianSelected("MARCO"));
         }
     }
 
-    private void handleMarcoSelected() {
-        clearButtons();
-        addAiMessage("AI: Marco Stein is currently assigned to thrusters. Assigning him anyway might cause delays.");
-        addAiButton("Assign anyway", () -> {
-            addAiMessage("AI: Warning: Schedule delay likely. Elena Vance remains recommended.");
-        });
-        addAiButton("Select Elena Vance instead", this::handleTechnicianSelected);
-    }
-
-    private void handleTechnicianSelected() {
+    private void handleTechnicianSelected(String technician) {
         clearButtons();
         aiState = AiState.SCHEDULE_PROPOSED;
-        addAiMessage("AI: Elena Vance assigned.\nRecommended schedule: 6 days total.\nAccept?");
+
+        if ("ELENA".equals(technician)) {
+            addAiMessage("""
+            AI Advisor:
+            Elena Vance assigned
+            
+            Outcome:
+            - Duration: 6 days
+            - No launch delay
+            - Cost: ~€90,000
+            
+            Confirm schedule?
+            """);
+            } else {
+                addAiMessage("""
+            AI Advisor:
+            Marco Stein assigned
+            
+            Outcome:
+            - Duration: 7–8 days
+            - Launch delay: +1–2 days
+            - Total cost: ~€120,000
+            
+            Confirm schedule?
+            """);
+        }
+
         addAiButton("Accept schedule", () -> {
             clearButtons();
-            addAiMessage("AI: Schedule accepted. Maintenance order forwarded.");
+            addAiMessage("""
+            AI Advisor:
+            - Maintenance scheduled
+            - Plan integrated
+            
+            Monitoring continues.
+            """);
             aiState = AiState.FINISHED;
         });
+
+        addAiButton("Reject schedule", () -> handleScheduleRejected());
+    }
+
+    private void handleScheduleRejected() {
+        clearButtons();
+
+        addAiMessage("""
+            AI:
+            Schedule rejected.
+        
+            Alternative options:
+        
+            Option A (Faster)
+            - Duration: 4 days
+            - Cost: ~€140,000
+        
+            Option B (Cheaper)
+            - Duration: 7 days
+            - Cost: ~€75,000
+            - Launch delay: +2 days
+        
+            Option C (Balanced)
+            - Duration: 5 days
+            - Cost: ~€110,000
+        
+            Select option:
+        """);
+
+        addAiButton("Option A (4 days)", () -> {
+            clearButtons();
+            addAiMessage("""
+            AI:
+            Fast-track schedule selected
+            
+            Order forwarded to technician.
+            """);
+            aiState = AiState.FINISHED;
+        });
+
+        addAiButton("Option B (7 days)", () -> {
+            clearButtons();
+            addAiMessage("""
+            AI:
+            Cost-optimized schedule selected
+            
+            Order forwarded to technician.
+            """);
+            aiState = AiState.FINISHED;
+        });
+
+        addAiButton("Option C (5 days)", () -> {
+            clearButtons();
+            addAiMessage("""
+            AI:
+            Balanced schedule selected
+            
+            Order forwarded to technician.
+            """);
+            aiState = AiState.FINISHED;
+        });
+
+
+        addAiButton("Custom adjustment", () -> {
+            clearButtons();
+
+            addAiMessage("""
+            AI:
+            Please specify adjustments.
+            
+            (e.g. reduce duration, minimize cost, limit delay)
+            """);
+
+            aiState = AiState.SCHEDULE_PROPOSED;
+        });
+
     }
 
     // --- HILFSMETHODEN FÜR UI ---

@@ -39,7 +39,7 @@ public class ScheduleService implements IScheduleService {
             se("15:00", "Security Chief Review – Orbiter",   "approval",   "EMP-004", "Orbiter")
         ));
 
-        ScheduleDay day2 = new ScheduleDay(2, "Day 2 – Repairs & Systems Check", Arrays.asList(
+        ScheduleDay day2 = new ScheduleDay(2, "Day 2 – Repairs & Systems Check", FXCollections.observableArrayList(
             se("07:00", "Repair: casingTemperature (SRB)",   "repair",   null, "SRB"),
             se("09:00", "Repair: stress (External Tank)",    "repair",   null, "External Tank"),
             se("10:00", "Refuel Main Tanks",                  "routine",  "EMP-001", "External Tank"),
@@ -48,7 +48,7 @@ public class ScheduleService implements IScheduleService {
             se("16:00", "Security Chief Review – Ext. Tank",  "approval", "EMP-004", "External Tank")
         ));
 
-        ScheduleDay day3 = new ScheduleDay(3, "Day 3 – Final Checks & Sign-Off", Arrays.asList(
+        ScheduleDay day3 = new ScheduleDay(3, "Day 3 – Final Checks & Sign-Off", FXCollections.observableArrayList(
             se("07:00", "Clean Cabin",                   "routine",    "EMP-001", "Orbiter"),
             se("08:00", "Lubricate Docking Mechanism",   "routine",    "EMP-001", "Orbiter"),
             se("09:00", "Check External Tank Seals",     "routine",    "EMP-001", "External Tank"),
@@ -57,7 +57,7 @@ public class ScheduleService implements IScheduleService {
         ));
 
         schedule = new TakeoverSchedule("Pre-Launch Processing – Takeover Session",
-                                    Arrays.asList(day1, day2, day3));
+                FXCollections.observableArrayList(day1, day2, day3));
 
         return schedule;
     }

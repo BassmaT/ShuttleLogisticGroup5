@@ -550,21 +550,31 @@ public class MainController extends BaseController {
 
     private void initAiChat() {
         try {
-            FXMLLoader loader =
-                    new FXMLLoader(getClass().getResource("/view/ai_chat.fxml"));
+            // Lädt die FXML-Datei für den KI-Chat
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ai_chat.fxml"));
             Parent root = loader.load();
 
+            // Holt den Controller und verknüpft ihn mit diesem MainController
             aiChat = loader.getController();
 
+            // WICHTIG: Übergibt die Instanz des MainControllers an den AiChatController,
+            // damit dieser nach einer Zuweisung updateDashboard() aufrufen kann.
+            aiChat.setMainController(this);
+
+            // UI-Komponenten im Side-Drawer aktualisieren
             aiDrawer.getChildren().clear();
             aiDrawer.getChildren().add(root);
 
+            // Initialen Kontext (Rolle des Nutzers) für die KI setzen
             var user = SessionState.getInstance().getCurrentUser();
             if (user != null) {
                 aiChat.setContext(SessionState.getInstance().getUserRole());
             }
 
+            System.out.println("AI Chat erfolgreich initialisiert und mit Dashboard verbunden.");
+
         } catch (IOException e) {
+            System.err.println("Fehler beim Initialisieren des AI Chats: " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -12,6 +12,7 @@ import com.group5.shuttle.model.TakeoverSchedule;
 import com.group5.shuttle.model.ScheduleDay;
 import com.group5.shuttle.model.ScheduleEntry;
 import com.group5.shuttle.service.ScheduleService;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.application.Platform;
@@ -34,6 +35,13 @@ public class AiChatController {
     private String currentContext = "DEFAULT";
     private UserRole userRole;
     private boolean interactionEnabled = false;
+    // Im AiChatController.java oben bei den anderen Feldern:
+    private MainController mainController;
+
+    // Die Methode, die vom MainController aufgerufen wird:
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
 
     public void setContext(UserRole role) {
         this.userRole = role;
@@ -305,20 +313,20 @@ public class AiChatController {
         ScheduleEntry newEntry = null;
 
         for (ScheduleDay day : schedule.getDays()) {
-
             if (day.getDayNumber() == 1) {
                 newEntry = new ScheduleEntry(
                         "13:00",
                         "Repair: coolantPressure (Orbiter)",
                         "repair",
-                        null,
+                        null, // Wird unten gesetzt
                         "Orbiter"
                 );
 
-                List<ScheduleEntry> entries = day.getEntries();
+                // Holen der reaktiven Liste
+                ObservableList<ScheduleEntry> entries = (ObservableList<ScheduleEntry>) day.getEntries();
 
+                // Richtigen Index finden (zwischen 12:00 und 15:00)
                 int insertIndex = entries.size();
-
                 for (int i = 0; i < entries.size(); i++) {
                     if (entries.get(i).getTime().compareTo("13:00") > 0) {
                         insertIndex = i;
@@ -326,30 +334,22 @@ public class AiChatController {
                     }
                 }
 
+                // Mitarbeiter-ID basierend auf Auswahl setzen
+                String empId = "ELENA".equals(technician) ? "EMP-001" : "EMP-002";
+                newEntry.setAssignedEmployeeId(empId);
+
+                // HINZUFÜGEN - Das löst durch die ObservableList das UI-Update aus
                 entries.add(insertIndex, newEntry);
-
-                if ("ELENA".equals(technician)) {
-                    newEntry.setAssignedEmployeeId("EMP-001");
-                } else {
-                    newEntry.setAssignedEmployeeId("EMP-002");
-                }
-
                 break;
             }
         }
 
-        if (newEntry != null) {
-            System.out.println("TASK ADDED: " + newEntry.getTask());
-        }
-
+        // UI-Thread benachrichtigen
         Platform.runLater(() -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml"));
-                Parent root = loader.load();
-
-                scrollPane.getScene().setRoot(root);
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (mainController != null) {
+                // Das Dashboard weiß bereits, wie es den Schedule-Teil neu lädt!
+                mainController.updateDashboard();
+                System.out.println("Dashboard-Update via AI Chat ausgelöst.");
             }
         });
     }

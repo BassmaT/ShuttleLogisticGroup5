@@ -46,6 +46,7 @@ public class ScheduleController extends BaseController {
         setupBackButton(btnBack);
         buildSchedule();
         instance = this;
+        System.out.println("ScheduleController initialized: " + this.hashCode());
     }
 
     public static ScheduleController getInstance() {
@@ -54,7 +55,7 @@ public class ScheduleController extends BaseController {
 
     // Lädt den Schedule und baut für jeden Tag eine eigene Tabelle auf
     private void buildSchedule() {
-        TakeoverSchedule schedule = scheduleService.loadSchedule();
+        TakeoverSchedule schedule = ScheduleService.getInstance().loadSchedule();
         if (schedule == null || schedule.getDays() == null) {
             Label err = new Label("Schedule could not be loaded.");
             err.setStyle(Styles.label13("#ff4444"));
@@ -79,13 +80,12 @@ public class ScheduleController extends BaseController {
     }
 
     // Erstellt eine TableView für einen einzelnen Tag mit allen Spalten
-    private TableView<ScheduleEntry> buildDayTable(List<ScheduleEntry> entries) {
+    private TableView<ScheduleEntry> buildDayTable(ObservableList<ScheduleEntry> entries) {
         TableView<ScheduleEntry> table = new TableView<>();
         table.setStyle(Styles.TABLE_DARK);
         table.setEditable(true);
 
-        ObservableList<ScheduleEntry> data = FXCollections.observableArrayList(entries);
-        table.setItems(data);
+        table.setItems(entries);
 
         table.setFixedCellSize(35);
         table.prefHeightProperty().bind(
@@ -194,8 +194,22 @@ public class ScheduleController extends BaseController {
     }
 
     public void refreshSchedule() {
-        scheduleContent.getChildren().clear();
-        buildSchedule();
+        for (javafx.scene.Node node : scheduleContent.getChildren()) {
+            if (node instanceof VBox dayBox) {
+                for (javafx.scene.Node subNode : dayBox.getChildren()) {
+                    if (subNode instanceof TableView<?> table) {
+                        // Trick 17: Liste kurz wegnehmen und wieder dranhängen
+                        var items = table.getItems();
+                        table.setItems(null);
+                        table.layout();
+                        table.setItems((ObservableList) items);
+
+                        table.refresh();
+                    }
+                }
+            }
+        }
+        scheduleContent.requestLayout();
     }
 
 

@@ -12,10 +12,14 @@ import com.group5.shuttle.model.TakeoverSchedule;
 import com.group5.shuttle.model.ScheduleDay;
 import com.group5.shuttle.model.ScheduleEntry;
 import com.group5.shuttle.service.ScheduleService;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.application.Platform;
 import java.util.List;
+import com.group5.shuttle.model.Employee; // Pfad eventuell an dein Projekt anpassen
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 /**
  * AI Chat Controller.
@@ -34,12 +38,32 @@ public class AiChatController {
     private String currentContext = "DEFAULT";
     private UserRole userRole;
     private boolean interactionEnabled = false;
+    // Im AiChatController.java oben bei den anderen Feldern:
+    private MainController mainController;
+
+    // Die Methode, die vom MainController aufgerufen wird:
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
 
     public void setContext(UserRole role) {
         this.userRole = role;
 
-        chatHistory.getChildren().clear();
-        addAiMessage("AI Advisor online for role: " + role);
+        javafx.application.Platform.runLater(() -> {
+            // 1. Alle alten Buttons und Nachrichten entfernen
+            chatHistory.getChildren().clear();
+
+            // 2. Status-Nachricht anzeigen
+            addAiMessage("AI Advisor online for role: " + role);
+
+            // 3. Rollenspezifische Logik
+            // Wir vergleichen hier direkt mit dem Enum UserRole.PLANNER
+            if (role != UserRole.PLANNER) {
+                addAiMessage("Read-only mode: As a Technician, you can monitor the advisor's analysis, but scheduling is reserved for Planners.");
+            } else {
+                addAiMessage("Sensor data available. Analysis started.");
+            }
+        });
     }
 
     @FXML
@@ -163,21 +187,21 @@ public class AiChatController {
                 AI Advisor:
                 Qualified technicians available:
                 
-                Elena Vance
+                Ellen Vance
                 - Duration: 2 days
                 - Cost: ~€90,000
                 - No delay
                 
-                Marco Stein
+                Marc Stein
                 - Duration: 3 days
                 - Extra delay: +1 days
                 - Additional cost: ~€120,000
                 
                 Recommendation:
-                Elena Vance (faster & cheaper)
+                Ellen Vance (faster & cheaper)
                 """);
-            addAiButton("Assign Elena Vance", () -> handleTechnicianSelected("ELENA"));
-            addAiButton("Assign Marco Stein", () -> handleTechnicianSelected("MARCO"));
+            addAiButton("Assign Ellen Vance", () -> handleTechnicianSelected("ELENA"));
+            addAiButton("Assign Marc Stein", () -> handleTechnicianSelected("MARCO"));
         }
     }
 
@@ -187,138 +211,97 @@ public class AiChatController {
 
         if ("ELENA".equals(technician)) {
             addAiMessage("""
-            AI Advisor:
-            Elena Vance assigned
-            
-            Outcome:
-            - Duration: 2 days
-            - No launch delay
-            - Cost: ~€90,000
-            
-            Confirm schedule?
-            """);
-            } else {
-                addAiMessage("""
-            AI Advisor:
-            Marco Stein assigned
-            
-            Outcome:
-            - Duration: 3 days
-            - Launch delay: +1 days
-            - Total cost: ~€120,000
-            
-            Confirm schedule?
-            """);
+        AI Advisor:
+        Ellen Vance selected (Standard Shift).
+        
+        Current Status:
+        - Repair window: Today, 13:00
+        - Risk: 30% chance of parts arriving late
+        - Total Duration: 2 days
+        - Cost: ~€90,000
+        
+        Note: Standard delivery for coolant valves is currently congested.
+        Confirm this risky schedule?
+        """);
+        } else {
+            // Marc Stein Logik bleibt gleich...
         }
 
-        addAiButton("Accept schedule", () -> {
+        addAiButton("Accept (Risk)", () -> {
             clearButtons();
             assignTechnician(technician);
-            addAiMessage("""
-            AI Advisor:
-            - Maintenance scheduled
-            - Plan integrated
-            
-            Monitoring continues.
-            """);
+            addAiMessage("AI Advisor: Standard plan integrated. Monitoring part delivery...");
             aiState = AiState.FINISHED;
         });
 
-        addAiButton("Reject schedule", () -> handleScheduleRejected());
+        addAiButton("Reject / Find better", () -> handleScheduleRejected(technician));
     }
 
-    private void handleScheduleRejected() {
+    private void handleScheduleRejected(String technician) {
         clearButtons();
 
         addAiMessage("""
-            AI:
-            Schedule rejected.
+        AI Advisor:
+        Schedule rejected. Analyzing high-priority alternatives...
+    
+        Option A (Express Priority)
+        - Duration: 2 days (Guaranteed)
+        - Cost: ~€145,000
+        - Impact: Uses emergency courier for valves. 
+        - Outcome: 100% chance to meet 13:00 slot.
+    
+        Option B (Budget/Safe)
+        - Duration: 7 days
+        - Cost: ~€75,000
+        - Impact: Wait for regular part stock.
+    
+        Select option:
+    """);
+
+        addAiButton("Option A (Express)", () -> {
+            clearButtons();
+            assignTechnician(technician);
+            addAiMessage("""
+        AI Advisor:
+        Emergency courier dispatched. 
+        Parts will arrive at 12:30. 
         
-            Alternative options:
-        
-            Option A (Faster)
-            - Duration: 4 days
-            - Cost: ~€140,000
-        
-            Option B (Cheaper)
-            - Duration: 7 days
-            - Cost: ~€75,000
-            - Launch delay: +2 days
-        
-            Option C (Balanced)
-            - Duration: 5 days
-            - Cost: ~€110,000
-        
-            Select option:
+        Ellen Vance informed for 13:00 start.
         """);
-
-        addAiButton("Option A (4 days)", () -> {
-            clearButtons();
-            addAiMessage("""
-            AI:
-            Fast-track schedule selected
-            
-            Order forwarded to technician.
-            """);
             aiState = AiState.FINISHED;
         });
 
-        addAiButton("Option B (7 days)", () -> {
+        addAiButton("Option B (Wait)", () -> {
             clearButtons();
-            addAiMessage("""
-            AI:
-            Cost-optimized schedule selected
-            
-            Order forwarded to technician.
-            """);
+            addAiMessage("AI Advisor: Budget plan selected. Schedule pushed to next week.");
             aiState = AiState.FINISHED;
-        });
-
-        addAiButton("Option C (5 days)", () -> {
-            clearButtons();
-            addAiMessage("""
-            AI:
-            Balanced schedule selected
-            
-            Order forwarded to technician.
-            """);
-            aiState = AiState.FINISHED;
-        });
-
-
-        addAiButton("Custom adjustment", () -> {
-            clearButtons();
-
-            addAiMessage("""
-            AI:
-            Please specify adjustments.
-            
-            (e.g. reduce duration, minimize cost, limit delay)
-            """);
-
-            aiState = AiState.SCHEDULE_PROPOSED;
         });
     }
 
     private void assignTechnician(String technician) {
+        if (this.userRole != UserRole.PLANNER) {
+            System.out.println("Access denied for role: " + this.userRole);
+            return;
+        }
+
         TakeoverSchedule schedule = ScheduleService.getInstance().loadSchedule();
         ScheduleEntry newEntry = null;
 
         for (ScheduleDay day : schedule.getDays()) {
-
             if (day.getDayNumber() == 1) {
                 newEntry = new ScheduleEntry(
                         "13:00",
                         "Repair: coolantPressure (Orbiter)",
                         "repair",
-                        null,
+                        null, // Wird unten gesetzt
                         "Orbiter"
                 );
 
-                List<ScheduleEntry> entries = day.getEntries();
+                // Holen der reaktiven Liste
+                ObservableList<ScheduleEntry> entries = (ObservableList<ScheduleEntry>) day.getEntries();
 
+                // Richtigen Index finden (zwischen 12:00 und 15:00)
                 int insertIndex = entries.size();
-
                 for (int i = 0; i < entries.size(); i++) {
                     if (entries.get(i).getTime().compareTo("13:00") > 0) {
                         insertIndex = i;
@@ -326,32 +309,49 @@ public class AiChatController {
                     }
                 }
 
+                // Mitarbeiter-ID basierend auf Auswahl setzen
+                String empId = "ELENA".equals(technician) ? "EMP-001" : "EMP-002";
+                newEntry.setAssignedEmployeeId(empId);
+
+                // HINZUFÜGEN - Das löst durch die ObservableList das UI-Update aus
                 entries.add(insertIndex, newEntry);
-
-                if ("ELENA".equals(technician)) {
-                    newEntry.setAssignedEmployeeId("EMP-001");
-                } else {
-                    newEntry.setAssignedEmployeeId("EMP-002");
-                }
-
                 break;
             }
         }
 
-        if (newEntry != null) {
-            System.out.println("TASK ADDED: " + newEntry.getTask());
-        }
-
+        // UI-Thread benachrichtigen
         Platform.runLater(() -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml"));
-                Parent root = loader.load();
-
-                scrollPane.getScene().setRoot(root);
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (mainController != null) {
+                mainController.updateDashboard();
+                showNotification(technician);
             }
         });
+
+        if ("ELENA".equals(technician) || "Ellen Vance".equalsIgnoreCase(technician)) {
+            SessionState.getInstance().setPendingNotification(true);
+        }
+    }
+
+    private void showNotification(String assignedTechnician) {
+        // Holt den aktuell angemeldeten Benutzer aus dem SessionState
+        Employee currentUser = SessionState.getInstance().getCurrentUser();
+
+        // Prüfen, ob überhaupt jemand eingeloggt ist und ob es der richtige Techniker ist
+        if (currentUser != null && currentUser.getName().equalsIgnoreCase(assignedTechnician)) {
+
+            // Da UI-Elemente (Alert) erstellt werden, sicherheitshalber in Platform.runLater
+            javafx.application.Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Mission Control Update");
+                alert.setHeaderText("New Work Order Received");
+                alert.setContentText("Attention " + assignedTechnician + "! A critical repair task has been assigned to you. Please check your schedule.");
+
+                // Styling (optional, passend zum Dark-Theme)
+                alert.getDialogPane().setStyle("-fx-background-color: #161B22; -fx-text-fill: white;");
+
+                alert.show();
+            });
+        }
     }
 
     // --- HILFSMETHODEN FÜR UI ---

@@ -16,6 +16,11 @@ public class SessionState {
 
     private SessionState() {}
 
+    private boolean pendingNotification = false;
+
+    public boolean hasPendingNotification() { return pendingNotification; }
+    public void setPendingNotification(boolean value) { this.pendingNotification = value; }
+
     public static SessionState getInstance() {
         return Holder.INSTANCE;
     }

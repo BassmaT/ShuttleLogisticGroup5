@@ -45,6 +45,12 @@ import javafx.fxml.FXMLLoader;
 import java.io.IOException;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.Parent;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import java.util.concurrent.CompletableFuture; // Falls du es doch nutzen willst
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
+import javafx.scene.control.DialogPane;
 
 /**
  * Main dashboard controller coordinating navigation, application phases,
@@ -64,9 +70,17 @@ public class MainController extends BaseController {
     }
 
     @Override
-    protected void loadView(String fxml) {
-        phaseTimer.stop();
+    public void loadView(String fxml) {
+        // 1. Die Standard-Logik zum Laden der FXML ausführen
         super.loadView(fxml);
+
+        // 2. Ein ganz kurzer Moment warten, bis die UI-Elemente gelinkt sind
+        Platform.runLater(() -> {
+            System.out.println("View geladen: " + fxml);
+
+            // Wir aktualisieren das Dashboard bei jedem View-Wechsel automatisch
+            updateDashboard();
+        });
     }
 
     // Navigations-Buttons in der linken Seitenleiste.
@@ -202,7 +216,18 @@ public class MainController extends BaseController {
             btn.setOnMouseExited(e -> btn.setStyle(Styles.NAV_BTN_NORMAL));
         }
 
-        btnMission.setOnAction(e -> loadView("mission_control.fxml"));
+        btnMission.setOnAction(e -> {
+            loadView("mission_control.fxml");
+
+            // Wir warten 300ms, bis die Mission Control Seite wirklich "da" ist
+            PauseTransition delay = new PauseTransition(Duration.millis(300));
+            delay.setOnFinished(event -> {
+                System.out.println("Trigger nach Seitenwechsel...");
+                updateDashboard();
+            });
+            delay.play();
+        });
+
         btnTechnician.setOnAction(e -> loadView("technician.fxml"));
         btnInventory.setOnAction(e -> loadView("inventory.fxml"));
         btnHistory.setOnAction(e -> loadView("history.fxml"));
@@ -442,6 +467,41 @@ public class MainController extends BaseController {
         updateSensorList(data, thresholds);
         updateSchedulePreview();
         updatePredictiveWarnings();
+
+        checkAndShowNewTaskPopup();
+    }
+
+    private void checkAndShowNewTaskPopup() {
+        SessionState session = SessionState.getInstance();
+        Employee currentUser = session.getCurrentUser();
+
+        if (session.hasPendingNotification() && currentUser != null &&
+                "Technician".equalsIgnoreCase(currentUser.getRole())) {
+
+            javafx.application.Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Mission Control Update");
+                alert.setHeaderText("New Task Assigned");
+
+                // Text auf Englisch mit Bezug zum Orbiter
+                alert.setContentText("Hello " + currentUser.getName() + ",\n\n" +
+                        "A new maintenance task has been assigned to you.\n" +
+                        "Please check the 'Repair Tasks – Orbiter' section for details.");
+
+                // Styling für bessere Lesbarkeit (Weißer Text auf dunklem Grund)
+                DialogPane dialogPane = alert.getDialogPane();
+                dialogPane.setStyle("-fx-background-color: #161B22;");
+
+                // Alle Labels (Header und Content) auf Weiß setzen
+                dialogPane.lookupAll(".label").forEach(node ->
+                        node.setStyle("-fx-text-fill: white; -fx-font-weight: bold;")
+                );
+
+                // Flag zurücksetzen und anzeigen
+                session.setPendingNotification(false);
+                alert.showAndWait();
+            });
+        }
     }
 
     // Aktualisiert Fortschrittsbalken, Tooltip und Zeitplan-Statuslabel.
@@ -550,21 +610,31 @@ public class MainController extends BaseController {
 
     private void initAiChat() {
         try {
-            FXMLLoader loader =
-                    new FXMLLoader(getClass().getResource("/view/ai_chat.fxml"));
+            // Lädt die FXML-Datei für den KI-Chat
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ai_chat.fxml"));
             Parent root = loader.load();
 
+            // Holt den Controller und verknüpft ihn mit diesem MainController
             aiChat = loader.getController();
 
+            // WICHTIG: Übergibt die Instanz des MainControllers an den AiChatController,
+            // damit dieser nach einer Zuweisung updateDashboard() aufrufen kann.
+            aiChat.setMainController(this);
+
+            // UI-Komponenten im Side-Drawer aktualisieren
             aiDrawer.getChildren().clear();
             aiDrawer.getChildren().add(root);
 
+            // Initialen Kontext (Rolle des Nutzers) für die KI setzen
             var user = SessionState.getInstance().getCurrentUser();
             if (user != null) {
                 aiChat.setContext(SessionState.getInstance().getUserRole());
             }
 
+            System.out.println("AI Chat erfolgreich initialisiert und mit Dashboard verbunden.");
+
         } catch (IOException e) {
+            System.err.println("Fehler beim Initialisieren des AI Chats: " + e.getMessage());
             e.printStackTrace();
         }
     }

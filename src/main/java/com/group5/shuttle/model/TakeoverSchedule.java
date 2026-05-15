@@ -2,13 +2,13 @@ package com.group5.shuttle.model;
 
 import java.util.List;
 
-// Wrapper-Objekt für den 3-Tage-Zeitplan der Übergabe
+// Wrapper object for the 3-day handover schedule
 public class TakeoverSchedule {
 
-    // Titel der Übergabe, z. B. "Pre-Launch Processing – Takeover Session"
+    // Title of the handover, e.g. "Pre-Launch Processing – Takeover Session"
     private final String takeoverTitle;
 
-    // Liste der drei Tage mit ihren Einträgen
+    // List of the three days with their entries
     private final List<ScheduleDay> days;
 
     public TakeoverSchedule(String takeoverTitle, List<ScheduleDay> days) {

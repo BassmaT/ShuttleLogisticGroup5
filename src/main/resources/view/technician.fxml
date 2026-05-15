@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Importiert die benötigten JavaFX-Klassen -->
+<!-- Imports the required JavaFX classes -->
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Button?>
@@ -9,44 +9,44 @@
 <?import javafx.scene.control.TableColumn?>
 
 <!--
-    Techniker-Panel.
-    Zeigt alle Sensoren aller Shuttle-Teile mit Messwerten und Status.
-    fx:controller verknüpft die Datei mit TechnicianController.
+    Technician panel.
+    Shows all sensors of all shuttle parts with readings and status.
+    fx:controller links this file to TechnicianController.
 -->
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group5.shuttle.controller.TechnicianController"
             style="-fx-background-color: #0D1117; -fx-padding: 20;">
 
-    <!-- Seitenüberschrift -->
+    <!-- Page heading -->
     <top>
         <Label text="Technician Panel"
                style="-fx-font-size: 28px; -fx-text-fill: #4B9CFF; -fx-font-weight: bold;"
                BorderPane.alignment="CENTER"/>
     </top>
 
-    <!-- Hauptbereich mit der Sensor-Tabelle -->
+    <!-- Main area with the sensor table -->
     <center>
         <VBox spacing="10" style="-fx-padding: 10 0 0 0;">
-            <!-- sensorTable wird im Controller mit Sensordaten befüllt -->
+            <!-- sensorTable is populated with sensor data in the controller -->
             <TableView fx:id="sensorTable"
                        style="-fx-background: #0D1117; -fx-background-color: #161B22;"
                        VBox.vgrow="ALWAYS">
                 <columns>
-                    <!-- Spalte: Shuttle-Teil (Orbiter, SRB, External Tank) -->
+                    <!-- Column: shuttle part (Orbiter, SRB, External Tank) -->
                     <TableColumn fx:id="colPart"   text="Part"   prefWidth="130"/>
-                    <!-- Spalte: Sensorname, z. B. "hullTemperature" -->
+                    <!-- Column: sensor name, e.g. "hullTemperature" -->
                     <TableColumn fx:id="colSensor" text="Sensor" prefWidth="180"/>
-                    <!-- Spalte: Aktueller Messwert, z. B. "520.00" -->
+                    <!-- Column: current reading, e.g. "520.00" -->
                     <TableColumn fx:id="colValue"  text="Value"  prefWidth="100"/>
-                    <!-- Spalte: Bewertung (OK / WARNING / REPLACE), farbig -->
+                    <!-- Column: rating (OK / WARNING / REPLACE), colour-coded -->
                     <TableColumn fx:id="colStatus" text="Status" prefWidth="110"/>
                 </columns>
             </TableView>
         </VBox>
     </center>
 
-    <!-- Zurück-Button unten -->
+    <!-- Back button at the bottom -->
     <bottom>
         <Button text="← Back to Dashboard"
                 fx:id="btnBack"

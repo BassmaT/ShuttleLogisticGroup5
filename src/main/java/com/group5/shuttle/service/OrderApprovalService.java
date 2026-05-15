@@ -5,14 +5,14 @@ import com.group5.shuttle.model.LogisticsOrder;
 
 import java.util.List;
 
-// Einzel-Verantwortung: genehmigt oder lehnt Bestellungen ab und löst die Liefersimulation aus.
-// Extrahiert aus LogisticsController (war dort Geschäftslogik in einem UI-Event-Handler).
+// Single responsibility: approves or rejects orders and triggers the delivery simulation.
+// Extracted from LogisticsController (business logic was previously in a UI event handler).
 public final class OrderApprovalService {
 
     private OrderApprovalService() {}
 
-    // Genehmigt die Bestellung, markiert sie als bestellt und startet die 10-Sekunden-Liefersimulation.
-    // onDelivered wird nach Eingang aufgerufen – UI-Refresh und Dialog obliegen dem Controller.
+    // Approves the order, marks it as ordered, and starts the 10-second delivery simulation.
+    // onDelivered is called after receipt – UI refresh and dialog are the controller's responsibility.
     public static void approve(LogisticsOrder order, IInventoryService inventoryService,
                                 IEmployeeService employeeService, Runnable onDelivered) {
         List<Employee> chiefs = employeeService.getByRole("Security Chief");
@@ -38,7 +38,7 @@ public final class OrderApprovalService {
         });
     }
 
-    // Lehnt die Bestellung ab.
+    // Rejects the order.
     public static void reject(LogisticsOrder order, IEmployeeService employeeService) {
         List<Employee> chiefs = employeeService.getByRole("Security Chief");
         Employee approver = chiefs.isEmpty() ? null : chiefs.get(0);

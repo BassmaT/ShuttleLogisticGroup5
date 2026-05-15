@@ -6,17 +6,17 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
-// Abstrakte Basisklasse für alle Controller.
-// Sie enthält gemeinsame Funktionalität, die jeder Controller braucht: die Navigation zwischen Seiten.
-// "abstract" bedeutet: Diese Klasse kann nicht direkt benutzt werden – man muss von ihr erben.
+// Abstract base class for all controllers.
+// It contains common functionality that every controller needs: navigation between pages.
+// "abstract" means: this class cannot be used directly – it must be extended.
 public abstract class BaseController {
 
-    // Jeder Controller muss diese Methode implementieren und seinen Zurück-Button zurückgeben.
-    // Über diesen Button holt sich loadView() das aktuelle Fenster (Stage).
+    // Every controller must implement this method and return its back button.
+    // loadView() uses this button to retrieve the current window (Stage).
     protected abstract Button getNavigationButton();
 
-    // Lädt eine andere FXML-Seite und tauscht den Inhalt des Fensters aus.
-    // fxml ist der Dateiname, z. B. "main_view.fxml".
+    // Loads a different FXML page and replaces the content of the window.
+    // fxml is the file name, e.g. "main_view.fxml".
     protected void setupBackButton(Button btn) {
         btn.setOnAction(e -> loadView("main_view.fxml"));
     }
@@ -28,7 +28,7 @@ public abstract class BaseController {
             Stage stage = (Stage) getNavigationButton().getScene().getWindow();
             stage.getScene().setRoot(root);
         } catch (Exception e) {
-            Dialogs.showError("Navigationsfehler", "Ansicht konnte nicht geladen werden: " + fxml, e.getMessage());
+            Dialogs.showError("Navigation Error", "View could not be loaded: " + fxml, e.getMessage());
         }
     }
 }

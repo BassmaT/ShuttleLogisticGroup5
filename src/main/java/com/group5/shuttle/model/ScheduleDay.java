@@ -2,16 +2,16 @@ package com.group5.shuttle.model;
 
 import javafx.collections.ObservableList;
 
-// Repräsentiert einen Tag im 3-Tage-Zeitplan
+// Represents a single day in the 3-day schedule
 public class ScheduleDay {
 
-    // Tagnummer: 1, 2 oder 3
+    // Day number: 1, 2 or 3
     private final int dayNumber;
 
-    // Beschriftung des Tages, z. B. "Day 1 – Inspection & Diagnostics"
+    // Label for the day, e.g. "Day 1 – Inspection & Diagnostics"
     private final String label;
 
-    // Alle Zeitplan-Einträge für diesen Tag
+    // All schedule entries for this day
     private final ObservableList<ScheduleEntry> entries;
 
     public ScheduleDay(int dayNumber, String label, ObservableList<ScheduleEntry> entries) {

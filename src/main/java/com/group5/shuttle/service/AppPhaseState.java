@@ -5,9 +5,9 @@ import java.util.Map;
 import com.group5.shuttle.service.IPhaseTracker.AppPhase;
 import com.group5.shuttle.service.IPhaseTracker.ScheduleStatus;
 
-// Einzel-Verantwortung: verwaltet die App-Phase (LANDING → SENSOR_LOADING → OPERATIONAL),
-// den Countdown und den Zeitplan-Status.
-// Extrahiert aus TakeoverState (war dort gemischt mit Arbeiter-, Reparatur- und Freigabe-Logik).
+// Single responsibility: manages the app phase (LANDING → SENSOR_LOADING → OPERATIONAL),
+// the countdown, and the schedule status.
+// Extracted from TakeoverState (was previously mixed with worker, repair, and approval logic).
 public class AppPhaseState {
 
     private AppPhase appPhase = AppPhase.LANDING;
@@ -16,15 +16,15 @@ public class AppPhaseState {
     private Instant sensorLoadingStartedAt = null;
     private Instant operationalStartedAt   = null;
 
-    // Simulationsrate: 1 Echtzeit-Sekunde = 2 Sim-Minuten (1 Stunde = 30 Sekunden real)
+    // Simulation rate: 1 real-time second = 2 simulated minutes (1 hour = 30 real seconds)
     private static final double SIM_SECONDS_PER_HOUR = 30.0;
 
-    // Verzugs-Schwellenwerte für Zeitplan-Status
+    // Delay thresholds for schedule status
     private static final double LAG_THRESHOLD_DAY_H   = 24.0;
     private static final double LAG_THRESHOLD_HOURS_H = 2.0;
 
-    // Meilensteine: partKey → simulierte Stunden ab Operational-Start
-    // OCP: neuen Part hinzufügen → nur hier eintragen, getScheduleStatus() bleibt unverändert.
+    // Milestones: partKey → simulated hours from operational start
+    // OCP: adding a new part → only register it here, getScheduleStatus() remains unchanged.
     private static final Map<String, Double> MILESTONES = Map.of(
         "orbiter",      15.0,
         "srb",          38.0,
@@ -72,7 +72,7 @@ public class AppPhaseState {
                / SIM_SECONDS_PER_HOUR;
     }
 
-    // approval wird von TakeoverState übergeben, damit AppPhaseState keine eigene Freigabe-Logik kennt.
+    // approval is passed in from TakeoverState so that AppPhaseState does not need its own approval logic.
     public ScheduleStatus getScheduleStatus(IPartApproval approval) {
         if (operationalStartedAt == null) return ScheduleStatus.ON_TIME;
 

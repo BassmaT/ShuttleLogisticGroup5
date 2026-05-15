@@ -22,96 +22,96 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.util.Map;
 
-// Controller für das Techniker-Panel.
-// Zeigt alle aktuellen Sensorwerte aller Shuttle-Teile in einer Tabelle an.
-// Jeder Sensor wird farblich nach seinem Status markiert.
+// Controller for the technician panel.
+// Displays all current sensor values for all shuttle parts in a table.
+// Each sensor is color-coded according to its status.
 public class TechnicianController extends BaseController {
 
-    // Der Zurück-Button, der zum Haupt-Dashboard führt.
+    // The back button that leads to the main dashboard.
     @FXML private Button btnBack;
 
-    // Die Tabelle, die alle Sensorwerte anzeigt.
+    // The table that displays all sensor values.
     @FXML private TableView<SensorRow> sensorTable;
 
-    // Spalte für den Namen des Shuttle-Teils, z. B. "Orbiter".
+    // Column for the shuttle part name, e.g. "Orbiter".
     @FXML private TableColumn<SensorRow, String> colPart;
 
-    // Spalte für den Sensornamen, z. B. "hullTemperature".
+    // Column for the sensor name, e.g. "hullTemperature".
     @FXML private TableColumn<SensorRow, String> colSensor;
 
-    // Spalte für den aktuellen Messwert, z. B. "520.00".
+    // Column for the current measured value, e.g. "520.00".
     @FXML private TableColumn<SensorRow, String> colValue;
 
-    // Spalte für den Bewertungsstatus: "OK", "WARNING" oder "REPLACE".
+    // Column for the evaluation status: "OK", "WARNING" or "REPLACE".
     @FXML private TableColumn<SensorRow, String> colStatus;
 
     private final ISensorDataService sensorService = SensorDataService.getInstance();
 
-    // initialize() wird automatisch aufgerufen, sobald die FXML-Datei geladen ist.
+    // initialize() is called automatically as soon as the FXML file is loaded.
     @FXML
     public void initialize() {
-        // Zurück-Button navigiert zum Haupt-Dashboard.
+        // Back button navigates to the main dashboard.
         setupBackButton(btnBack);
 
-        // Tabelle einrichten und mit Daten befüllen.
+        // Set up the table and populate it with data.
         setupTable();
         loadSensorData();
     }
 
-    // Richtet die Tabellenspalten ein und definiert, welche Daten wo angezeigt werden.
+    // Sets up the table columns and defines which data is displayed where.
     private void setupTable() {
-        // PropertyValueFactory verknüpft eine Spalte mit einem Getter in SensorRow.
-        // "part" bedeutet: Spalte zeigt den Rückgabewert von getPart() an.
+        // PropertyValueFactory links a column to a getter in SensorRow.
+        // "part" means: the column shows the return value of getPart().
         colPart.setCellValueFactory(new PropertyValueFactory<>("part"));
         colSensor.setCellValueFactory(new PropertyValueFactory<>("sensor"));
         colValue.setCellValueFactory(new PropertyValueFactory<>("value"));
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        // Benutzerdefinierte Zell-Darstellung für die Status-Spalte: farbige Texte.
+        // Custom cell rendering for the status column: colored text.
         colStatus.setCellFactory(col -> new ColoredTableCell<>(StatusColors::forSensorStatus));
     }
 
-    // Lädt die Sensordaten und Grenzwerte, bewertet jeden Sensor
-    // und fügt das Ergebnis als Zeile in die Tabelle ein.
+    // Loads sensor data and thresholds, evaluates each sensor
+    // and adds the result as a row in the table.
     private void loadSensorData() {
         ShuttleData data = sensorService.loadSensorData();
         Map<String, Map<String, SensorThreshold>> thresholds = sensorService.loadThresholds();
 
-        // Wenn die Daten nicht geladen werden konnten, Methode beenden.
+        // If the data could not be loaded, exit the method.
         if (data == null || thresholds == null) return;
 
-        // ObservableList ist eine JavaFX-Liste – die Tabelle reagiert automatisch auf Änderungen.
+        // ObservableList is a JavaFX list – the table reacts automatically to changes.
         ObservableList<SensorRow> rows = FXCollections.observableArrayList();
 
-        // OCP: Shuttle-Teile kommen aus data.getAllParts(); neuer Part → nur ShuttleData ändern.
+        // OCP: Shuttle parts come from data.getAllParts(); new part → only change ShuttleData.
         for (var partEntry : data.getAllParts().entrySet()) {
             String jKey        = partEntry.getKey();
             String displayName = TakeoverState.getDisplayName(jKey);
             ShuttlePart part   = partEntry.getValue();
 
-            // Überspringen, wenn keine Sensordaten vorhanden sind.
+            // Skip if no sensor data is available.
             if (part == null || part.getSensors() == null) continue;
 
-            // Grenzwerte für diesen Shuttle-Teil holen.
+            // Get the thresholds for this shuttle part.
             Map<String, SensorThreshold> partThresholds = thresholds.get(jKey);
 
-            // Jeden einzelnen Sensor dieses Teils durchgehen.
+            // Iterate over each individual sensor of this part.
             for (var sensorEntry : part.getSensors().entrySet()) {
-                String sensorName = sensorEntry.getKey();   // z. B. "hullTemperature"
-                double value      = sensorEntry.getValue(); // z. B. 520.0
+                String sensorName = sensorEntry.getKey();   // e.g. "hullTemperature"
+                double value      = sensorEntry.getValue(); // e.g. 520.0
 
                 SensorStatus result = ShuttleDataHelper.evaluateSensor(sensorName, value, partThresholds, sensorService);
 
-                // Neue Zeile mit allen Informationen erstellen und zur Liste hinzufügen.
+                // Create a new row with all information and add it to the list.
                 rows.add(new SensorRow(displayName, sensorName, String.format("%.2f", value), result.name()));
             }
         }
 
-        // Alle gesammelten Zeilen in die Tabelle laden.
+        // Load all collected rows into the table.
         sensorTable.setItems(rows);
     }
 
-    // Gibt den Zurück-Button zurück – wird von BaseController.loadView() benötigt.
+    // Returns the back button – required by BaseController.loadView().
     @Override
     protected Button getNavigationButton() {
         return btnBack;

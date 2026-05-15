@@ -1,19 +1,33 @@
-# ER-Diagramm — Shuttle Dashboard
+# ER Diagram — Shuttle Dashboard
 
-**Gruppe 5 · Datenmodell**
+**Group 5 · Data Model**
 
-> Dargestellt: alle persistenten Entitäten des Domänenmodells mit ihren Schlüsselattributen und Beziehungen.
+> Shown: all persistent entities of the domain model with their key attributes and relationships.
+> `UserRole` is a code enum (no separate table entry); `EMPLOYEE.role` takes one of the four values.
 
 ---
 
 ```mermaid
 erDiagram
-
-    EMPLOYEE {
-        string id PK
+EMPLOYEE {
+        int id PK
         string name
-        string role
-        string team
+        int teamId FK
+    }
+    
+    ROLE {
+        int id PK
+        string roleName
+    }
+
+    TEAM {
+        int id PK
+        string teamName
+    }
+
+    EMPLOYEE_ROLE_ASSIGNMENT {
+        int employeeId FK
+        int roleId FK
     }
 
     SHUTTLE_PART {
@@ -30,12 +44,12 @@ erDiagram
     }
 
     FLIGHT_RECORD {
-        string flightId PK
+        int flightId PK
         int flightNumber
     }
 
     SENSOR_READING {
-        string flightId FK
+        int flightId FK
         string partKey FK
         string sensorName
         double value
@@ -51,7 +65,7 @@ erDiagram
     }
 
     INVENTORY_ITEM {
-        string id PK
+        int id PK
         string name
         string part
         int quantity
@@ -60,22 +74,20 @@ erDiagram
     }
 
     LOGISTICS_ORDER {
-        string orderNumber PK
+        int orderNumber PK
         string partName
         int quantity
-        string orderedById FK
-        string orderedByName
+        int orderedById FK
         string reason
         string orderDate
         string status
-        string approvedById FK
-        string approvedByName
+        int approvedById FK
         string approvalDate
         string deliveryDate
     }
 
     MAINTENANCE_TICKET {
-        string id PK
+        int id PK
         string date
         string part FK
         string sensor
@@ -85,11 +97,11 @@ erDiagram
     }
 
     ROUTINE_TASK {
-        string id PK
+        int id PK
         string name
         string shuttlePart FK
         int estimatedMinutes
-        string assignedEmployeeId FK
+        int assignedEmployeeId FK
         boolean done
         string completedAt
     }
@@ -103,7 +115,7 @@ erDiagram
         string time
         string task
         string category
-        string assignedEmployeeId FK
+        int assignedEmployeeId FK
         string shuttlePart FK
     }
 
@@ -116,21 +128,25 @@ erDiagram
         int flightsUntilLimit
     }
 
-    SHUTTLE_PART ||--o{ SENSOR_THRESHOLD    : "hat Grenzwerte"
-    SHUTTLE_PART ||--o{ REPAIR_TASK         : "hat Reparaturen"
-    SHUTTLE_PART ||--o{ MAINTENANCE_TICKET  : "hat Wartungslog"
-    SHUTTLE_PART ||--o{ ROUTINE_TASK        : "hat Routineaufgaben"
-    SHUTTLE_PART ||--o{ SCHEDULE_ENTRY      : "ist geplant in"
-    SHUTTLE_PART ||--o{ TREND_RESULT        : "hat Trendanalysen"
-    SHUTTLE_PART ||--o{ SENSOR_READING      : "wird gemessen in"
+    SHUTTLE_PART ||--o{ SENSOR_THRESHOLD    : "hat"
+    SHUTTLE_PART ||--o{ REPAIR_TASK         : "braucht"
+    SHUTTLE_PART ||--o{ MAINTENANCE_TICKET  : "dokumentiert"
+    SHUTTLE_PART ||--o{ ROUTINE_TASK        : "erfordert"
+    SHUTTLE_PART ||--o{ SCHEDULE_ENTRY      : "geplant"
+    SHUTTLE_PART ||--o{ TREND_RESULT        : "analysiert"
+    SHUTTLE_PART ||--o{ SENSOR_READING      : "liefert"
 
-    FLIGHT_RECORD ||--o{ SENSOR_READING     : "enthält Messwerte"
+    FLIGHT_RECORD ||--o{ SENSOR_READING     : "speichert"
 
-    INVENTORY_ITEM ||--o{ REPAIR_TASK       : "wird benötigt für"
+    INVENTORY_ITEM ||--o{ REPAIR_TASK       : "verbraucht"
 
-    EMPLOYEE ||--o{ ROUTINE_TASK            : "ist zugewiesen"
-    EMPLOYEE ||--o{ LOGISTICS_ORDER         : "erteilt Bestellung"
-    EMPLOYEE ||--o{ SCHEDULE_ENTRY          : "ist eingeplant"
-
-    SCHEDULE_DAY ||--o{ SCHEDULE_ENTRY      : "enthält"
-```
+    EMPLOYEE ||--o{ ROUTINE_TASK            : "führt aus"
+    EMPLOYEE ||--o{ LOGISTICS_ORDER         : "bestellt"
+    EMPLOYEE ||--o{ LOGISTICS_ORDER         : "genehmigt"
+    EMPLOYEE ||--o{ SCHEDULE_ENTRY          : "arbeitet"
+    
+    EMPLOYEE ||--o{ EMPLOYEE_ROLE_ASSIGNMENT : "besetzt"
+    ROLE ||--o{ EMPLOYEE_ROLE_ASSIGNMENT : "definiert"
+    
+    TEAM ||--o{ EMPLOYEE                    : "enthält"
+    SCHEDULE_DAY ||--o{ SCHEDULE_ENTRY      : "plant"

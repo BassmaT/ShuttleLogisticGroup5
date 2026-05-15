@@ -4,28 +4,28 @@ import com.group5.shuttle.service.InventoryStatusCalculator;
 
 public class InventoryItem {
 
-    // Eindeutige ID des Lagerartikels, z. B. "INV-001".
+    // Unique ID of the inventory item, e.g. "INV-001".
     private String id;
 
-    // Name des Bauteils, z. B. "Heat Shield Panel".
+    // Name of the component, e.g. "Heat Shield Panel".
     private String name;
 
-    // Zu welchem Shuttle-Teil gehört dieses Bauteil, z. B. "Orbiter".
+    // Which shuttle part does this component belong to, e.g. "Orbiter".
     private String part;
 
-    // Wie viele Stück davon auf Lager sind.
+    // How many units are currently in stock.
     private int quantity;
 
-    // Lagerstatus: "IN_STOCK", "LOW" oder "OUT_OF_STOCK".
+    // Stock status: "IN_STOCK", "LOW" or "OUT_OF_STOCK".
     //private String status;
 
-    // Kurze Beschreibung: was das Bauteil ist und wofür es gebraucht wird
+    // Short description: what the component is and what it is used for
     private String description;
     private StockStatus status;
 
-    // Konstruktor – initialisiert einen Lagerartikel vollständig.
-    // status wird über setQuantity() automatisch berechnet,
-    // kann aber durch den expliziten status-Parameter überschrieben werden.
+    // Constructor – fully initializes an inventory item.
+    // The status is calculated automatically via setQuantity(),
+    // but can be overridden by the explicit status parameter.
     public InventoryItem(String id, String name, String part,
                          int quantity, StockStatus status, String description) {
         this.id          = id;
@@ -36,7 +36,7 @@ public class InventoryItem {
         this.status      = status;
     }
 
-    // Getter-Methoden – werden von PropertyValueFactory für die Tabelle benötigt.
+    // Getter methods – required by PropertyValueFactory for the table.
     public String getId()          { return id; }
     public String getName()        { return name; }
     public String getPart()        { return part; }
@@ -44,12 +44,12 @@ public class InventoryItem {
     public StockStatus getStatus()      { return status; }
     public String getDescription() { return description; }
 
-    // Setzt die neue Menge und berechnet dabei automatisch den Status neu.
+    // Sets the new quantity and automatically recalculates the status.
     public void setQuantity(int quantity) {
         this.quantity = quantity;
         this.status = InventoryStatusCalculator.calculate(quantity);
     }
 
-    // Ermöglicht das direkte Setzen des Status-Strings von außen.
+    // Allows directly setting the status from outside.
     public void setStatus(StockStatus status) { this.status = status; }
 }

@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-// Einzelverantwortung: Schreibt abgeschlossene Reparaturen als Wartungstickets in die Historie.
-// Extrahiert aus MissionControlController (war dort Geschäftslogik in einem UI-Controller).
+// Single responsibility: writes completed repairs as maintenance tickets to the history.
+// Extracted from MissionControlController (business logic was previously in a UI controller).
 public final class MaintenanceHistoryService {
 
     private static final DateTimeFormatter TIMESTAMP_FMT =

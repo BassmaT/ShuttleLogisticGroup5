@@ -1,13 +1,13 @@
-# UML Klassendiagramm — Shuttle Dashboard
+# UML Class Diagram — Shuttle Dashboard
 
-**Gruppe 5 · Architekturübersicht**
+**Group 5 · Architecture Overview**
 
-> Dargestellt: öffentliche, protected und package-private Methoden/Attribute.
-> Private Members werden nur gezeigt, wenn sie für das Architekturverständnis unbedingt nötig sind.
+> Shown: public, protected and package-private methods/attributes.
+> Private members are shown only where necessary for architectural understanding.
 
 ---
 
-## Controller-Schicht
+## Controller Layer
 
 ```mermaid
 classDiagram
@@ -27,77 +27,67 @@ classDiagram
     }
 
     class LoginController {
+        -employeeService: EmployeeService
         +initialize()
         +handleLogin()
     }
 
     class MainController {
+        -sensorService: ISensorDataService
+        -scheduleService: IScheduleService
+        -phaseTracker: IPhaseTracker
+        -partApproval: IPartApproval
+        -takeoverProgress: ITakeoverProgress
+        -workerReg: IWorkerRegistry
+        -repairAccess: IRepairAccess
+        -predictiveService: IPredictiveAnalysisService
+        -phaseTimer: PhaseTimerService
         +initialize()
+        +loadView(fxml: String)
         +updateDashboard()
     }
 
     class MissionControlController {
+        -workerRegistry: IWorkerRegistry
+        -repairAccess: IRepairAccess
+        -partApproval: IPartApproval
+        -inventoryService: IInventoryService
+        -scheduleService: IScheduleService
         +initialize()
     }
 
     class TechnicianController {
+        -sensorService: ISensorDataService
         +initialize()
     }
 
     class HistoryController {
+        -ticketStore: TicketStore
         +initialize()
     }
 
     class InventoryController {
+        -inventoryService: InventoryService
         +initialize()
     }
 
     class LogisticsController {
+        -inventoryService: IInventoryService
+        -employeeService: IEmployeeService
         +initialize()
     }
 
     class ScheduleController {
+        -scheduleService: IScheduleService
         +initialize()
+        +getInstance()$ ScheduleController
+        +refreshSchedule()
     }
 
     class StaffController {
+        -workerRegistry: IWorkerRegistry
+        -repairAccess: IRepairAccess
         +initialize()
-    }
-
-    class SensorPanelController {
-        +update(data: ShuttleData, thresholds: Map)
-    }
-
-    class SchedulePanelController {
-        +update()
-    }
-
-    class PredictivePanelController {
-        +update()
-    }
-
-    class InventoryStatusPanelController {
-        +update(displayName: String)
-    }
-
-    class AiChatController {
-        +setContext(role: String)
-        +handleInput()
-    }
-
-    class RoleAccessController {
-        ~applyRestrictions(allNavButtons: List)
-    }
-
-    class RoleConfig {
-        <<utility>>
-        ~RESTRICTED_BUTTONS: Map$
-    }
-
-    class RoutineTableHelper {
-        <<utility>>
-        ~setup(table, colName, colDone, colTime)$
-        ~setup(table, colName, colEst, colDone, colTime)$
     }
 
     Main --> App
@@ -111,20 +101,77 @@ classDiagram
     BaseController <|-- ScheduleController
     BaseController <|-- StaffController
 
-    MainController --> SensorPanelController : erstellt
-    MainController --> SchedulePanelController : erstellt
-    MainController --> PredictivePanelController : erstellt
-    MainController --> AiChatController : erstellt
-    MainController --> RoleAccessController : erstellt
-    RoleAccessController ..> RoleConfig : liest
-    MissionControlController --> InventoryStatusPanelController : erstellt
-    MissionControlController ..> RoutineTableHelper : nutzt
-    StaffController ..> RoutineTableHelper : nutzt
+    class SensorPanelController {
+        -sensorService: SensorEvaluator
+        -partApproval: IPartApproval
+        +update(data: ShuttleData, thresholds: Map)
+    }
+
+    class SchedulePanelController {
+        -scheduleService: IScheduleService
+        -employeeService: IEmployeeService
+        +update()
+    }
+
+    class PredictivePanelController {
+        -predictiveService: IPredictiveAnalysisService
+        +update()
+    }
+
+    class InventoryStatusPanelController {
+        -inventoryService: IInventoryService
+        +update(displayName: String)
+    }
+
+    class AiChatController {
+        -userRole: UserRole
+        -mainController: MainController
+        +setMainController(mc: MainController)
+        +setContext(role: UserRole)
+        +enableInteraction()
+        +handleInput()
+    }
+
+    class RoleAccessController {
+        -restrictionIds: Map~String, List~
+        -buttonLookup: Map~String, Button~
+        +applyRestrictions(allNavButtons: List)
+    }
+
+    class RoleConfig {
+        <<utility>>
+        ~RESTRICTED_BUTTONS: Map$
+    }
+
+    class RoutineTableHelper {
+        <<utility>>
+        ~setup(table, colName, colEst, colDone, colTime)$
+    }
+
+    class PartStatusCell {
+        +updateItem(status: String, empty: boolean)
+    }
+
+    class SensorStatusCell {
+        +updateItem(item: String, empty: boolean)
+    }
+
+    MainController --> SensorPanelController : creates
+    MainController --> SchedulePanelController : creates
+    MainController --> PredictivePanelController : creates
+    MainController --> AiChatController : creates
+    MainController --> RoleAccessController : creates
+    RoleAccessController ..> RoleConfig : reads
+    MissionControlController --> InventoryStatusPanelController : creates
+    MissionControlController ..> RoutineTableHelper : uses
+    StaffController ..> RoutineTableHelper : uses
+    AiChatController --> SessionState : uses
+    AiChatController ..> ScheduleService : uses
 ```
 
 ---
 
-## Service-Schicht — Interfaces und Implementierungen
+## Service Layer — Interfaces and Implementations
 
 ```mermaid
 classDiagram
@@ -218,6 +265,8 @@ classDiagram
         +getInstance()$ TakeoverState
         +getDisplayName(partKey: String)$ String
         +PART_KEYS: String[]$
+        +LANDING_SECONDS: int$
+        +SENSOR_LOADING_SECONDS: int$
         +reset()
     }
 
@@ -226,6 +275,7 @@ classDiagram
         +getInstance()$ EmployeeService
         +getAllEmployees() List~Employee~
         +getById(id: String) Optional~Employee~
+        +getByRole(role: String) List~Employee~
         +getByTeam(team: String) List~Employee~
     }
 
@@ -257,15 +307,24 @@ classDiagram
     }
 
     class PredictiveAnalysisService {
+        -flightHistoryService: IFlightHistoryService
+        -sensorDataService: ISensorDataService
         +analyzeAll() Map~String, List~TrendResult~~
     }
 
     class SessionState {
         <<Singleton>>
+        -currentUser: Employee
+        -currentUserRole: UserRole
+        -pendingNotification: boolean
         +getInstance()$ SessionState
         +setCurrentUser(e: Employee)
         +getCurrentUser() Employee
+        +setUserRole(role: UserRole)
+        +getUserRole() UserRole
         +getCurrentRole() String
+        +hasPendingNotification() boolean
+        +setPendingNotification(value: boolean)
         +isLoggedIn() boolean
     }
 
@@ -288,6 +347,7 @@ classDiagram
 
     class AbstractStore~T~ {
         <<abstract>>
+        #items: List~T~
         +getAll() List~T~
         +clear()
     }
@@ -297,6 +357,7 @@ classDiagram
         +getInstance()$ OrderStore
         +createOrder(partName, qty, orderedBy, reason) LogisticsOrder
         +getOrders() List~LogisticsOrder~
+        +clear()
     }
 
     class TicketStore {
@@ -323,6 +384,20 @@ classDiagram
     PredictiveAnalysisService --> IFlightHistoryService
     PredictiveAnalysisService --> ISensorDataService
 
+    class AppPhaseState {
+        -appPhase: AppPhase
+        -MILESTONES: Map~String, Double~$
+        +beginLanding()
+        +beginSensorLoading()
+        +setOperational()
+        +getRemainingSeconds() int
+        +getSimulatedHoursElapsed() double
+        +getScheduleStatus(approval: IPartApproval) ScheduleStatus
+        +reset()
+    }
+
+    TakeoverState *-- AppPhaseState
+
     class AiAdvisorService {
         <<utility>>
         +getResponse(message: String)$ String
@@ -334,6 +409,12 @@ classDiagram
         +reject(order, empService)$
     }
 
+    class OrderDeliveryService {
+        <<utility>>
+        +DELIVERY_SECONDS: int$
+        +scheduleDelivery(onDelivered: Runnable)$
+    }
+
     class RepairInventoryService {
         <<utility>>
         +initTaskStatuses(tasks, inventoryService)$
@@ -341,20 +422,49 @@ classDiagram
         +deductInventory(task, inventoryService, onDeducted)$
     }
 
+    class RepairPlanningService {
+        <<utility>>
+        +plan(data, thresholds, evaluator, inventoryService)$ Map
+    }
+
     class MaintenanceHistoryService {
         <<utility>>
         +logRepairs(partKey, repairAccess, workerRegistry)$
     }
 
-    class RepairPlanningService {
+    class SensorStatusAggregator {
         <<utility>>
-        +plan(data, thresholds, evaluator, inventoryService)$ Map
+        +findWorstSensorStatus(data, thresholds, evaluator)$ SensorStatus
     }
+
+    class InventoryStatusCalculator {
+        <<utility>>
+        +calculate(quantity: int)$ StockStatus
+    }
+
+    class TrendCalculator {
+        <<utility>>
+        +computeFlightsUntilLimit(current, trend, threshold)$ int
+        +buildRecommendation(sensor, trend, direction, flights)$ String
+    }
+
+    class LogisticsOrderService {
+        <<utility>>
+        +approve(order, chief)$
+        +reject(order, chief)$
+        +markOrdered(order)$
+        +markDelivered(order)$
+    }
+
+    TakeoverState ..> RepairPlanningService
+    OrderApprovalService ..> OrderDeliveryService
+    OrderApprovalService ..> LogisticsOrderService
+    RepairInventoryService ..> OrderDeliveryService
 ```
 
 ---
 
-## Controller → Service Abhängigkeiten (Dependency Inversion)
+## Controller → Service Dependencies (Dependency Inversion)
 
 ```mermaid
 classDiagram
@@ -369,6 +479,7 @@ classDiagram
     class SchedulePanelController
     class PredictivePanelController
     class InventoryStatusPanelController
+    class AiChatController
 
     class IEmployeeService { <<interface>> }
     class ISensorDataService { <<interface>> }
@@ -431,21 +542,25 @@ classDiagram
     SchedulePanelController --> IEmployeeService
     PredictivePanelController --> IPredictiveAnalysisService
     InventoryStatusPanelController --> IInventoryService
+    AiChatController --> SessionState
+    AiChatController --> ScheduleService
 ```
 
 ---
 
-## Util-Schicht
+## Utility Layer
 
 ```mermaid
 classDiagram
     class ColoredTableCell~T~ {
+        -colorMapper: Function~String, String~
         +ColoredTableCell(colorMapper: Function~String, String~)
         +updateItem(item: String, empty: boolean)
     }
 
     class EmployeeStringConverter {
         +INSTANCE: EmployeeStringConverter$
+        -employeeService: IEmployeeService
         +toString(e: Employee) String
         +fromString(s: String) Employee
     }
@@ -467,15 +582,21 @@ classDiagram
     class StatusColors {
         <<utility>>
         +forSensorStatus(status: SensorStatus)$ String
+        +forSensorStatus(status: String)$ String
         +forStockStatus(status: StockStatus)$ String
+        +forStockStatus(status: String)$ String
         +forOrderStatus(status: OrderStatus)$ String
-        +forScheduleCategoryFg(category: String)$ String
+        +forOrderStatus(status: String)$ String
         +forTrendUrgency(flights: int)$ String
+        +forScheduleCategoryBg(category: String)$ String
+        +forScheduleCategoryFg(category: String)$ String
     }
 
     class Styles {
         <<utility>>
         +TABLE_DARK: String$
+        +NAV_BTN_NORMAL: String$
+        +NAV_BTN_HOVER: String$
         +PART_BTN_NORMAL: String$
         +PART_BTN_SELECTED: String$
         +ACCENT_SUCCESS: String$
@@ -483,6 +604,8 @@ classDiagram
         +ACCENT_ERROR: String$
         +label12(color: String)$ String
         +label13(color: String)$ String
+        +label16(color: String)$ String
+        +labelBold16(color: String)$ String
     }
 
     class Dialogs {
@@ -492,7 +615,8 @@ classDiagram
         +showWarning(msg)$
     }
 
-    EmployeeListCell ..> EmployeeStringConverter
-    EmployeeComboHelper ..> EmployeeStringConverter
-    ShuttleDataHelper ..> SensorEvaluator
+    EmployeeListCell ..> EmployeeStringConverter : uses
+    EmployeeComboHelper ..> EmployeeStringConverter : uses
+    EmployeeComboHelper ..> EmployeeService : calls getInstance()
+    ShuttleDataHelper ..> SensorEvaluator : uses
 ```

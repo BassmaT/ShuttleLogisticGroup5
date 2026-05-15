@@ -7,8 +7,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 
-// Singleton-Service: hält die Mitarbeiterliste für die gesamte Sitzung im Arbeitsspeicher.
-// Wird von MissionControlController, StaffController und LogisticsController verwendet KI Generiert
+// Singleton service: holds the employee list for the entire session in memory.
+// Used by MissionControlController, StaffController, and LogisticsController
 public class EmployeeService implements IEmployeeService {
 
     private static final class Holder {
@@ -20,7 +20,7 @@ public class EmployeeService implements IEmployeeService {
     private EmployeeService() {
         allEmployees.addAll(List.of(
             new Employee("EMP-001", "Ellen Vance",   "Technician",     "Team Alpha"),
-            new Employee("EMP-002", "Sandra Beck",   "Logistics",      "Logistics"),
+            new Employee("EMP-002", "Angelo De Simone",   "Logistics",      "Logistics"),
             new Employee("EMP-003", "Leia Organa",   "Planner",        "Planning"),
             new Employee("EMP-004", "Markus Reuter", "Security Chief", "Team Alpha")
         ));

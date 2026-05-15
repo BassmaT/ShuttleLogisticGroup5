@@ -1,8 +1,8 @@
-# UML Klassendiagramm — Vereinfacht
+# UML Class Diagram — Simplified
 
-**Gruppe 5 · Architekturübersicht für Review**
+**Group 5 · Architecture Overview for Review**
 
-> Nur öffentliche / protected / package-private Member. Private nur wo nötig.
+> Only public / protected / package-private members. Private only where necessary.
 
 ---
 
@@ -10,7 +10,7 @@
 classDiagram
     direction TB
 
-    %% ── Einstieg ──────────────────────────────────────────────
+    %% ── Entry Point ──────────────────────────────────────────────
     class Main {
         +main(args: String[])$
     }
@@ -19,7 +19,7 @@ classDiagram
     }
     Main --> App
 
-    %% ── Controller-Schicht ────────────────────────────────────
+    %% ── Controller Layer ────────────────────────────────────
     class BaseController {
         <<abstract>>
         #getNavigationButton()* Button
@@ -34,6 +34,7 @@ classDiagram
 
     class MainController {
         +initialize()
+        +loadView(fxml: String)
         +updateDashboard()
     }
 
@@ -51,6 +52,8 @@ classDiagram
 
     class ScheduleController {
         +initialize()
+        +getInstance()$ ScheduleController
+        +refreshSchedule()
     }
 
     class StaffController {
@@ -65,6 +68,13 @@ classDiagram
         +initialize()
     }
 
+    class AiChatController {
+        +setMainController(mc: MainController)
+        +setContext(role: UserRole)
+        +enableInteraction()
+        +handleInput()
+    }
+
     BaseController <|-- MainController
     BaseController <|-- MissionControlController
     BaseController <|-- TechnicianController
@@ -74,7 +84,7 @@ classDiagram
     BaseController <|-- HistoryController
     BaseController <|-- InventoryController
 
-    %% ── Service-Interfaces ────────────────────────────────────
+    %% ── Service Interfaces ────────────────────────────────────
     class ISensorDataService {
         <<interface>>
         +loadSensorData() ShuttleData
@@ -101,6 +111,7 @@ classDiagram
     class IPartApproval {
         <<interface>>
         +isPartApproved(partKey: String) boolean
+        +canApprove(partKey: String) boolean
         +approve(partKey: String, chiefName: String)
     }
 
@@ -121,11 +132,12 @@ classDiagram
         <<interface>>
         +getAppPhase() AppPhase
         +beginLanding()
+        +beginSensorLoading()
         +setOperational()
         +reset()
     }
 
-    %% ── Service-Implementierungen ─────────────────────────────
+    %% ── Service Implementations ─────────────────────────────
     class TakeoverState {
         <<Singleton>>
         +getInstance()$ TakeoverState
@@ -139,7 +151,11 @@ classDiagram
         +getInstance()$ SessionState
         +setCurrentUser(e: Employee)
         +getCurrentUser() Employee
+        +setUserRole(role: UserRole)
+        +getUserRole() UserRole
         +getCurrentRole() String
+        +hasPendingNotification() boolean
+        +setPendingNotification(value: boolean)
     }
 
     class SensorDataService {
@@ -182,13 +198,14 @@ classDiagram
     InventoryService ..|> IInventoryService
     ScheduleService ..|> IScheduleService
 
-    %% ── Controller nutzt Interfaces (Dependency Inversion) ────
+    %% ── Controllers use Interfaces (Dependency Inversion) ────
     LoginController --> IEmployeeService
     LoginController --> SessionState
     MainController --> ISensorDataService
     MainController --> IPhaseTracker
     MainController --> IPartApproval
     MainController --> ITakeoverProgress
+    MainController --> SessionState
     MissionControlController --> IRepairAccess
     MissionControlController --> IPartApproval
     MissionControlController --> IInventoryService
@@ -197,4 +214,6 @@ classDiagram
     TechnicianController --> ISensorDataService
     ScheduleController --> IScheduleService
     StaffController --> IRepairAccess
+    AiChatController --> SessionState
+    AiChatController --> ScheduleService
 ```

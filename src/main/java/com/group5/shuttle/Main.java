@@ -1,15 +1,15 @@
 package com.group5.shuttle;
 
-// Einstiegspunkt der Anwendung.
-// Diese Klasse existiert nur wegen eines JavaFX-Problems mit manchen Startumgebungen:
-// Der direkte Start über App.main() funktioniert nicht immer, weil JavaFX
-// den Classpath-Check überspringen muss. Main als Zwischenklasse löst das.
+// Entry point of the application.
+// This class exists only due to a JavaFX issue with certain startup environments:
+// Starting directly via App.main() does not always work because JavaFX
+// must skip the classpath check. Main as an intermediary class solves this.
 public class Main {
 
-    // Die main-Methode wird als allererstes vom Betriebssystem aufgerufen.
+    // The main method is the very first thing called by the operating system.
     public static void main(String[] args) {
-        // Startet die eigentliche JavaFX-Anwendung (App.java).
-        // App.launch() initialisiert JavaFX und ruft dann App.start() auf.
+        // Starts the actual JavaFX application (App.java).
+        // App.launch() initializes JavaFX and then calls App.start().
         App.launch(App.class, args);
     }
 }

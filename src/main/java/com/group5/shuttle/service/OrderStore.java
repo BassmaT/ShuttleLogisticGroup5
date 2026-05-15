@@ -4,14 +4,14 @@ import com.group5.shuttle.model.Employee;
 import com.group5.shuttle.model.LogisticsOrder;
 import java.util.List;
 
-// Singleton: hält alle Logistik-Bestellungen der aktuellen Sitzung im Arbeitsspeicher.
+// Singleton: holds all logistics orders for the current session in memory.
 public class OrderStore extends AbstractStore<LogisticsOrder> {
 
     private static final class Holder {
         static final OrderStore INSTANCE = new OrderStore();
     }
 
-    // Zähler für aufsteigende Bestellnummern (ORD-001, ORD-002 …)
+    // Counter for incrementing order numbers (ORD-001, ORD-002 …)
     private int nextOrderNumber = 1;
 
     private OrderStore() {}
@@ -24,7 +24,7 @@ public class OrderStore extends AbstractStore<LogisticsOrder> {
         return getAll();
     }
 
-    // Legt eine neue Bestellung an und gibt sie zurück
+    // Creates a new order and returns it
     public LogisticsOrder createOrder(String partName, int quantity,
                                       Employee orderedBy, String reason) {
         String num = String.format("ORD-%03d", nextOrderNumber++);

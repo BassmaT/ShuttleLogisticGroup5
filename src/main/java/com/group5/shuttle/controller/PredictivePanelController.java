@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 import java.util.List;
 import java.util.Map;
 
-// Einzelverantwortung: Aufbau und Aktualisierung der Predictive-AI-Warnungen im Dashboard.
+// Single responsibility: building and updating the Predictive AI warnings in the dashboard.
 public class PredictivePanelController {
 
     private final VBox                       container;

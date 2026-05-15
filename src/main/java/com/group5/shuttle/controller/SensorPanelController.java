@@ -16,8 +16,8 @@ import javafx.scene.layout.VBox;
 
 import java.util.Map;
 
-// Einzelverantwortung: Aufbau und Aktualisierung der Sensor-Anzeige im Dashboard.
-// Entkoppelt die Sensor-Darstellungslogik vom MainController.
+// Single responsibility: building and updating the sensor display in the dashboard.
+// Decouples the sensor rendering logic from the MainController.
 public class SensorPanelController {
 
     private final VBox            container;

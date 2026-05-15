@@ -28,7 +28,7 @@
                     style="-fx-background: #0D1117; -fx-background-color: #0D1117; -fx-border-color: transparent;">
             <VBox spacing="16" style="-fx-padding: 10; -fx-background-color: #0D1117;">
 
-                <!-- SCHRITT 1: Part wählen -->
+                <!-- STEP 1: Select part -->
                 <Label text="Step 1 – Select Part"
                        style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px; -fx-font-weight: bold;"/>
                 <HBox spacing="12">
@@ -40,18 +40,18 @@
                             style="-fx-font-size: 13px; -fx-min-width: 120; -fx-background-color: #21262d; -fx-text-fill: #8b949e;"/>
                 </HBox>
 
-                <!-- SCHRITT 2: Mitarbeiter auswählen (initial versteckt) -->
+                <!-- STEP 2: Select employee (hidden initially) -->
                 <VBox fx:id="rolePanel" spacing="10"
                       style="-fx-background-color: #161B22; -fx-padding: 14; -fx-background-radius: 6;">
                     <Label text="Step 2 – Select Employee"
                            style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px; -fx-font-weight: bold;"/>
-                    <!-- Zeigt das ausgewählte Teil oder eine Fehlermeldung -->
+                    <!-- Shows the selected part or an error message -->
                     <Label fx:id="lblSelectedPart"
                            text=""
                            style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"/>
                     <HBox spacing="10" style="-fx-alignment: CENTER_LEFT;">
                         <Label text="Employee:" style="-fx-text-fill: white; -fx-font-size: 13px;"/>
-                        <!-- ComboBox: zeigt alle Mitarbeiter  (Name + Rolle) -->
+                        <!-- ComboBox: shows all employees (name + role) -->
                         <ComboBox fx:id="cmbEmployee"
                                   promptText="Select employee"
                                   prefWidth="260"
@@ -63,7 +63,7 @@
 
                 <Separator style="-fx-background-color: #30363d;"/>
 
-                <!-- ARBEITSBEREICH (initial versteckt) -->
+                <!-- WORKSPACE (hidden initially) -->
                 <VBox fx:id="workPanel" spacing="14">
 
                     <!-- Repair Tasks -->
@@ -90,7 +90,7 @@
                     <Button fx:id="btnTechDone" text="Mark Repairs Done"
                             style="-fx-font-size: 13px; -fx-background-color: #ffcc00; -fx-text-fill: #0D1117; -fx-padding: 7 16; -fx-font-weight: bold;"/>
 
-                    <!-- Routine Tasks für dieses Teil -->
+                    <!-- Routine Tasks for this part -->
                     <Label fx:id="lblRoutineHeader" text="Routine Tasks"
                            style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 6 0 2 0;"/>
                     <TableView fx:id="routineTable" prefHeight="130"
@@ -132,7 +132,7 @@
         </ScrollPane>
     </center>
 
-    <!-- ZURÜCK -->
+    <!-- BACK -->
     <bottom>
         <Button text="← Back to Dashboard"
                 fx:id="btnBack"
@@ -140,4 +140,3 @@
     </bottom>
 
 </BorderPane>
-

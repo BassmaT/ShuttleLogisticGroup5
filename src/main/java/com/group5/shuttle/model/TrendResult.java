@@ -1,27 +1,27 @@
 package com.group5.shuttle.model;
 
-// Ergebnis der Trendanalyse für einen einzelnen Sensor über die letzten 5 Flüge
+// Result of the trend analysis for a single sensor over the last 5 flights
 public class TrendResult {
 
-    // Schlüssel des Shuttle-Teils, z. B. "srb"
+    // Key of the shuttle part, e.g. "srb"
     private final String partKey;
 
-    // Name des Sensors, z. B. "casingTemperature"
+    // Name of the sensor, e.g. "casingTemperature"
     private final String sensorName;
 
-    // Durchschnittliche Änderung pro Flug (positiv = steigend, negativ = fallend)
+    // Average change per flight (positive = rising, negative = falling)
     private final double trendPerFlight;
 
-    // Richtung: "RISING" (steigend), "FALLING" (fallend) oder "STABLE" (stabil)
+    // Direction: "RISING", "FALLING" or "STABLE"
     private final String direction;
 
-    // Lesbarer Empfehlungstext für die Anzeige im Dashboard
+    // Human-readable recommendation text for display in the dashboard
     private final String recommendation;
 
-    // Geschätzte Anzahl Flüge bis zum Erreichen des Grenzwerts (-1 = nicht berechenbar)
+    // Estimated number of flights until the limit is reached (-1 = cannot be calculated)
     private final int flightsUntilLimit;
 
-    // Konstruktor – setzt alle Felder auf einmal
+    // Constructor – sets all fields at once
     public TrendResult(String partKey, String sensorName, double trendPerFlight,
                        String direction, String recommendation, int flightsUntilLimit) {
         this.partKey          = partKey;
@@ -32,7 +32,7 @@ public class TrendResult {
         this.flightsUntilLimit = flightsUntilLimit;
     }
 
-    // Getter-Methoden
+    // Getter methods
     public String getPartKey()         { return partKey; }
     public String getSensorName()      { return sensorName; }
     public double getTrendPerFlight()  { return trendPerFlight; }

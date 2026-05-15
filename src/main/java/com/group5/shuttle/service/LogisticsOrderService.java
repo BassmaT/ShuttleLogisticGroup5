@@ -7,8 +7,8 @@ import com.group5.shuttle.model.OrderStatus;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-// Einzel-Verantwortung: führt Status-Übergänge einer Bestellung durch.
-// Extrahiert aus LogisticsOrder (war dort Geschäftslogik im Datenmodell).
+// Single responsibility: performs status transitions on an order.
+// Extracted from LogisticsOrder (business logic was previously in the data model).
 public final class LogisticsOrderService {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");

@@ -1,59 +1,59 @@
 package com.group5.shuttle.model;
 
-// JavaFX-Property für die reaktive Tabellenanzeige des Bestellstatus
+// JavaFX property for reactive table display of the order status
 import javafx.beans.property.SimpleStringProperty;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-// Repräsentiert eine Bestellanfrage im Logistiksystem
-// Eine Bestellung durchläuft folgende Status: PENDING_APPROVAL → APPROVED/REJECTED → ORDERED → DELIVERED
+// Represents an order request in the logistics system.
+// An order passes through the following statuses: PENDING_APPROVAL → APPROVED/REJECTED → ORDERED → DELIVERED
 public class LogisticsOrder {
 
-    // --- Felder ---
+    // --- Fields ---
 
-    // Eindeutige Bestellnummer, z. B. "ORD-001"
+    // Unique order number, e.g. "ORD-001"
     private String orderNumber;
 
-    // Name des bestellten Ersatzteils
+    // Name of the ordered spare part
     private String partName;
 
-    // Bestellte Menge
+    // Ordered quantity
     private int quantity;
 
-    // ID des Mitarbeiters, der bestellt hat
+    // ID of the employee who placed the order
     private String orderedById;
 
-    // Anzeigename des Bestellers (denormalisiert für die Tabelle)
+    // Display name of the ordering party (denormalized for the table)
     private String orderedByName;
 
-    // Begründung der Bestellung, z. B. "Replacement required after sensor anomaly"
+    // Reason for the order, e.g. "Replacement required after sensor anomaly"
     private String reason;
 
-    // Zeitstempel der Bestellung (ISO-Format)
+    // Order timestamp (ISO format)
     private String orderDate;
 
-    // Aktueller Status der Bestellung
+    // Current status of the order
     private OrderStatus status;
 
-    // ID des genehmigenden Security Chiefs (null bis genehmigt)
+    // ID of the approving Security Chief (null until approved)
     private String approvedById;
 
-    // Anzeigename des Genehmigers
+    // Display name of the approver
     private String approvedByName;
 
-    // Zeitstempel der Genehmigung (null bis genehmigt)
+    // Approval timestamp (null until approved)
     private String approvalDate;
 
-    // Zeitstempel der Lieferung (null bis geliefert)
+    // Delivery timestamp (null until delivered)
     private String deliveryDate;
 
-    // JavaFX-Property für die reaktive Statusanzeige in der TableView
+    // JavaFX property for reactive status display in the TableView
     private final SimpleStringProperty statusProperty;
 
-    // Formatierer für lesbaren Zeitstempel
+    // Formatter for a human-readable timestamp
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    // Konstruktor – wird von OrderStore.createOrder() aufgerufen
+    // Constructor – called by OrderStore.createOrder()
     public LogisticsOrder(String orderNumber, String partName, int quantity,
                           Employee orderedBy, String reason) {
         this.orderNumber   = orderNumber;
@@ -64,13 +64,13 @@ public class LogisticsOrder {
         this.reason        = reason;
         this.orderDate     = LocalDateTime.now().format(FMT);
         this.status        = OrderStatus.PENDING_APPROVAL;
-        // JavaFX-Property wird mit dem Anfangsstatus initialisiert
+        // JavaFX property is initialized with the initial status
         this.statusProperty = new SimpleStringProperty(OrderStatus.PENDING_APPROVAL.name());
     }
 
-    // --- Methoden zur Statusänderung ---
+    // --- Status change methods ---
 
-    // Setzt den Status und aktualisiert gleichzeitig die JavaFX-Property
+    // Sets the status and simultaneously updates the JavaFX property
     public void setStatus(OrderStatus newStatus) {
         this.status = newStatus;
         statusProperty.set(newStatus.name());
@@ -81,7 +81,7 @@ public class LogisticsOrder {
     public void setApprovalDate(String date)     { this.approvalDate   = date; }
     public void setDeliveryDate(String date)     { this.deliveryDate   = date; }
 
-    // --- Getter-Methoden (für PropertyValueFactory und direkte Verwendung) ---
+    // --- Getter methods (for PropertyValueFactory and direct use) ---
 
     public String getOrderNumber()     { return orderNumber; }
     public String getPartName()        { return partName; }
@@ -97,6 +97,6 @@ public class LogisticsOrder {
     public String getApprovalDate()    { return approvalDate; }
     public String getDeliveryDate()    { return deliveryDate; }
 
-    // Gibt die JavaFX-Property zurück – wird für reaktive Tabellenaktualisierung benötigt
+    // Returns the JavaFX property – required for reactive table updates
     public SimpleStringProperty statusProperty() { return statusProperty; }
 }

@@ -48,7 +48,7 @@
                style="-fx-text-fill: #ff4444; -fx-font-size: 12px;"/>
 
         <Button fx:id="btnLogin"
-                text="Anmelden"
+                text="Log In"
                 onAction="#handleLogin"
                 prefWidth="200"
                 style="-fx-background-color: #1f6feb; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 10 20;"/>

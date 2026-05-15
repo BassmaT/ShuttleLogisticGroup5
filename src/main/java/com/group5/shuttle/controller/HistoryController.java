@@ -14,50 +14,50 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.util.List;
 
-// Controller für die Wartungshistorie.
-// Zeigt alle durchgeführten Reparaturen der aktuellen Sitzung als Tabelle an.
-// Die Daten werden nur im Arbeitsspeicher gehalten und beim Schließen der App gelöscht.
+// Controller for the maintenance history.
+// Displays all completed repairs of the current session as a table.
+// The data is held in memory only and is deleted when the app is closed.
 public class HistoryController extends BaseController {
 
-    // Zurück-Button zum Haupt-Dashboard.
+    // Back button to the main dashboard.
     @FXML private Button btnBack;
 
-    // Die Tabelle mit allen abgeschlossenen Reparaturtickets.
+    // The table with all completed repair tickets.
     @FXML private TableView<MaintenanceTicket> historyTable;
 
-    // Spalte für Datum und Uhrzeit der Reparatur.
+    // Column for the date and time of the repair.
     @FXML private TableColumn<MaintenanceTicket, String> colDate;
 
-    // Spalte für den Shuttle-Teil, z. B. "Orbiter".
+    // Column for the shuttle part, e.g. "Orbiter".
     @FXML private TableColumn<MaintenanceTicket, String> colPart;
 
-    // Spalte für den Sensornamen, der repariert wurde.
+    // Column for the sensor name that was repaired.
     @FXML private TableColumn<MaintenanceTicket, String> colSensor;
 
-    // Spalte für den ursprünglichen Fehlerstatus: "WARNING" oder "REPLACE".
+    // Column for the original fault status: "WARNING" or "REPLACE".
     @FXML private TableColumn<MaintenanceTicket, String> colOldStatus;
 
-    // Spalte für die durchgeführte Maßnahme inkl. verwendetem Bauteil.
+    // Column for the action taken including the part used.
     @FXML private TableColumn<MaintenanceTicket, String> colAction;
 
-    // Spalte für den Namen des Technikers, der die Reparatur durchgeführt hat.
+    // Column for the name of the technician who carried out the repair.
     @FXML private TableColumn<MaintenanceTicket, String> colTechnician;
 
     private final TicketStore ticketStore = TicketStore.getInstance();
 
-    // Wird automatisch aufgerufen, sobald die FXML-Datei vollständig geladen ist.
+    // Called automatically once the FXML file is fully loaded.
     @FXML
     public void initialize() {
-        // Zurück-Button: navigiert zurück zum Haupt-Dashboard.
+        // Back button: navigates back to the main dashboard.
         setupBackButton(btnBack);
 
-        // Tabelle einrichten und mit den aktuellen Tickets befüllen.
+        // Set up the table and populate it with the current tickets.
         setupTable();
         loadHistory();
     }
 
-    // Bindet jede Spalte an das entsprechende Feld in MaintenanceTicket
-    // und definiert die farbige Darstellung der Status-Spalte.
+    // Binds each column to the corresponding field in MaintenanceTicket
+    // and defines the colored rendering of the status column.
     private void setupTable() {
         colDate.setCellValueFactory(new PropertyValueFactory<>("date"));
         colPart.setCellValueFactory(new PropertyValueFactory<>("part"));
@@ -66,19 +66,18 @@ public class HistoryController extends BaseController {
         colAction.setCellValueFactory(new PropertyValueFactory<>("action"));
         colTechnician.setCellValueFactory(new PropertyValueFactory<>("technician"));
 
-        // Benutzerdefinierte Status-Zellen: farbige Texte je nach Schweregrad.
+        // Custom status cells: colored text depending on severity.
         colOldStatus.setCellFactory(col -> new ColoredTableCell<>(StatusColors::forSensorStatus));
     }
-//KI-Generiert Ende 
 
-    // Lädt alle Tickets der aktuellen Sitzung aus dem Arbeitsspeicher
-    // und gibt sie an die Tabelle weiter.
+    // Loads all tickets of the current session from memory
+    // and passes them to the table.
     private void loadHistory() {
         List<MaintenanceTicket> tickets = ticketStore.getTickets();
         historyTable.setItems(FXCollections.observableArrayList(tickets));
     }
 
-    // Gibt den Zurück-Button zurück – wird von BaseController.loadView() benötigt.
+    // Returns the back button – required by BaseController.loadView().
     @Override
     protected Button getNavigationButton() {
         return btnBack;

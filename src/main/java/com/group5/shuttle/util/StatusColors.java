@@ -5,9 +5,9 @@ import com.group5.shuttle.model.StockStatus;
 import com.group5.shuttle.model.OrderStatus;
 
 /**
- * Zentrale Utility-Klasse für Status-Farbkodierungen (DRY-Prinzip).
- * Farben sind in den Enums definiert – StatusColors delegiert nur noch.
- * Neuer Status-Wert → nur das Enum erweitern, diese Klasse bleibt unverändert (OCP).
+ * Central utility class for status color codes (DRY principle).
+ * Colors are defined in the enums – StatusColors only delegates.
+ * New status value → only extend the enum, this class remains unchanged (OCP).
  */
 public final class StatusColors {
 
@@ -27,20 +27,20 @@ public final class StatusColors {
     public static String forOrderStatus(OrderStatus status)   { return status.getColor(); }
     public static String forOrderStatus(String status)        { return forOrderStatus(OrderStatus.valueOf(status)); }
 
-    /** Farbe für Trend-Dringlichkeit (flightsUntilLimit: 0 = sofort, ≤2 = kritisch, sonst = beobachten) */
+    /** Color for trend urgency (flightsUntilLimit: 0 = immediate, ≤2 = critical, otherwise = monitor) */
     public static String forTrendUrgency(int flightsUntilLimit) {
         if (flightsUntilLimit == 0) return "#ff4444";
         if (flightsUntilLimit <= 2) return "#ff8800";
         return "#ffcc00";
     }
 
-    // OCP: neue Kategorie → ScheduleCategory erweitern, diese Methoden bleiben unverändert.
+    // OCP: new category → extend ScheduleCategory, these methods remain unchanged.
     public static String forScheduleCategoryBg(String category) { return ScheduleCategory.from(category).getBg(); }
     public static String forScheduleCategoryFg(String category) { return ScheduleCategory.from(category).getFg(); }
 
     /**
-     * Hintergrund- und Vordergrundfarben für eine Schedule-Kategorie.
-     * OCP: neuer Kategorie-Typ → hier einen Eintrag ergänzen, forScheduleCategoryBg/Fg ändern sich nicht.
+     * Background and foreground colors for a schedule category.
+     * OCP: new category type → add an entry here, forScheduleCategoryBg/Fg do not change.
      */
     public enum ScheduleCategory {
         REPAIR    ("repair",     "#3a1a1a", "#ff6666"),
@@ -69,4 +69,3 @@ public final class StatusColors {
         }
     }
 }
-

@@ -3,8 +3,8 @@ package com.group5.shuttle.service;
 import com.group5.shuttle.model.Employee;
 import com.group5.shuttle.model.UserRole;
 
-// Speichert den aktuell eingeloggten Mitarbeiter für die gesamte Sitzung.
-// Singleton – wird nach erfolgreichem Login einmalig gesetzt.
+// Stores the currently logged-in employee for the entire session.
+// Singleton – set once after a successful login.
 public class SessionState {
 
     private static final class Holder {
@@ -41,7 +41,7 @@ public class SessionState {
         return currentUser;
     }
 
-    // Gibt die Rolle des eingeloggten Mitarbeiters zurück, z. B. "Security Chief"
+    // Returns the role of the logged-in employee, e.g. "Security Chief"
     public String getCurrentRole() {
         return currentUser != null ? currentUser.getRole() : "";
     }

@@ -6,34 +6,34 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-// Hauptklasse der JavaFX-Anwendung.
-// Sie erbt von Application – das ist bei jeder JavaFX-App Pflicht.
-// JavaFX ruft automatisch die start()-Methode auf, sobald das Framework bereit ist.
+// Main class of the JavaFX application.
+// It extends Application – this is required for every JavaFX app.
+// JavaFX automatically calls the start() method once the framework is ready.
 public class App extends Application {
 
-    // Diese Methode wird von JavaFX aufgerufen, wenn die Anwendung startet.
-    // stage ist das Hauptfenster der App.
+    // This method is called by JavaFX when the application starts.
+    // stage is the main window of the app.
     @Override
     public void start(Stage stage) {
         try {
-            // Zuerst den Login-Screen laden – erst nach Anmeldung wird das Dashboard gezeigt.
+            // Load the login screen first – the dashboard is only shown after successful login.
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/login_view.fxml"));
 
-            // Lädt die FXML-Datei und packt das fertige UI in eine 800×600 Pixel große Scene.
+            // Loads the FXML file and wraps the finished UI in an 800×600 pixel Scene.
             Scene scene = new Scene(loader.load(), 800, 600);
 
-            // Setzt den Text in der Titelleiste des Fensters.
+            // Sets the text in the window's title bar.
             stage.setTitle("Shuttle Dashboard");
 
-            // Verbindet die Scene mit dem Fenster, damit das UI angezeigt wird.
+            // Connects the Scene to the window so the UI is displayed.
             stage.setScene(scene);
 
-            // Macht das Fenster sichtbar. Ohne diesen Aufruf bleibt das Fenster unsichtbar.
+            // Makes the window visible. Without this call the window remains invisible.
             stage.show();
 
         } catch (Exception e) {
-            // Zeigt einen Fehlerdialog, falls die FXML-Datei nicht geladen werden kann.
-            Dialogs.showError("Startfehler", "Anwendung konnte nicht gestartet werden", e.getMessage());
+            // Shows an error dialog if the FXML file cannot be loaded.
+            Dialogs.showError("Startup Error", "Application could not be started", e.getMessage());
         }
     }
 }

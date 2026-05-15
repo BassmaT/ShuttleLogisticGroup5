@@ -4,11 +4,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-// Dieses Datenmodell stellt den gesamten Shuttle dar.
-// OCP: getAllParts() gibt direkt die interne Map zurück – neuer Part → nur neuen Setter hinzufügen.
+// This data model represents the entire shuttle.
+// OCP: getAllParts() returns the internal map directly – new part → just add a new setter.
 public class ShuttleData {
 
-    // Einzige Quelle der Wahrheit für alle Shuttle-Teile (Reihenfolge: Orbiter → SRB → Tank).
+    // Single source of truth for all shuttle parts (order: Orbiter → SRB → Tank).
     private final Map<String, ShuttlePart> parts = new LinkedHashMap<>();
 
     public ShuttlePart getOrbiter()      { return parts.get("orbiter"); }

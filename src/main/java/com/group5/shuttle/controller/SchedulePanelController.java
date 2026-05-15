@@ -11,7 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-// Einzelverantwortung: Aufbau und Aktualisierung der Zeitplan-Vorschau im Dashboard.
+// Single responsibility: building and updating the schedule preview in the dashboard.
 public class SchedulePanelController {
 
     private final VBox             container;

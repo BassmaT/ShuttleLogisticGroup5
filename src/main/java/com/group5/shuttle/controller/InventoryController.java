@@ -14,50 +14,50 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.util.List;
 
-// Controller für die Lagerübersicht.
-// Zeigt alle Lagerpositionen in einer Tabelle an: ID, Bauteilname, Shuttle-Teil, Menge und Status.
-// Der Status wird farbig hervorgehoben (grün = vorhanden, gelb = fast leer, rot = nicht vorrätig).
+// Controller for the inventory overview.
+// Displays all inventory items in a table: ID, part name, shuttle part, quantity and status.
+// The status is color-highlighted (green = in stock, yellow = almost empty, red = out of stock).
 public class InventoryController extends BaseController {
 
-    // Zurück-Button zum Haupt-Dashboard.
+    // Back button to the main dashboard.
     @FXML private Button btnBack;
 
-    // Die Tabelle, die alle Lagerpositionen anzeigt.
+    // The table that displays all inventory items.
     @FXML private TableView<InventoryItem> inventoryTable;
 
-    // Spalte für die Artikel-ID, z. B. "INV-001".
+    // Column for the item ID, e.g. "INV-001".
     @FXML private TableColumn<InventoryItem, String>  colId;
 
-    // Spalte für den Bauteilnamen, z. B. "Heat Shield Panel".
+    // Column for the part name, e.g. "Heat Shield Panel".
     @FXML private TableColumn<InventoryItem, String>  colName;
 
-    // Spalte für das zugehörige Shuttle-Teil, z. B. "Orbiter".
+    // Column for the associated shuttle part, e.g. "Orbiter".
     @FXML private TableColumn<InventoryItem, String>  colPart;
 
-    // Spalte für die verfügbare Menge, z. B. 5.
+    // Column for the available quantity, e.g. 5.
     @FXML private TableColumn<InventoryItem, Integer> colQuantity;
 
-    // Spalte für den Lagerstatus: "IN_STOCK", "LOW" oder "OUT_OF_STOCK".
+    // Column for the stock status: "IN_STOCK", "LOW" or "OUT_OF_STOCK".
     @FXML private TableColumn<InventoryItem, String>  colStatus;
 
-    // Spalte für die Kurzbeschreibung des Bauteils.
+    // Column for the short description of the part.
     @FXML private TableColumn<InventoryItem, String>  colDescription;
 
     private final InventoryService inventoryService = InventoryService.getInstance();
 
-    // Wird automatisch aufgerufen, sobald die FXML-Datei vollständig geladen ist.
+    // Called automatically as soon as the FXML file is fully loaded.
     @FXML
     public void initialize() {
-        // Zurück-Button: Navigiert zum Haupt-Dashboard.
+        // Back button: navigates to the main dashboard.
         setupBackButton(btnBack);
 
-        // Tabelle aufbauen und mit Daten füllen.
+        // Build the table and fill it with data.
         setupTable();
         loadInventory();
     }
 
-    // Bindet jede Spalte an das entsprechende Feld in InventoryItem
-    // und definiert die farbige Darstellung der Status-Spalte.
+    // Binds each column to the corresponding field in InventoryItem
+    // and defines the colored rendering of the status column.
     private void setupTable() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colName.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -68,19 +68,19 @@ public class InventoryController extends BaseController {
                         cell.getValue().getStatus().getLabel()));
         colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
 
-        // Benutzerdefinierte Darstellung: Status-Zelle bekommt je nach Wert eine andere Farbe.
+        // Custom rendering: the status cell gets a different color depending on its value.
         colStatus.setCellFactory(col -> new ColoredTableCell<>(StatusColors::forStockStatus));
     }
 
-    // Lädt alle Lagerpositionen aus der Datei und gibt sie an die Tabelle weiter.
+    // Loads all inventory items from the file and passes them to the table.
     private void loadInventory() {
         List<InventoryItem> items = inventoryService.loadInventory();
-        // FXCollections.observableArrayList wandelt die normale Liste in eine JavaFX-Observable-Liste um,
-        // damit die Tabelle auf Änderungen reagieren kann.
+        // FXCollections.observableArrayList converts the regular list into a JavaFX observable list
+        // so that the table can react to changes.
         inventoryTable.setItems(FXCollections.observableArrayList(items));
     }
 
-    // Gibt den Zurück-Button zurück – wird von BaseController.loadView() benötigt.
+    // Returns the back button – required by BaseController.loadView().
     @Override
     protected Button getNavigationButton() {
         return btnBack;

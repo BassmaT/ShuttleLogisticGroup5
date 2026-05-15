@@ -2,8 +2,8 @@ package com.group5.shuttle.service;
 
 import com.group5.shuttle.model.StockStatus;
 
-// Einzel-Verantwortung: berechnet den Lagerstatus aus einer Menge.
-// Extrahiert aus InventoryItem (war dort Geschäftslogik im Datenmodell).
+// Single responsibility: calculates the stock status from a quantity.
+// Extracted from InventoryItem (business logic was previously in the data model).
 public final class InventoryStatusCalculator {
 
     private static final int STOCK_EMPTY_MAX = 0;

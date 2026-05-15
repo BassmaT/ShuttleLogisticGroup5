@@ -30,22 +30,22 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import java.util.List;
 
-// Controller für die Logistik- und Bestellverwaltung.
-// Jeder Mitarbeiter kann eine Bestellanfrage aufgeben.
-// Ein Security Chief muss die Bestellung genehmigen, bevor sie als "bestellt" gilt.
-// Nach Genehmigung simuliert eine 10-Sekunden-Pause die Lieferung.
+// Controller for logistics and order management.
+// Any employee can place an order request.
+// A Security Chief must approve the order before it is considered "ordered".
+// After approval, a 10-second pause simulates the delivery.
 public class LogisticsController extends BaseController {
 
-    // --- FXML-Verknüpfungen ---
+    // --- FXML bindings ---
 
-    // Eingabefelder für neue Bestellungen
+    // Input fields for new orders
     @FXML private ComboBox<InventoryItem> cmbPartName;
     @FXML private TextField txtQuantity;
     @FXML private ComboBox<Employee> cmbOrderedBy;
     @FXML private TextField txtReason;
     @FXML private Button btnPlaceOrder;
 
-    // Tabelle: ausstehende Genehmigungen
+    // Table: pending approvals
     @FXML private TableView<LogisticsOrder> pendingTable;
     @FXML private TableColumn<LogisticsOrder, String> colPendingNr;
     @FXML private TableColumn<LogisticsOrder, String> colPendingPart;
@@ -54,7 +54,7 @@ public class LogisticsController extends BaseController {
     @FXML private TableColumn<LogisticsOrder, String> colPendingReason;
     @FXML private TableColumn<LogisticsOrder, Void>   colPendingAction;
 
-    // Tabelle: alle Bestellungen (gesamte Übersicht)
+    // Table: all orders (complete overview)
     @FXML private TableView<LogisticsOrder> allOrdersTable;
     @FXML private TableColumn<LogisticsOrder, String> colAllNr;
     @FXML private TableColumn<LogisticsOrder, String> colAllPart;
@@ -64,23 +64,23 @@ public class LogisticsController extends BaseController {
     @FXML private TableColumn<LogisticsOrder, String> colAllApprovedBy;
     @FXML private TableColumn<LogisticsOrder, String> colAllDate;
 
-    // Zurück-Button
+    // Back button
     @FXML private Button btnBack;
 
-    // Container für die Lagerbestandsanzeige
+    // Container for the stock inventory display
     @FXML private VBox stockContainer;
 
-    // Observable-Listen für die reaktive Tabellenanzeige
+    // Observable lists for reactive table display
     private final ObservableList<LogisticsOrder> pendingData    = FXCollections.observableArrayList();
     private final ObservableList<LogisticsOrder> allOrdersData  = FXCollections.observableArrayList();
 
     private final IInventoryService inventoryService = InventoryService.getInstance();
     private final IEmployeeService  employeeService  = EmployeeService.getInstance();
 
-    // Wird automatisch beim Laden der FXML aufgerufen
+    // Called automatically when the FXML is loaded
     @FXML
     public void initialize() {
-        // Part-ComboBox mit allen Lagerartikeln befüllen; Anzeige: "Name  (Qty: X)"
+        // Populate the Part ComboBox with all inventory items; display: "Name  (Qty: X)"
         List<InventoryItem> inventory = inventoryService.loadInventory();
         cmbPartName.setItems(FXCollections.observableArrayList(inventory));
         cmbPartName.setConverter(new javafx.util.StringConverter<InventoryItem>() {
@@ -93,26 +93,26 @@ public class LogisticsController extends BaseController {
             }
         });
 
-        // ComboBox mit allen Mitarbeitern befüllen
+        // Populate the ComboBox with all employees
         EmployeeComboHelper.setup(cmbOrderedBy);
 
-        // Tabellenspalten konfigurieren
+        // Configure table columns
         setupPendingTable();
         setupAllOrdersTable();
 
-        // Bestehende Bestellungen aus dem OrderStore laden
+        // Load existing orders from the OrderStore
         refreshTables();
 
-        // Bestellen-Button
+        // Order button
         btnPlaceOrder.setOnAction(e -> placeOrder());
 
-        // Zurück-Button
+        // Back button
         setupBackButton(btnBack);
     }
 
-    // Legt eine neue Bestellanfrage an und fügt sie dem OrderStore hinzu
+    // Creates a new order request and adds it to the OrderStore
     private void placeOrder() {
-        // Eingaben validieren: alle Felder müssen ausgefüllt sein
+        // Validate input: all fields must be filled in
         InventoryItem selectedPart = cmbPartName.getValue();
         String partName = selectedPart != null ? selectedPart.getName() : "";
         String qtyText  = txtQuantity.getText().trim();
@@ -120,24 +120,24 @@ public class LogisticsController extends BaseController {
         String reason   = txtReason.getText().trim();
 
         if (partName.isEmpty() || qtyText.isEmpty() || orderedBy == null || reason.isEmpty()) {
-            Dialogs.showWarning("Bitte alle Felder ausfüllen.");
+            Dialogs.showWarning("Please fill in all fields.");
             return;
         }
 
-        // Menge als Zahl parsen
+        // Parse quantity as a number
         int quantity;
         try {
             quantity = Integer.parseInt(qtyText);
             if (quantity <= 0) throw new NumberFormatException();
         } catch (NumberFormatException ex) {
-            Dialogs.showWarning("Menge muss eine positive ganze Zahl sein.");
+            Dialogs.showWarning("Quantity must be a positive integer.");
             return;
         }
 
-        // Bestellung im OrderStore anlegen (Status: PENDING_APPROVAL)
+        // Create order in the OrderStore (status: PENDING_APPROVAL)
         OrderStore.getInstance().createOrder(partName, quantity, orderedBy, reason);
 
-        // Tabellen und Eingabefelder aktualisieren
+        // Refresh tables and input fields
         refreshTables();
         cmbPartName.getSelectionModel().clearSelection();
         txtQuantity.clear();
@@ -145,7 +145,7 @@ public class LogisticsController extends BaseController {
         txtReason.clear();
     }
 
-    // Konfiguriert die Tabelle "Pending Approval"
+    // Configures the "Pending Approval" table
     private void setupPendingTable() {
         colPendingNr.setCellValueFactory(new PropertyValueFactory<>("orderNumber"));
         colPendingPart.setCellValueFactory(new PropertyValueFactory<>("partName"));
@@ -153,16 +153,16 @@ public class LogisticsController extends BaseController {
         colPendingBy.setCellValueFactory(new PropertyValueFactory<>("orderedByName"));
         colPendingReason.setCellValueFactory(new PropertyValueFactory<>("reason"));
 
-        // Action-Spalte: zwei Buttons (Approve / Reject) pro Zeile
+        // Action column: two buttons (Approve / Reject) per row
         colPendingAction.setCellFactory(col -> new TableCell<>() {
-            // "Approve"-Button: grün, nur für Security Chiefs sinnvoll
+            // "Approve" button: green, intended for Security Chiefs only
             private final Button btnApprove = new Button("Approve");
-            // "Reject"-Button: rot
+            // "Reject" button: red
             private final Button btnReject  = new Button("Reject");
             private final HBox box = new HBox(6, btnApprove, btnReject);
 
             {
-                // Buttons stylen
+                // Style buttons
                 btnApprove.setStyle(
                     "-fx-background-color: #66ff66; -fx-text-fill: #1e1e1e; -fx-font-size: 11px;");
                 btnReject.setStyle(
@@ -174,10 +174,10 @@ public class LogisticsController extends BaseController {
                         refreshTables();
                         cmbPartName.setItems(FXCollections.observableArrayList(
                             inventoryService.loadInventory()));
-                        Dialogs.showInfo("Lieferung",
-                            "✓ Bestellung " + order.getOrderNumber() + " eingetroffen!\n"
-                            + "Teil: " + order.getPartName()
-                            + " (Menge: " + order.getQuantity() + ")");
+                        Dialogs.showInfo("Delivery",
+                            "✓ Order " + order.getOrderNumber() + " has arrived!\n"
+                            + "Part: " + order.getPartName()
+                            + " (Quantity: " + order.getQuantity() + ")");
                     });
                     refreshTables();
                 });
@@ -192,7 +192,7 @@ public class LogisticsController extends BaseController {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                // Buttons nur anzeigen, wenn die Zeile nicht leer ist
+                // Only show buttons when the row is not empty
                 setGraphic(empty ? null : box);
             }
         });
@@ -201,7 +201,7 @@ public class LogisticsController extends BaseController {
         pendingTable.setStyle(Styles.TABLE_DARK);
     }
 
-    // Konfiguriert die Gesamtübersicht aller Bestellungen
+    // Configures the complete overview of all orders
     private void setupAllOrdersTable() {
         colAllNr.setCellValueFactory(new PropertyValueFactory<>("orderNumber"));
         colAllPart.setCellValueFactory(new PropertyValueFactory<>("partName"));
@@ -210,8 +210,8 @@ public class LogisticsController extends BaseController {
         colAllApprovedBy.setCellValueFactory(new PropertyValueFactory<>("approvedByName"));
         colAllDate.setCellValueFactory(new PropertyValueFactory<>("orderDate"));
 
-        // Status-Spalte: farblich markiert (grün = geliefert, blau = bestellt, gelb = genehmigt,
-        //                                   rot = abgelehnt, grau = ausstehend)
+        // Status column: colour-coded (green = delivered, blue = ordered, yellow = approved,
+        //                               red = rejected, grey = pending)
         colAllStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
         colAllStatus.setCellFactory(col -> new ColoredTableCell<>(StatusColors::forOrderStatus));
 
@@ -219,24 +219,24 @@ public class LogisticsController extends BaseController {
         allOrdersTable.setStyle(Styles.TABLE_DARK);
     }
 
-    // Aktualisiert beide Tabellen aus dem OrderStore
+    // Refreshes both tables from the OrderStore
     private void refreshTables() {
         List<LogisticsOrder> all = OrderStore.getInstance().getOrders();
 
-        // "Pending"-Tabelle: nur Bestellungen mit Status PENDING_APPROVAL
+        // "Pending" table: only orders with status PENDING_APPROVAL
         pendingData.setAll(
             all.stream()
                .filter(o -> o.getOrderStatus() == OrderStatus.PENDING_APPROVAL)
                .toList());
 
-        // Gesamtübersicht: alle Bestellungen
+        // Complete overview: all orders
         allOrdersData.setAll(all);
 
-        // Lagerbestandsanzeige aktualisieren
+        // Refresh stock display
         refreshStockDisplay();
     }
 
-    // Befüllt stockContainer mit farbigen Labels für jeden Lagerartikel
+    // Populates stockContainer with colour-coded labels for each inventory item
     private void refreshStockDisplay() {
         if (stockContainer == null) return;
         stockContainer.getChildren().clear();
@@ -250,7 +250,7 @@ public class LogisticsController extends BaseController {
         }
     }
 
-    // Gibt den Zurück-Button für BaseController zurück
+    // Returns the back button for BaseController
     @Override
     protected Button getNavigationButton() { return btnBack; }
 }

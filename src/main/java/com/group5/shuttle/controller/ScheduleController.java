@@ -9,7 +9,6 @@ import com.group5.shuttle.service.IScheduleService;
 import com.group5.shuttle.service.ScheduleService;
 
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -24,23 +23,23 @@ import com.group5.shuttle.util.EmployeeComboHelper;
 import com.group5.shuttle.util.StatusColors;
 import com.group5.shuttle.util.Styles;
 
-import java.util.List;
 
-// Controller für den interaktiven 3-Tage-Zeitplan.
-// Zeigt alle Schedule-Einträge tagesweise in editierbaren Tabellen an.
-// Mitarbeiter können per ComboBox umgeplant werden (z. B. bei Krankheit).
+
+// Controller for the interactive 3-day schedule.
+// Displays all schedule entries by day in editable tables.
+// Employees can be reassigned via ComboBox (e.g. in case of illness).
 public class ScheduleController extends BaseController {
 
-    // Hauptcontainer: wird dynamisch mit einer Tabelle pro Tag befüllt
+    // Main container: dynamically populated with one table per day
     @FXML private VBox scheduleContent;
 
-    // Zurück-Button zum Haupt-Dashboard
+    // Back button to the main dashboard
     @FXML private Button btnBack;
 
     private final IScheduleService scheduleService = ScheduleService.getInstance();
     private static ScheduleController instance;
 
-    // Wird automatisch beim Laden der FXML aufgerufen
+    // Called automatically when the FXML is loaded
     @FXML
     public void initialize() {
         setupBackButton(btnBack);
@@ -53,7 +52,7 @@ public class ScheduleController extends BaseController {
         return instance;
     }
 
-    // Lädt den Schedule und baut für jeden Tag eine eigene Tabelle auf
+    // Loads the schedule and builds a separate table for each day
     private void buildSchedule() {
         TakeoverSchedule schedule = ScheduleService.getInstance().loadSchedule();
         if (schedule == null || schedule.getDays() == null) {
@@ -64,22 +63,22 @@ public class ScheduleController extends BaseController {
         }
 
         for (ScheduleDay day : schedule.getDays()) {
-            // Tagesüberschrift
+            // Day heading
             Label dayLabel = new Label(day.getLabel());
             dayLabel.setStyle(
                 "-fx-text-fill: #66aaff; -fx-font-size: 15px; -fx-font-weight: bold; -fx-padding: 0 0 4 0;");
 
-            // Tabelle für diesen Tag erstellen
+            // Create table for this day
             TableView<ScheduleEntry> table = buildDayTable(day.getEntries());
 
-            // Wrapper-VBox pro Tag
+            // Wrapper VBox per day
             VBox dayBox = new VBox(4, dayLabel, table);
             dayBox.setStyle("-fx-background-color: #2a2a2a; -fx-padding: 10; -fx-background-radius: 6;");
             scheduleContent.getChildren().add(dayBox);
         }
     }
 
-    // Erstellt eine TableView für einen einzelnen Tag mit allen Spalten
+    // Creates a TableView for a single day with all columns
     private TableView<ScheduleEntry> buildDayTable(ObservableList<ScheduleEntry> entries) {
         TableView<ScheduleEntry> table = new TableView<>();
         table.setStyle(Styles.TABLE_DARK);
@@ -94,17 +93,17 @@ public class ScheduleController extends BaseController {
                         .add(30)
         );
 
-        // Spalte: Zeit
+        // Column: Time
         TableColumn<ScheduleEntry, String> colTime = new TableColumn<>("Time");
         colTime.setPrefWidth(65);
         colTime.setCellValueFactory(new PropertyValueFactory<>("time"));
         styleTextCol(colTime, "#cccccc");
 
-        // Spalte: Aufgabe
+        // Column: Task
         TableColumn<ScheduleEntry, String> colTask = new TableColumn<>("Task");
         colTask.setPrefWidth(230);
         colTask.setCellValueFactory(new PropertyValueFactory<>("task"));
-        // Farbe je nach Kategorie
+        // Color by category
         colTask.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String task, boolean empty) {
@@ -119,36 +118,36 @@ public class ScheduleController extends BaseController {
             }
         });
 
-        // Spalte: Kategorie
+        // Column: Category
         TableColumn<ScheduleEntry, String> colCat = new TableColumn<>("Category");
         colCat.setPrefWidth(90);
         colCat.setCellValueFactory(new PropertyValueFactory<>("category"));
         styleTextCol(colCat, "#888888");
 
-        // Spalte: Shuttle-Teil
+        // Column: Shuttle part
         TableColumn<ScheduleEntry, String> colPart = new TableColumn<>("Part");
         colPart.setPrefWidth(110);
         colPart.setCellValueFactory(new PropertyValueFactory<>("shuttlePart"));
         styleTextCol(colPart, "#aaaaaa");
 
-        // Spalte: Zugewiesener Mitarbeiter (ComboBox – editierbar)
+        // Column: Assigned employee (ComboBox – editable)
         TableColumn<ScheduleEntry, String> colEmp = new TableColumn<>("Assigned Employee");
         colEmp.setPrefWidth(190);
-        // Zeigt den Namen des aktuell zugewiesenen Mitarbeiters
+        // Shows the name of the currently assigned employee
         colEmp.setCellValueFactory(cellData -> {
             String empId = cellData.getValue().getAssignedEmployeeId();
             if (empId == null) return new SimpleStringProperty("–");
             Employee emp = EmployeeService.getInstance().getById(empId).orElse(null);
             return new SimpleStringProperty(emp != null ? emp.getName() : empId);
         });
-        // ComboBox-Zelle: ermöglicht Umplanung per Dropdown
+        // ComboBox cell: allows reassignment via dropdown
         colEmp.setCellFactory(col -> new TableCell<>() {
             private final ComboBox<Employee> combo = new ComboBox<>();
             {
-                // Alle Mitarbeiter zur Auswahl anbieten
+                // Offer all employees for selection
                 EmployeeComboHelper.setup(combo);
                 combo.setStyle("-fx-font-size: 12px;");
-                // Bei Auswahl: assignedEmployeeId im Eintrag aktualisieren
+                // On selection: update assignedEmployeeId in the entry
                 combo.setOnAction(e -> {
                     ScheduleEntry entry = getTableRow() != null ? getTableRow().getItem() : null;
                     Employee selected = combo.getValue();
@@ -164,7 +163,7 @@ public class ScheduleController extends BaseController {
                 if (empty || getTableRow() == null || getTableRow().getItem() == null) {
                     setGraphic(null); return;
                 }
-                // Aktuell zugewiesenen Mitarbeiter vorauswählen
+                // Pre-select the currently assigned employee
                 String empId = getTableRow().getItem().getAssignedEmployeeId();
                 if (empId != null) {
                     Employee current = EmployeeService.getInstance().getById(empId).orElse(null);
@@ -180,7 +179,7 @@ public class ScheduleController extends BaseController {
         return table;
     }
 
-    // Hilfsmethode: setzt Textfarbe für einfache Text-Spalten
+    // Helper method: sets text color for simple text columns
     private void styleTextCol(TableColumn<ScheduleEntry, String> col, String color) {
         col.setCellFactory(c -> new TableCell<>() {
             @Override
@@ -198,7 +197,7 @@ public class ScheduleController extends BaseController {
             if (node instanceof VBox dayBox) {
                 for (javafx.scene.Node subNode : dayBox.getChildren()) {
                     if (subNode instanceof TableView<?> table) {
-                        // Trick 17: Liste kurz wegnehmen und wieder dranhängen
+                        // Trick: temporarily detach and reattach the list to force a refresh
                         var items = table.getItems();
                         table.setItems(null);
                         table.layout();
@@ -213,7 +212,7 @@ public class ScheduleController extends BaseController {
     }
 
 
-    // Gibt den Zurück-Button zurück – wird von BaseController.loadView() benötigt
+    // Returns the back button – required by BaseController.loadView()
     @Override
     protected Button getNavigationButton() { return btnBack; }
 }

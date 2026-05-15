@@ -6,15 +6,15 @@ import com.group5.shuttle.model.StockStatus;
 
 import java.util.List;
 
-// Einzelverantwortung: Verwaltet die Lagerlogik für Reparaturaufgaben.
-// Prüft Verfügbarkeit, bucht Teile ein/aus und plant Lieferungen.
-// Extrahiert aus MissionControlController (war dort Geschäftslogik in einem UI-Controller).
+// Single responsibility: manages the inventory logic for repair tasks.
+// Checks availability, books parts in/out, and schedules deliveries.
+// Extracted from MissionControlController (business logic was previously in a UI controller).
 public final class RepairInventoryService {
 
     private RepairInventoryService() {}
 
-    // Setzt partStatus und partAvailable für jede Aufgabe anhand des aktuellen Lagerbestands.
-    // Aufgaben mit laufender Bestellung (ORDERED/ARRIVED) werden übersprungen.
+    // Sets partStatus and partAvailable for each task based on the current inventory.
+    // Tasks with an ongoing order (ORDERED/ARRIVED) are skipped.
     public static void initTaskStatuses(List<RepairTask> tasks, IInventoryService inventoryService) {
         List<InventoryItem> inventory = inventoryService.loadInventory();
         for (RepairTask task : tasks) {
@@ -39,8 +39,8 @@ public final class RepairInventoryService {
         }
     }
 
-    // Setzt den Status auf ORDERED und plant die automatische Lieferung nach 10 Sekunden.
-    // onArrived wird nach der Lieferung aufgerufen – UI-Refresh und Dialog obliegen dem Controller.
+    // Sets the status to ORDERED and schedules automatic delivery after 10 seconds.
+    // onArrived is called after delivery – UI refresh and dialog are the controller's responsibility.
     public static void placeOrder(RepairTask task, IInventoryService inventoryService, Runnable onArrived) {
         task.setPartStatus(StockStatus.ORDERED);
         OrderDeliveryService.scheduleDelivery(() -> {
@@ -58,8 +58,8 @@ public final class RepairInventoryService {
         });
     }
 
-    // Bucht das benötigte Teil aus dem Lager ab, wenn eine Reparatur als erledigt markiert wird.
-    // onDeducted wird nach der Abbuchung aufgerufen – UI-Refresh obliegt dem Controller.
+    // Deducts the required part from inventory when a repair is marked as done.
+    // onDeducted is called after the deduction – UI refresh is the controller's responsibility.
     public static void deductInventory(RepairTask task, IInventoryService inventoryService, Runnable onDeducted) {
         if (task.getRequiredItemName() == null) return;
         List<InventoryItem> inventory = inventoryService.loadInventory();

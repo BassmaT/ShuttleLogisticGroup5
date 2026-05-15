@@ -11,23 +11,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-// Diese Klasse verwaltet den gesamten Zustand des Übergabe-Workflows als Singleton.
-// Sie speichert, welche Techniker und Security Chiefs eingetragen sind,
-// welche Reparaturaufgaben für jeden Shuttle-Teil anfallen,
-// und ob der jeweilige Teil bereits freigegeben wurde.
+// This class manages the entire state of the takeover workflow as a singleton.
+// It stores which technicians and security chiefs are registered,
+// which repair tasks are required for each shuttle part,
+// and whether the respective part has already been approved.
 public class TakeoverState implements IWorkerRegistry, IRepairAccess, IPartApproval, ITakeoverProgress, IPhaseTracker {
 
     private static final class Holder {
         static final TakeoverState INSTANCE = new TakeoverState();
     }
 
-    // partKey → Zustandsobjekt mit allen Feldern für diesen Teil.
+    // partKey → state object containing all fields for this part.
     private final Map<String, PartState> partStates = new HashMap<>();
 
-    // Letzte protokollierte Aktivität – wird im Dashboard angezeigt.
+    // Last recorded activity – displayed on the dashboard.
     private String lastActivity = "";
 
-    // ── App-Phase (delegiert an AppPhaseState) ────────────────────────────────
+    // ── App phase (delegated to AppPhaseState) ────────────────────────────────
 
     private final AppPhaseState phaseState = new AppPhaseState();
 
@@ -42,7 +42,7 @@ public class TakeoverState implements IWorkerRegistry, IRepairAccess, IPartAppro
     public double getSimulatedHoursElapsed()     { return phaseState.getSimulatedHoursElapsed(); }
     public ScheduleStatus getScheduleStatus()    { return phaseState.getScheduleStatus(this); }
 
-    // Interne Schlüssel → Anzeigename der drei Shuttle-Teile.
+    // Internal keys → display names of the three shuttle parts.
     private static final LinkedHashMap<String, String> PART_NAMES = new LinkedHashMap<>();
     static {
         PART_NAMES.put("orbiter",      "Orbiter");
@@ -63,7 +63,7 @@ public class TakeoverState implements IWorkerRegistry, IRepairAccess, IPartAppro
         return Holder.INSTANCE;
     }
 
-    // ── Mitarbeiter-Registrierung ────────────────────────────────────────────
+    // ── Employee registration ────────────────────────────────────────────────
 
     public void registerWorker(String partKey, String name, String role) {
         PartState ps = partStates.get(partKey);
@@ -93,7 +93,7 @@ public class TakeoverState implements IWorkerRegistry, IRepairAccess, IPartAppro
         return partStates.get(partKey).getSecurityChiefName();
     }
 
-    // ── Techniker-Fertigmeldung ──────────────────────────────────────────────
+    // ── Technician completion sign-off ──────────────────────────────────────────────
 
     public void markTechnicianDone(String partKey, String techName) {
         partStates.get(partKey).setTechnicianDone(true);
@@ -105,7 +105,7 @@ public class TakeoverState implements IWorkerRegistry, IRepairAccess, IPartAppro
         return ps != null && ps.isTechnicianDone();
     }
 
-    // ── Reparaturaufgaben ────────────────────────────────────────────────────
+    // ── Repair tasks ────────────────────────────────────────────────────────
 
     public void generateRepairs(ShuttleData data, Map<String, Map<String, SensorThreshold>> thresholds,
                                 SensorEvaluator sensorEvaluator) {
@@ -126,7 +126,7 @@ public class TakeoverState implements IWorkerRegistry, IRepairAccess, IPartAppro
         return tasks.stream().allMatch(RepairTask::isDone);
     }
 
-    // ── Freigabe ─────────────────────────────────────────────────────────────
+    // ── Approval ─────────────────────────────────────────────────────────────
 
     public boolean canApprove(String partKey) {
         return isTechnicianDone(partKey) && !isPartApproved(partKey);
@@ -142,9 +142,9 @@ public class TakeoverState implements IWorkerRegistry, IRepairAccess, IPartAppro
         return ps != null && ps.isSecurityApproved();
     }
 
-    // ── Fortschritt ──────────────────────────────────────────────────────────
+    // ── Progress ──────────────────────────────────────────────────────────────
 
-    // Jeder freigegebene Teil zählt als gleichwertiger Anteil am Gesamtfortschritt.
+    // Each approved part counts as an equal share of the overall progress.
     public double getProgress() {
         long approved = partStates.values().stream().filter(PartState::isSecurityApproved).count();
         return approved / (double) partStates.size();
@@ -154,13 +154,13 @@ public class TakeoverState implements IWorkerRegistry, IRepairAccess, IPartAppro
         return getProgress() >= 1.0;
     }
 
-    // ── Letzte Aktivität ─────────────────────────────────────────────────────
+    // ── Last activity ─────────────────────────────────────────────────────────
 
     public String getLastActivity() {
         return lastActivity;
     }
 
-    // ── Zurücksetzen ─────────────────────────────────────────────────────────
+    // ── Reset ─────────────────────────────────────────────────────────────────
 
     public void reset() {
         partStates.values().forEach(PartState::reset);
@@ -168,7 +168,7 @@ public class TakeoverState implements IWorkerRegistry, IRepairAccess, IPartAppro
         phaseState.reset();
     }
 
-    // ── Hilfsmethoden ────────────────────────────────────────────────────────
+    // ── Helper methods ────────────────────────────────────────────────────────
 
     public static String getDisplayName(String partKey) {
         return PART_NAMES.getOrDefault(partKey, partKey);

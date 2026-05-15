@@ -9,8 +9,8 @@ import javafx.scene.control.TableCell;
 
 import java.util.function.Consumer;
 
-// Rendert den Teile-Verfügbarkeitsstatus in einer Tabellenzelle.
-// OCP: Neuer StockStatus-Wert → nur das Enum erweitern, diese Klasse bleibt unverändert.
+// Renders the parts availability status in a table cell.
+// OCP: new StockStatus value → only extend the enum; this class remains unchanged.
 class PartStatusCell extends TableCell<RepairTask, String> {
 
     private final Button btnOrder = new Button("Order Part");

@@ -13,37 +13,37 @@
 <?import javafx.scene.control.Separator?>
 
 <!--
-    Logistik- und Bestellverwaltung.
-    Oben: Formular zum Aufgeben einer neuen Bestellanfrage.
-    Mitte: Tabelle aller Bestellungen, die auf Genehmigung warten (mit Approve/Reject-Buttons).
-    Unten: Gesamtübersicht aller Bestellungen mit Status.
-    fx:controller verknüpft diese Datei mit LogisticsController.
+    Logistics and order management.
+    Top: form for submitting a new order request.
+    Middle: table of all orders awaiting approval (with Approve/Reject buttons).
+    Bottom: full overview of all orders with status.
+    fx:controller links this file to LogisticsController.
 -->
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group5.shuttle.controller.LogisticsController"
             style="-fx-background-color: #0D1117; -fx-padding: 20;">
 
-    <!-- Seitenüberschrift -->
+    <!-- Page heading -->
     <top>
         <Label text="Logistics &amp; Orders"
                style="-fx-font-size: 28px; -fx-text-fill: #4B9CFF; -fx-font-weight: bold;"
                BorderPane.alignment="CENTER"/>
     </top>
 
-    <!-- Hauptbereich mit Bestellformular und Tabellen -->
+    <!-- Main area with order form and tables -->
     <center>
         <ScrollPane fitToWidth="true"
                     style="-fx-background: #0D1117; -fx-background-color: #0D1117; -fx-border-color: transparent;">
             <VBox spacing="16" style="-fx-padding: 10; -fx-background-color: #0D1117;">
 
-                <!-- ── Bestellformular ──────────────────────────────────── -->
+                <!-- ── Order form ──────────────────────────────────── -->
                 <Label text="New Order Request"
                        style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px; -fx-font-weight: bold;"/>
 
-                <!-- Formularzeile 1: Teilname + Menge + Besteller -->
+                <!-- Form row 1: part name + quantity + ordered by -->
                 <HBox spacing="12" style="-fx-alignment: CENTER_LEFT;">
-                    <!-- ComboBox: zeigt alle Lagerartikel  -->
+                    <!-- ComboBox: shows all inventory items -->
                     <ComboBox fx:id="cmbPartName"
                               promptText="Select part"
                               prefWidth="260"
@@ -52,14 +52,14 @@
                                promptText="Qty"
                                prefWidth="60"
                                style="-fx-font-size: 13px;"/>
-                    <!-- ComboBox: zeigt alle Mitarbeiter  -->
+                    <!-- ComboBox: shows all employees -->
                     <ComboBox fx:id="cmbOrderedBy"
                               promptText="Ordered by"
                               prefWidth="190"
                               style="-fx-font-size: 13px;"/>
                 </HBox>
 
-                <!-- Formularzeile 2: Begründung + Bestellen-Button -->
+                <!-- Form row 2: reason + place order button -->
                 <HBox spacing="12" style="-fx-alignment: CENTER_LEFT;">
                     <TextField fx:id="txtReason"
                                promptText="Reason for order"
@@ -72,20 +72,20 @@
 
                 <Separator style="-fx-background-color: #30363d;"/>
 
-                <!-- ── Aktueller Lagerbestand ──────────────────────────────────── -->
+                <!-- ── Current stock ──────────────────────────────────── -->
                 <Label text="Current Stock"
                        style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px; -fx-font-weight: bold;"/>
-                <!-- Wird im Controller dynamisch mit farbigen Labels befüllt -->
+                <!-- Populated dynamically in the controller with colour-coded labels -->
                 <VBox fx:id="stockContainer" spacing="3"/>
 
                 <Separator style="-fx-background-color: #30363d;"/>
 
-                <!-- ── Ausstehende Genehmigungen ────────────────────────── -->
+                <!-- ── Pending approvals ────────────────────────── -->
                 <Label text="Pending Approval"
                        style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;"/>
 
-                <!-- Tabelle mit Bestellungen im Status PENDING_APPROVAL -->
-                <!-- Letzte Spalte enthält Approve/Reject-Buttons (per CellFactory im Controller) -->
+                <!-- Table of orders with status PENDING_APPROVAL -->
+                <!-- Last column contains Approve/Reject buttons (set via CellFactory in the controller) -->
                 <TableView fx:id="pendingTable"
                            style="-fx-background: #161B22; -fx-background-color: #161B22;"
                            prefHeight="160">
@@ -95,7 +95,7 @@
                         <TableColumn fx:id="colPendingQty"       text="Qty"        prefWidth="45"/>
                         <TableColumn fx:id="colPendingBy"        text="Ordered By" prefWidth="130"/>
                         <TableColumn fx:id="colPendingReason"    text="Reason"     prefWidth="200"/>
-                        <!-- Approve/Reject-Buttons werden im Controller per CellFactory gesetzt -->
+                        <!-- Approve/Reject buttons are set in the controller via CellFactory -->
                         <TableColumn fx:id="colPendingAction"    text="Action"     prefWidth="175"/>
                     </columns>
                     <placeholder>
@@ -105,11 +105,11 @@
 
                 <Separator style="-fx-background-color: #30363d;"/>
 
-                <!-- ── Alle Bestellungen ─────────────────────────────────── -->
+                <!-- ── All orders ─────────────────────────────────── -->
                 <Label text="All Orders"
                        style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;"/>
 
-                <!-- Gesamtübersicht aller Bestellungen mit Status (farbcodiert) -->
+                <!-- Full overview of all orders with status (colour-coded) -->
                 <TableView fx:id="allOrdersTable"
                            style="-fx-background: #161B22; -fx-background-color: #161B22;"
                            prefHeight="220">
@@ -131,7 +131,7 @@
         </ScrollPane>
     </center>
 
-    <!-- Zurück-Button unten -->
+    <!-- Back button at the bottom -->
     <bottom>
         <Button text="← Back to Dashboard"
                 fx:id="btnBack"

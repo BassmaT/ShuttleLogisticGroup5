@@ -13,13 +13,9 @@ import com.group5.shuttle.model.ScheduleDay;
 import com.group5.shuttle.model.ScheduleEntry;
 import com.group5.shuttle.service.ScheduleService;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.application.Platform;
-import java.util.List;
-import com.group5.shuttle.model.Employee; // Pfad eventuell an dein Projekt anpassen
+import com.group5.shuttle.model.Employee; // Adjust path to your project if needed
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 
 /**
  * AI Chat Controller.
@@ -38,10 +34,10 @@ public class AiChatController {
     private String currentContext = "DEFAULT";
     private UserRole userRole;
     private boolean interactionEnabled = false;
-    // Im AiChatController.java oben bei den anderen Feldern:
+    // In AiChatController.java at the top with the other fields:
     private MainController mainController;
 
-    // Die Methode, die vom MainController aufgerufen wird:
+    // The method called by MainController:
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
     }
@@ -50,14 +46,14 @@ public class AiChatController {
         this.userRole = role;
 
         javafx.application.Platform.runLater(() -> {
-            // 1. Alle alten Buttons und Nachrichten entfernen
+            // 1. Remove all old buttons and messages
             chatHistory.getChildren().clear();
 
-            // 2. Status-Nachricht anzeigen
+            // 2. Display status message
             addAiMessage("AI Advisor online for role: " + role);
 
-            // 3. Rollenspezifische Logik
-            // Wir vergleichen hier direkt mit dem Enum UserRole.PLANNER
+            // 3. Role-specific logic
+            // We compare directly against the enum UserRole.PLANNER here
             if (role != UserRole.PLANNER) {
                 addAiMessage("Read-only mode: As a Technician, you can monitor the advisor's analysis, but scheduling is reserved for Planners.");
             } else {
@@ -131,7 +127,7 @@ public class AiChatController {
         chatHistory.getChildren().add(lbl);
     }
 
-        // --- STORY LOGIK (aus MainController übernommen) ---
+        // --- STORY LOGIC (moved from MainController) ---
 
     private void handleSensorRecommendation() {
         aiState = AiState.SENSOR_WARNING;
@@ -139,28 +135,28 @@ public class AiChatController {
         addAiMessage("""
             AI Advisor:
              ⚠ Critical issue detected
-    
+
             Sensor: coolantPressure
              Value: 2.80 (critical)
-    
+
             If ignored:
              - High risk of failure during pre-launch check
              - Possible launch abort or system shutdown
-    
+
             Impact:
              - Expected delay: 2–4 days
              - Additional cost: €180,000 – €300,000
-    
+
             Reason:
              - Unplanned repair
              - Increased damage to cooling system
              - Loss of launch slot
-    
+
             If repaired now:
              - Duration: 2 days (planned)
              - Cost: ~€90,000
              - No additional delays expected
-            
+
             Recommendation:
             Immediate maintenance required.
             """);
@@ -170,11 +166,11 @@ public class AiChatController {
                             addAiMessage("""
             AI Advisor:
             Decision postponed.
-            
+
             Updated risk:
             - Launch delay risk increases to 4–6 days
             - Potential cost escalation: ~€350,000
-            
+
             Monitoring continues.
             """));
     }
@@ -186,17 +182,17 @@ public class AiChatController {
             addAiMessage("""
                 AI Advisor:
                 Qualified technicians available:
-                
+
                 Ellen Vance
                 - Duration: 2 days
                 - Cost: ~€90,000
                 - No delay
-                
+
                 Marc Stein
                 - Duration: 3 days
                 - Extra delay: +1 days
                 - Additional cost: ~€120,000
-                
+
                 Recommendation:
                 Ellen Vance (faster & cheaper)
                 """);
@@ -213,18 +209,18 @@ public class AiChatController {
             addAiMessage("""
         AI Advisor:
         Ellen Vance selected (Standard Shift).
-        
+
         Current Status:
         - Repair window: Today, 13:00
         - Risk: 30% chance of parts arriving late
         - Total Duration: 2 days
         - Cost: ~€90,000
-        
+
         Note: Standard delivery for coolant valves is currently congested.
         Confirm this risky schedule?
         """);
         } else {
-            // Marc Stein Logik bleibt gleich...
+            // Marc Stein logic remains the same...
         }
 
         addAiButton("Accept (Risk)", () -> {
@@ -243,18 +239,18 @@ public class AiChatController {
         addAiMessage("""
         AI Advisor:
         Schedule rejected. Analyzing high-priority alternatives...
-    
+
         Option A (Express Priority)
         - Duration: 2 days (Guaranteed)
         - Cost: ~€145,000
-        - Impact: Uses emergency courier for valves. 
+        - Impact: Uses emergency courier for valves.
         - Outcome: 100% chance to meet 13:00 slot.
-    
+
         Option B (Budget/Safe)
         - Duration: 7 days
         - Cost: ~€75,000
         - Impact: Wait for regular part stock.
-    
+
         Select option:
     """);
 
@@ -263,9 +259,9 @@ public class AiChatController {
             assignTechnician(technician);
             addAiMessage("""
         AI Advisor:
-        Emergency courier dispatched. 
-        Parts will arrive at 12:30. 
-        
+        Emergency courier dispatched.
+        Parts will arrive at 12:30.
+
         Ellen Vance informed for 13:00 start.
         """);
             aiState = AiState.FINISHED;
@@ -293,14 +289,14 @@ public class AiChatController {
                         "13:00",
                         "Repair: coolantPressure (Orbiter)",
                         "repair",
-                        null, // Wird unten gesetzt
+                        null, // Set below
                         "Orbiter"
                 );
 
-                // Holen der reaktiven Liste
+                // Get the reactive list
                 ObservableList<ScheduleEntry> entries = (ObservableList<ScheduleEntry>) day.getEntries();
 
-                // Richtigen Index finden (zwischen 12:00 und 15:00)
+                // Find the correct index (between 12:00 and 15:00)
                 int insertIndex = entries.size();
                 for (int i = 0; i < entries.size(); i++) {
                     if (entries.get(i).getTime().compareTo("13:00") > 0) {
@@ -309,17 +305,17 @@ public class AiChatController {
                     }
                 }
 
-                // Mitarbeiter-ID basierend auf Auswahl setzen
+                // Set the employee ID based on the selection
                 String empId = "ELENA".equals(technician) ? "EMP-001" : "EMP-002";
                 newEntry.setAssignedEmployeeId(empId);
 
-                // HINZUFÜGEN - Das löst durch die ObservableList das UI-Update aus
+                // ADD – this triggers the UI update via the ObservableList
                 entries.add(insertIndex, newEntry);
                 break;
             }
         }
 
-        // UI-Thread benachrichtigen
+        // Notify the UI thread
         Platform.runLater(() -> {
             if (mainController != null) {
                 mainController.updateDashboard();
@@ -333,20 +329,20 @@ public class AiChatController {
     }
 
     private void showNotification(String assignedTechnician) {
-        // Holt den aktuell angemeldeten Benutzer aus dem SessionState
+        // Gets the currently logged-in user from the SessionState
         Employee currentUser = SessionState.getInstance().getCurrentUser();
 
-        // Prüfen, ob überhaupt jemand eingeloggt ist und ob es der richtige Techniker ist
+        // Check whether anyone is logged in and whether it is the correct technician
         if (currentUser != null && currentUser.getName().equalsIgnoreCase(assignedTechnician)) {
 
-            // Da UI-Elemente (Alert) erstellt werden, sicherheitshalber in Platform.runLater
+            // Since UI elements (Alert) are being created, wrap in Platform.runLater to be safe
             javafx.application.Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Mission Control Update");
                 alert.setHeaderText("New Work Order Received");
                 alert.setContentText("Attention " + assignedTechnician + "! A critical repair task has been assigned to you. Please check your schedule.");
 
-                // Styling (optional, passend zum Dark-Theme)
+                // Styling (optional, matching the dark theme)
                 alert.getDialogPane().setStyle("-fx-background-color: #161B22; -fx-text-fill: white;");
 
                 alert.show();
@@ -354,7 +350,7 @@ public class AiChatController {
         }
     }
 
-    // --- HILFSMETHODEN FÜR UI ---
+    // --- HELPER METHODS FOR UI ---
 
     private void addAiButton(String text, Runnable action) {
         if (!interactionEnabled) {

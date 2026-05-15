@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Importiert die benötigten JavaFX-Klassen -->
+<!-- Imports the required JavaFX classes -->
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Button?>
@@ -9,49 +9,49 @@
 <?import javafx.scene.control.TableColumn?>
 
 <!--
-    Wartungshistorie.
-    Zeigt alle in dieser Sitzung durchgeführten Reparaturen.
-    Die Daten werden beim Schließen der App gelöscht (nur im Arbeitsspeicher).
-    fx:controller verknüpft die Datei mit HistoryController.
+    Maintenance history.
+    Shows all repairs performed during this session.
+    Data is cleared when the app is closed (in-memory only).
+    fx:controller links this file to HistoryController.
 -->
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group5.shuttle.controller.HistoryController"
             style="-fx-background-color: #0D1117; -fx-padding: 20;">
 
-    <!-- Seitenüberschrift -->
+    <!-- Page heading -->
     <top>
         <Label text="Mission History"
                style="-fx-font-size: 28px; -fx-text-fill: #4B9CFF; -fx-font-weight: bold;"
                BorderPane.alignment="CENTER"/>
     </top>
 
-    <!-- Hauptbereich mit der Histori-Tabelle -->
+    <!-- Main area with the history table -->
     <center>
         <VBox spacing="10" style="-fx-padding: 10 0 0 0;">
-            <!-- historyTable wird im Controller mit den Reparatur-Tickets befüllt -->
+            <!-- historyTable is populated with repair tickets in the controller -->
             <TableView fx:id="historyTable"
                        style="-fx-background: #0D1117; -fx-background-color: #161B22;"
                        VBox.vgrow="ALWAYS">
                 <columns>
-                    <!-- Datum und Uhrzeit der Reparatur -->
+                    <!-- Date and time of the repair -->
                     <TableColumn fx:id="colDate"       text="Date"       prefWidth="100"/>
-                    <!-- Betroffenes Shuttle-Teil -->
+                    <!-- Affected shuttle part -->
                     <TableColumn fx:id="colPart"       text="Part"       prefWidth="120"/>
-                    <!-- Sensor, der die Reparatur ausgelöst hat -->
+                    <!-- Sensor that triggered the repair -->
                     <TableColumn fx:id="colSensor"     text="Sensor"     prefWidth="150"/>
-                    <!-- Fehlerstatus vor der Reparatur (farbig dargestellt) -->
+                    <!-- Fault status before the repair (colour-coded) -->
                     <TableColumn fx:id="colOldStatus"  text="Status"     prefWidth="90"/>
-                    <!-- Durchgeführte Maßnahme inkl. verwendetem Bauteil -->
+                    <!-- Action performed including the part used -->
                     <TableColumn fx:id="colAction"     text="Action"     prefWidth="200"/>
-                    <!-- Name des Technikers -->
+                    <!-- Name of the technician -->
                     <TableColumn fx:id="colTechnician" text="Technician" prefWidth="110"/>
                 </columns>
             </TableView>
         </VBox>
     </center>
 
-    <!-- Zurück-Button unten -->
+    <!-- Back button at the bottom -->
     <bottom>
         <Button text="← Back to Dashboard"
                 fx:id="btnBack"

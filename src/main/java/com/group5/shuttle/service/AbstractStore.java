@@ -3,9 +3,9 @@ package com.group5.shuttle.service;
 import java.util.ArrayList;
 import java.util.List;
 
-// Basisklasse für alle In-Memory-Stores dieser Sitzung.
-// Kapselt die gemeinsame Listenverwaltung (holen, alle löschen).
-// Konkrete Stores erben und ergänzen domänenspezifische Methoden.
+// Base class for all in-memory stores in this session.
+// Encapsulates common list management (retrieve, clear all).
+// Concrete stores inherit and add domain-specific methods.
 abstract class AbstractStore<T> {
 
     protected final List<T> items = new ArrayList<>();

@@ -7,8 +7,8 @@ import com.group5.shuttle.model.ShuttleData;
 import java.util.List;
 import java.util.Map;
 
-// Fokussierte Schnittstelle für Reparaturverwaltung (I – Interface Segregation).
-// Nur Controller, die Reparaturen lesen oder steuern, hängen von dieser ab.
+// Focused interface for repair management (I – Interface Segregation).
+// Only controllers that read or control repairs depend on this interface.
 public interface IRepairAccess {
     List<RepairTask> getRepairs(String partKey);
     boolean allRepairsDone(String partKey);

@@ -2,7 +2,6 @@ package com.group5.shuttle.controller;
 
 import com.group5.shuttle.model.Employee;
 import com.group5.shuttle.model.RepairTask;
-import com.group5.shuttle.model.StockStatus;
 import com.group5.shuttle.service.MaintenanceHistoryService;
 import com.group5.shuttle.service.RepairInventoryService;
 import com.group5.shuttle.model.RoutineTask;
@@ -21,7 +20,6 @@ import com.group5.shuttle.service.TakeoverState;
 import com.group5.shuttle.util.Dialogs;
 import com.group5.shuttle.util.EmployeeComboHelper;
 import com.group5.shuttle.util.EmployeeStringConverter;
-import com.group5.shuttle.util.StatusColors;
 import com.group5.shuttle.util.Styles;
 
 import javafx.collections.FXCollections;
@@ -40,113 +38,113 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Controller für Mission Control – steuert den 2-Schritt-Ablauf:
- * erst Teil wählen (Orbiter / SRB / External Tank),
- * dann Rolle (Techniker oder Security Chief) und Name eingeben.
- * Anschließend wird der Arbeitsbereich mit Reparaturtabelle,
- * Lagerstatus und Freigabe-Bereich eingeblendet.
+ * Controller for Mission Control – manages the 2-step workflow:
+ * first select a part (Orbiter / SRB / External Tank),
+ * then enter role (Technician or Security Chief) and name.
+ * Afterwards the workspace with the repair table,
+ * inventory status and approval section is shown.
  */
 public class MissionControlController extends BaseController {
 
     // ── Navigation ──────────────────────────────────────────────────────────────
 
-    /** Zurück-Button – navigiert zur Hauptansicht (main_view.fxml). */
+    /** Back button – navigates to the main view (main_view.fxml). */
     @FXML private Button btnBack;
 
-    // ── Schritt 1: Part-Auswahl ──────────────────────────────────────────────────
+    // ── Step 1: Part selection ──────────────────────────────────────────────────
 
-    /** Auswahl-Button für das Raumschiff-Hauptmodul (Orbiter). */
+    /** Selection button for the spacecraft main module (Orbiter). */
     @FXML private Button btnPartOrbiter;
 
-    /** Auswahl-Button für die Feststoffraketen-Booster (SRB). */
+    /** Selection button for the solid rocket boosters (SRB). */
     @FXML private Button btnPartSrb;
 
-    /** Auswahl-Button für den externen Treibstofftank (External Tank). */
+    /** Selection button for the external fuel tank (External Tank). */
     @FXML private Button btnPartTank;
 
-    // ── Schritt 2: Rolle + Name eingeben ─────────────────────────────────────────
+    // ── Step 2: Enter role + name ─────────────────────────────────────────────────
 
-    /** Panel für die Rollen- und Namenseingabe; initial ausgeblendet. */
+    /** Panel for role and name input; hidden initially. */
     @FXML private VBox rolePanel;
 
-    /** Zeigt an, welches Teil gerade ausgewählt ist (oder Fehlermeldung bei leerem Namen). */
+    /** Shows which part is currently selected (or an error message when name is empty). */
     @FXML private Label lblSelectedPart;
 
-    /** ComboBox zur Auswahl eines Mitarbeiters  */
+    /** ComboBox for selecting an employee  */
     @FXML private ComboBox<Employee> cmbEmployee;
 
-    /** Bestätigungs-Button – registriert den gewählten Mitarbeiter im TakeoverState. */
+    /** Confirm button – registers the selected employee in TakeoverState. */
     @FXML private Button btnConfirm;
 
-    // ── Arbeitsbereich ───────────────────────────────────────────────────────────
+    // ── Workspace ───────────────────────────────────────────────────────────────
 
-    /** Hauptpanel des Arbeitsbereichs; wird nach der Anmeldung eingeblendet. */
+    /** Main panel of the workspace; shown after login. */
     @FXML private VBox workPanel;
 
-    /** Kopfzeile der Reparaturtabelle – zeigt Teilname und ggf. Genehmigungsstatus. */
+    /** Header of the repair table – shows part name and approval status if applicable. */
     @FXML private Label lblRepairHeader;
 
-    /** Tabelle mit allen Reparaturaufgaben für das gewählte Teil. */
+    /** Table with all repair tasks for the selected part. */
     @FXML private TableView<RepairTask> repairTable;
 
-    /** Spalte: Name des betroffenen Sensors. */
+    /** Column: name of the affected sensor. */
     @FXML private TableColumn<RepairTask, String>  colSensor;
 
-    /** Spalte: aktueller Fehlerstatus des Sensors (z. B. REPLACE / DEGRADED). */
+    /** Column: current fault status of the sensor (e.g. REPLACE / DEGRADED). */
     @FXML private TableColumn<RepairTask, String>  colStatus;
 
-    /** Spalte: empfohlene Reparaturmaßnahme. */
+    /** Column: recommended repair action. */
     @FXML private TableColumn<RepairTask, String>  colAction;
 
-    /** Spalte: Teile-Status mit "Order Part"-Button oder Statusanzeige (IN_STOCK, ORDERED …). */
+    /** Column: parts status with "Order Part" button or status display (IN_STOCK, ORDERED …). */
     @FXML private TableColumn<RepairTask, String>  colParts;
 
-    /** Spalte: Checkbox zum Markieren einer abgeschlossenen Reparatur. */
+    /** Column: checkbox for marking a completed repair. */
     @FXML private TableColumn<RepairTask, Boolean> colDone;
 
-    /** Button "Technician Done" – der Techniker signalisiert, dass alle Reparaturen fertig sind. */
+    /** "Technician Done" button – the technician signals that all repairs are complete. */
     @FXML private Button btnTechDone;
 
     // ── Routine Tasks ─────────────────────────────────────────────────────────────
 
-    /** Überschrift der Routineaufgaben-Tabelle. */
+    /** Heading of the routine tasks table. */
     @FXML private Label lblRoutineHeader;
 
-    /** Tabelle mit Routineaufgaben für das gewählte Teil. */
+    /** Table with routine tasks for the selected part. */
     @FXML private TableView<RoutineTask> routineTable;
 
-    /** Spalte: Aufgabenname. */
+    /** Column: task name. */
     @FXML private TableColumn<RoutineTask, String>  colRtName;
 
-    /** Spalte: Geschätzte Dauer in Minuten. */
+    /** Column: estimated duration in minutes. */
     @FXML private TableColumn<RoutineTask, Integer> colRtEst;
 
-    /** Spalte: Done-Checkbox. */
+    /** Column: done checkbox. */
     @FXML private TableColumn<RoutineTask, Boolean> colRtDone;
 
-    /** Spalte: Erledigungszeitstempel. */
+    /** Column: completion timestamp. */
     @FXML private TableColumn<RoutineTask, String>  colRtTime;
 
-    // ── Lagerbestand ─────────────────────────────────────────────────────────────
+    // ── Inventory ─────────────────────────────────────────────────────────────
 
-    /** Überschrift über der Lagerbestandsanzeige; zeigt das ausgewählte Teil. */
+    /** Heading above the inventory display; shows the selected part. */
     @FXML private Label lblInventoryHeader;
 
-    /** VBox-Container, der dynamisch erzeugte Lager-Labels aufnimmt. */
+    /** VBox container that holds dynamically created inventory labels. */
     @FXML private VBox inventoryStatus;
 
-    // ── Security-Chief-Freigabe ──────────────────────────────────────────────────
+    // ── Security Chief approval ──────────────────────────────────────────────────
 
-    /** Bereich für die Freigabe durch den Security Chief; nur sichtbar wenn Chief angemeldet. */
+    /** Section for Security Chief approval; only visible when a Chief is logged in. */
     @FXML private VBox approvalSection;
 
-    /** Statusinformation zur Freigabe (z. B. "Warte auf Techniker" oder "Bereit zur Genehmigung"). */
+    /** Status information about the approval (e.g. "Waiting for technician" or "Ready for approval"). */
     @FXML private Label lblApprovalInfo;
 
-    /** Freigabe-Button – wird nur aktiviert, wenn der Techniker als fertig markiert hat. */
+    /** Approval button – only enabled once the technician has marked work as done. */
     @FXML private Button btnApprove;
 
-    // ── Zustand und Services ─────────────────────────────────────────────────────
+    // ── State and services ─────────────────────────────────────────────────────────────────
 
     private final IWorkerRegistry    workerRegistry   = TakeoverState.getInstance();
     private final IRepairAccess      repairAccess     = TakeoverState.getInstance();
@@ -154,71 +152,71 @@ public class MissionControlController extends BaseController {
     private final IInventoryService  inventoryService = InventoryService.getInstance();
     private final IScheduleService   scheduleService  = ScheduleService.getInstance();
 
-    /** Schlüssel des aktuell ausgewählten Teils (z. B. "orbiter", "srb", "externalTank"). */
+    /** Key of the currently selected part (e.g. "orbiter", "srb", "externalTank"). */
     private String selectedPartKey = null;
-    // OCP: neuer Part → hier einen Eintrag ergänzen; highlightPartButton() bleibt unverändert.
+    // OCP: new part → add an entry here; highlightPartButton() stays unchanged.
     private Map<String, Button> partButtons;
     private InventoryStatusPanelController inventoryPanel;
 
-    // ── Initialisierung ──────────────────────────────────────────────────────────
+    // ── Initialisation ──────────────────────────────────────────────────────────
 
     /**
-     * Wird automatisch nach dem Laden der FXML-Datei aufgerufen.
-     * Alle Buttons werden mit Aktionen verknüpft, Panels initial ausgeblendet.
+     * Called automatically after the FXML file has been loaded.
+     * All buttons are wired to actions and panels are hidden initially.
      */
     @FXML
     public void initialize() {
-        // Teil-Auswahl-Buttons mit der selectPart()-Methode verknüpfen
+        // Wire part-selection buttons to the selectPart() method
         btnPartOrbiter.setOnAction(e -> selectPart("orbiter"));
         btnPartSrb.setOnAction(e -> selectPart("srb"));
         btnPartTank.setOnAction(e -> selectPart("externalTank"));
         partButtons = Map.of("orbiter", btnPartOrbiter, "srb", btnPartSrb, "externalTank", btnPartTank);
 
-        // ComboBox mit allen Mitarbeitern befüllen (Techniker und Security Chiefs)
+        // Populate the ComboBox with all employees (technicians and security chiefs)
         EmployeeComboHelper.setup(cmbEmployee);
 
-        // Bestätigungs-Button mit confirmEntry() verknüpfen
+        // Wire the confirm button to confirmEntry()
         btnConfirm.setOnAction(e -> confirmEntry());
 
-        // Reparaturtabelle mit allen Spalten und Zell-Factories einrichten
+        // Set up the repair table with all columns and cell factories
         setupRepairTable();
 
-        // Routineaufgaben-Tabelle einrichten
+        // Set up the routine tasks table
         setupRoutineTable();
         inventoryPanel = new InventoryStatusPanelController(inventoryStatus, lblInventoryHeader, inventoryService);
 
-        // "Technician Done"-Button: Techniker meldet alle Reparaturen als abgeschlossen
+        // "Technician Done" button: technician reports all repairs as complete
         btnTechDone.setOnAction(e -> {
             if (selectedPartKey != null) {
-                // Namen des Technikers aus dem Zustand laden (Fallback: "Technician")
+                // Load the technician's name from state (fallback: "Technician")
                 String name = workerRegistry.getTechnicianName(selectedPartKey);
                 repairAccess.markTechnicianDone(selectedPartKey, name != null ? name : "Technician");
-                // Abgeschlossene Reparaturen in der Wartungshistorie protokollieren
+                // Log completed repairs in the maintenance history
                 MaintenanceHistoryService.logRepairs(selectedPartKey, repairAccess, workerRegistry);
-                // Arbeitsbereich aktualisieren
+                // Refresh the workspace
                 refreshWorkPanel();
             }
         });
 
-        // Freigabe-Button: Security Chief erteilt die endgültige Genehmigung
+        // Approval button: Security Chief grants final approval
         btnApprove.setOnAction(e -> {
             if (selectedPartKey != null && partApproval.canApprove(selectedPartKey)) {
-                // Namen des Security Chiefs aus dem Zustand laden (Fallback: "Security Chief")
+                // Load the Security Chief's name from state (fallback: "Security Chief")
                 String name = workerRegistry.getSecurityChiefName(selectedPartKey);
                 partApproval.approve(selectedPartKey, name != null ? name : "Security Chief");
-                // Arbeitsbereich aktualisieren und ausgewählten Button blau hervorheben
+                // Refresh the workspace and highlight the selected button in blue
                 refreshWorkPanel();
                 highlightPartButton();
             }
         });
 
-        // Rollen-Panel und Arbeitsbereich zu Beginn ausblenden
+        // Hide the role panel and workspace at startup
         rolePanel.setVisible(false);
         rolePanel.setManaged(false);
         workPanel.setVisible(false);
         workPanel.setManaged(false);
 
-        // Zurück-Button: zur Hauptansicht navigieren und Dashboard aktualisieren
+        // Back button: navigate to the main view and refresh the dashboard
         btnBack.setOnAction(e -> {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml"));
@@ -228,19 +226,19 @@ public class MissionControlController extends BaseController {
                 Stage stage = (Stage) btnBack.getScene().getWindow();
                 stage.getScene().setRoot(root);
             } catch (Exception ex) {
-                Dialogs.showError("Navigationsfehler", "Ansicht konnte nicht geladen werden", ex.getMessage());
+                Dialogs.showError("Navigation Error", "View could not be loaded", ex.getMessage());
             }
         });
     }
 
-    // ── Teil-Auswahl ─────────────────────────────────────────────────────────────
+    // ── Part selection ─────────────────────────────────────────────────────────────────────
 
     /**
-     * Wird aufgerufen, wenn der Benutzer einen Teil-Auswahl-Button klickt.
-     * Speichert den gewählten Teil-Schlüssel, befüllt das Namensfeld mit dem
-     * bereits registrierten Mitarbeiter und blendet die Panels ein.
+     * Called when the user clicks a part-selection button.
+     * Stores the chosen part key, pre-fills the name field with the
+     * already registered employee, and shows the panels.
      *
-     * @param partKey interner Schlüssel des Teils ("orbiter", "srb", "externalTank")
+     * @param partKey internal key of the part ("orbiter", "srb", "externalTank")
      */
     private void selectPart(String partKey) {
         selectedPartKey = partKey;
@@ -271,8 +269,8 @@ public class MissionControlController extends BaseController {
     }
 
     /**
-     * Hebt den aktuell ausgewählten Teil-Button blau hervor und
-     * setzt alle anderen Buttons auf den Standardstil zurück.
+     * Highlights the currently selected part button in blue and
+     * resets all other buttons to their default style.
      */
     private void highlightPartButton() {
         partButtons.forEach((key, btn) ->
@@ -280,63 +278,63 @@ public class MissionControlController extends BaseController {
     }
 
     /**
-     * Bestätigt die Eingabe von Name und Rolle und registriert den Mitarbeiter
-     * im TakeoverState. Zeigt eine Fehlermeldung, wenn das Namensfeld leer ist.
+     * Confirms the name and role input and registers the employee
+     * in TakeoverState. Shows an error message if the name field is empty.
      */
     private void confirmEntry() {
-        // Ohne ausgewähltes Teil keine Aktion möglich
+        // No action possible without a selected part
         if (selectedPartKey == null) return;
 
-        // Mitarbeiter aus der ComboBox lesen – muss ausgewählt sein
+        // Read employee from the ComboBox – must be selected
         Employee emp = cmbEmployee.getValue();
         if (emp == null) {
-            // Fehlermeldung anzeigen
+            // Show error message
             lblSelectedPart.setText("Please select an employee!");
             lblSelectedPart.setStyle(Styles.label13("#ff4444"));
             return;
         }
 
-        // Name und Rolle direkt aus dem Employee-Objekt lesen
+        // Read name and role directly from the Employee object
         String name = emp.getName();
         String role = emp.getRole();
 
-        // Mitarbeiter mit Name und Rolle im zentralen Zustand registrieren
+        // Register employee with name and role in the central state
         workerRegistry.registerWorker(selectedPartKey, name, role);
 
-        // Label zurück auf den normalen Teile-Namen setzen (grau, keine Fehlermeldung)
+        // Reset label back to the normal part name (grey, no error message)
         lblSelectedPart.setText("Part: " + TakeoverState.getDisplayName(selectedPartKey));
         lblSelectedPart.setStyle(Styles.label13("#aaaaaa"));
 
-        // Arbeitsbereich nach erfolgreicher Registrierung einblenden
+        // Show the workspace after successful registration
         showWorkPanel();
     }
 
-    // ── Tabellen-Einrichtung ─────────────────────────────────────────────────────
+    // ── Table setup ─────────────────────────────────────────────────────────────────────
 
     /**
-     * Richtet alle Tabellenspalten ein:
-     * – Status-Spalte mit farbiger Darstellung (REPLACE = rot, sonst gelb),
-     * – Parts-Spalte mit "Order Part"-Button oder Statusanzeige,
-     * – Done-Checkbox, die deaktiviert ist, solange das benötigte Teil nicht vorrätig ist.
+     * Sets up all table columns:
+     * – Status column with colour-coded display (REPLACE = red, otherwise yellow),
+     * – Parts column with "Order Part" button or status display,
+     * – Done checkbox, disabled as long as the required part is not in stock.
      */
     private void setupRepairTable() {
-        // Tabelle als editierbar markieren (für die Done-Checkboxen)
+        // Mark the table as editable (for the done checkboxes)
         repairTable.setEditable(true);
 
-        // Sensor-Name und Aktion direkt aus dem Datenmodell binden
+        // Bind sensor name and action directly from the data model
         colSensor.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
         colAction.setCellValueFactory(new PropertyValueFactory<>("action"));
 
-        // Status-Spalte – farbige Textdarstellung je nach Status
+        // Status column – colour-coded text display based on status
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
         colStatus.setCellFactory(col -> new SensorStatusCell());
 
-        // Parts-Spalte – zeigt entweder einen "Order Part"-Button oder eine Statusanzeige
+        // Parts column – shows either an "Order Part" button or a status display
         colParts.setCellValueFactory(c -> c.getValue().partStatusProperty());
         colParts.setCellFactory(col -> new PartStatusCell(this::placeOrder));
 
-        // Done-Spalte – Checkbox zum Abhaken einer Reparatur,
-        // deaktiviert wenn das benötigte Teil noch nicht verfügbar ist
+        // Done column – checkbox for ticking off a repair,
+        // disabled when the required part is not yet available
         colDone.setCellValueFactory(c -> c.getValue().doneProperty());
         colDone.setEditable(true);
         colDone.setCellFactory(col -> new TableCell<>() {
@@ -345,11 +343,11 @@ public class MissionControlController extends BaseController {
                 cb.setOnAction(e -> {
                     RepairTask task = getTableRow() != null ? getTableRow().getItem() : null;
                     if (task == null) return;
-                    // Erledigungsstatus der Aufgabe aktualisieren
+                    // Update the completion status of the task
                     task.setDone(cb.isSelected());
-                    // Wird die Checkbox angehakt, das benötigte Teil aus dem Lager abbuchen
+                    // When the checkbox is ticked, deduct the required part from inventory
                     if (cb.isSelected()) deductInventory(task);
-                    // Freigabe-Button neu bewerten (aktivieren/deaktivieren)
+                    // Re-evaluate the approval button (enable/disable)
                     refreshApproveState();
                 });
             }
@@ -361,24 +359,24 @@ public class MissionControlController extends BaseController {
                     return;
                 }
                 RepairTask task = getTableRow().getItem();
-                // Aktuellen Erledigungsstatus in der Checkbox spiegeln
+                // Reflect the current completion status in the checkbox
                 cb.setSelected(task.isDone());
-                // Checkbox deaktivieren, solange das benötigte Teil nicht verfügbar ist
+                // Disable the checkbox as long as the required part is not available
                 cb.setDisable(!task.isPartAvailable());
-                // Zeile halbtransparent darstellen, wenn Teil noch nicht verfügbar
+                // Render the row semi-transparent when the part is not yet available
                 setStyle(task.isPartAvailable() ? "" : "-fx-opacity: 0.4;");
                 setGraphic(cb);
             }
         });
     }
 
-    // ── Lager- und Bestell-Logik ──────────────────────────────────────────────────
+    // ── Inventory and order logic ──────────────────────────────────────────────────────────
 
     /**
-     * Initialisiert den Teile-Status (partStatus / partAvailable) für jede Aufgabe
-     * des aktuell gewählten Teils.
-     * Aufgaben, die bereits den Status ORDERED oder ARRIVED haben, werden übersprungen,
-     * damit ein laufender Timer nicht überschrieben wird.
+     * Initialises the parts status (partStatus / partAvailable) for every task
+     * of the currently selected part.
+     * Tasks that already have the status ORDERED or ARRIVED are skipped
+     * so that a running timer is not overwritten.
      */
     private void initTaskPartStatus() {
         if (selectedPartKey == null) return;
@@ -387,11 +385,11 @@ public class MissionControlController extends BaseController {
     }
 
     /**
-     * Wird aufgerufen, wenn der Techniker auf "Order Part" klickt.
-     * Setzt den Status sofort auf ORDERED, zeigt eine Bestätigungsmeldung
-     * und bucht das Teil nach 10 Sekunden automatisch ins Lager ein.
+     * Called when the technician clicks "Order Part".
+     * Sets the status to ORDERED immediately, shows a confirmation message,
+     * and automatically books the part into the warehouse after 10 seconds.
      *
-     * @param task die Reparaturaufgabe, für die das Teil bestellt werden soll
+     * @param task the repair task for which the part should be ordered
      */
     private void placeOrder(RepairTask task) {
         RepairInventoryService.placeOrder(task, inventoryService, () -> {
@@ -408,19 +406,19 @@ public class MissionControlController extends BaseController {
     }
 
     /**
-     * Bucht das für eine Reparaturaufgabe benötigte Teil aus dem Lager ab,
-     * sobald die Aufgabe als erledigt markiert wird.
+     * Deducts the part required for a repair task from inventory
+     * as soon as the task is marked as done.
      *
-     * @param task die abgeschlossene Reparaturaufgabe
+     * @param task the completed repair task
      */
     private void deductInventory(RepairTask task) {
         RepairInventoryService.deductInventory(task, inventoryService, this::refreshInventory);
     }
 
-    // ── Arbeitsbereich ────────────────────────────────────────────────────────────
+    // ── Workspace ────────────────────────────────────────────────────────────────────────
 
     /**
-     * Blendet den Arbeitsbereich ein und aktualisiert alle Unterkomponenten.
+     * Shows the workspace and refreshes all sub-components.
      */
     private void showWorkPanel() {
         workPanel.setVisible(true);
@@ -429,30 +427,30 @@ public class MissionControlController extends BaseController {
     }
 
     /**
-     * Aktualisiert den gesamten Arbeitsbereich für das aktuell gewählte Teil:
-     * – Kopfzeile mit Teilname, Mitarbeiternamen und Genehmigungsstatus,
-     * – Reparaturtabelle mit aktuellem Teile-Status,
-     * – Sichtbarkeit des "Technician Done"-Buttons,
-     * – Lageranzeige,
-     * – Freigabebereich für den Security Chief.
+     * Refreshes the entire workspace for the currently selected part:
+     * – header with part name, employee names and approval status,
+     * – repair table with current parts status,
+     * – visibility of the "Technician Done" button,
+     * – inventory display,
+     * – approval section for the Security Chief.
      */
     private void refreshWorkPanel() {
         if (selectedPartKey == null) return;
 
-        // Aktuellen Zustand für das gewählte Teil abrufen
+        // Retrieve the current state for the selected part
         boolean approved   = partApproval.isPartApproved(selectedPartKey);
         boolean techDone   = repairAccess.isTechnicianDone(selectedPartKey);
         String displayName = TakeoverState.getDisplayName(selectedPartKey);
         String techName    = workerRegistry.getTechnicianName(selectedPartKey);
         String chiefName   = workerRegistry.getSecurityChiefName(selectedPartKey);
 
-        // Kopfzeile je nach Genehmigungsstatus einfärben und beschriften
+        // Colour and label the header based on approval status
         if (approved) {
-            // Teil vollständig genehmigt – grüne Erfolgsanzeige
+            // Part fully approved – green success display
             lblRepairHeader.setText(displayName + " – APPROVED ✓");
             lblRepairHeader.setStyle("-fx-text-fill: #66ff66; -fx-font-size: 15px; -fx-font-weight: bold;");
         } else {
-            // Noch nicht genehmigt – Namen der angemeldeten Mitarbeiter anzeigen
+            // Not yet approved – show names of the logged-in employees
             String worker = "";
             if (techName != null) worker += techName + " (Technician)";
             if (chiefName != null) { if (!worker.isEmpty()) worker += " / "; worker += chiefName + " (Security Chief)"; }
@@ -461,27 +459,27 @@ public class MissionControlController extends BaseController {
             lblRepairHeader.setStyle("-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;");
         }
 
-        // Reparaturaufgaben in der Tabelle anzeigen
+        // Display repair tasks in the table
         List<RepairTask> tasks = repairAccess.getRepairs(selectedPartKey);
         repairTable.setItems(FXCollections.observableArrayList(tasks));
 
-        // Routineaufgaben für diesen Part laden und anzeigen
+        // Load and display routine tasks for this part
         routineTable.setItems(FXCollections.observableArrayList(
             RoutineTaskStore.getInstance().getTasksForPart(displayName)));
 
-        // Teile-Status für jede Aufgabe initialisieren (ORDERED/ARRIVED-Zustände bleiben erhalten)
+        // Initialise parts status for each task (ORDERED/ARRIVED states are preserved)
         initTaskPartStatus();
 
-        // "Technician Done"-Button nur anzeigen wenn: Techniker angemeldet, noch nicht fertig, nicht genehmigt
+        // Show "Technician Done" button only when: technician logged in, not yet done, not approved
         boolean isTechnician = techName != null && chiefName == null;
         boolean showTechDone = isTechnician && !techDone && !approved;
         btnTechDone.setVisible(showTechDone);
         btnTechDone.setManaged(showTechDone);
 
-        // Lageranzeige für das gewählte Teil aktualisieren
+        // Refresh the inventory display for the selected part
         refreshInventory();
 
-        // Freigabebereich nur anzeigen wenn ein Security Chief angemeldet ist
+        // Show the approval section only when a Security Chief is logged in
         boolean isSecurityChief = chiefName != null;
         approvalSection.setVisible(isSecurityChief);
         approvalSection.setManaged(isSecurityChief);
@@ -489,9 +487,9 @@ public class MissionControlController extends BaseController {
     }
 
     /**
-     * Zeigt den Lagerstatus aller benötigten Teile für das aktuell gewählte Teil an.
-     * Jedes Teil wird als farbiges Label dargestellt:
-     * rot = nicht vorrätig, gelb = niedrig, grün = ausreichend.
+     * Displays the inventory status of all required parts for the currently selected part.
+     * Each part is shown as a colour-coded label:
+     * red = out of stock, yellow = low, green = sufficient.
      */
    private void refreshInventory() {
     if (selectedPartKey == null) return;
@@ -500,33 +498,33 @@ public class MissionControlController extends BaseController {
 
 
     /**
-     * Aktualisiert den Freigabe-Button und das Informations-Label des Security Chiefs.
-     * – Bereits genehmigt: Button deaktiviert, grüner Text.
-     * – Techniker fertig, Freigabe möglich: Button aktiviert.
-     * – Techniker noch nicht fertig: Button deaktiviert, gelbe Warteinfo.
+     * Updates the approval button and the Security Chief's information label.
+     * – Already approved: button disabled, green text.
+     * – Technician done, approval possible: button enabled.
+     * – Technician not yet done: button disabled, yellow waiting info.
      */
     private void refreshApproveState() {
         if (selectedPartKey == null) return;
 
-        // Aktuellen Genehmigungs- und Fertigstellungsstatus abrufen
+        // Retrieve current approval and completion status
         boolean approved   = partApproval.isPartApproved(selectedPartKey);
         boolean canApprove = partApproval.canApprove(selectedPartKey);
         boolean techDone   = repairAccess.isTechnicianDone(selectedPartKey);
 
         if (approved) {
-            // Teil bereits genehmigt – Button deaktivieren und Erfolgsmeldung anzeigen
+            // Part already approved – disable button and show success message
             lblApprovalInfo.setText("This part has been approved.");
             lblApprovalInfo.setStyle("-fx-text-fill: #66ff66;");
             btnApprove.setDisable(true);
             btnApprove.setText("Already Approved ✓");
         } else if (canApprove) {
-            // Techniker ist fertig – Security-Chief-Freigabe kann erteilt werden
+            // Technician is done – Security Chief approval can be granted
             lblApprovalInfo.setText("Technician marked done. Ready for approval.");
             lblApprovalInfo.setStyle("-fx-text-fill: #66ff66;");
             btnApprove.setDisable(false);
             btnApprove.setText("Give Security Chief OK");
         } else if (!techDone) {
-            // Techniker noch nicht fertig – Freigabe-Button gesperrt, gelbe Warteinfo
+            // Technician not yet done – approval button locked, yellow waiting info
             lblApprovalInfo.setText("Waiting for Technician to finish repairs.");
             lblApprovalInfo.setStyle("-fx-text-fill: #ffcc00;");
             btnApprove.setDisable(true);
@@ -534,19 +532,19 @@ public class MissionControlController extends BaseController {
         }
     }
 
-    // ── Hilfsmethoden ─────────────────────────────────────────────────────────────
+    // ── Helper methods ─────────────────────────────────────────────────────────────────────
 
     /**
-     * Richtet die Routineaufgaben-Tabelle ein:
-     * Aufgabenname, Dauer, Done-Checkbox (setzt completedAt) und Zeitstempel.
+     * Sets up the routine tasks table:
+     * task name, duration, done checkbox (sets completedAt) and timestamp.
      */
     private void setupRoutineTable() {
         RoutineTableHelper.setup(routineTable, colRtName, colRtEst, colRtDone, colRtTime);
     }
 
     /**
-     * Gibt die Liste der Mitarbeiter zurück, die laut  für diesen Part eingeplant sind.
-     * Fallback: alle Mitarbeiter, falls kein Schedule geladen werden kann.
+     * Returns the list of employees scheduled for this part according to the schedule.
+     * Fallback: all employees if no schedule can be loaded.
      */
     private List<Employee> getAssignedEmployeesForPart(String partKey) {
         String displayName = TakeoverState.getDisplayName(partKey);
@@ -566,7 +564,7 @@ public class MissionControlController extends BaseController {
             .collect(Collectors.toList());
     }
 
-    /** Gibt den Zurück-Button zurück, der für die Navigation in der Basisklasse genutzt wird. */
+    /** Returns the back button used for navigation in the base class. */
     @Override
     protected Button getNavigationButton() { return btnBack; }
 }

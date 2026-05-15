@@ -1,21 +1,21 @@
 package com.group5.shuttle.model;
 
-// Repräsentiert einen einzelnen Mitarbeiter mit seiner Rolle und Teamzugehörigkeit
+// Represents a single employee with their role and team membership
 public class Employee {
 
-    // Eindeutige Mitarbeiter-ID, z. B. "EMP-001"
+    // Unique employee ID, e.g. "EMP-001"
     private String id;
 
-    // Vollständiger Name des Mitarbeiters, z. B. "Max Müller"
+    // Full name of the employee, e.g. "Max Müller"
     private String name;
 
-    // Rolle: z. B. "Technician", "Security Chief", "Planner", "Logistics"
+    // Role: e.g. "Technician", "Security Chief", "Planner", "Logistics"
     private String role;
 
-    // Teamname, z. B. "Team Alpha"
+    // Team name, e.g. "Team Alpha"
     private String team;
 
-    // Konstruktor – erstellt einen vollständigen Mitarbeiter-Datensatz.
+    // Constructor – creates a complete employee record.
     public Employee(String id, String name, String role, String team) {
         this.id   = id;
         this.name = name;
@@ -23,7 +23,7 @@ public class Employee {
         this.team = team;
     }
 
-    // Getter-Methoden – werden von PropertyValueFactory in TableView benötigt
+    // Getter methods – required by PropertyValueFactory in TableView
     public String getId()   { return id; }
     public String getName() { return name; }
     public String getRole() { return role; }

@@ -3,7 +3,7 @@ package com.group5.shuttle.service;
 import com.group5.shuttle.model.MaintenanceTicket;
 import java.util.List;
 
-// Singleton: hält alle Wartungstickets der aktuellen Sitzung im Arbeitsspeicher.
+// Singleton: holds all maintenance tickets for the current session in memory.
 public class TicketStore extends AbstractStore<MaintenanceTicket> {
 
     private static final class Holder {
@@ -20,7 +20,7 @@ public class TicketStore extends AbstractStore<MaintenanceTicket> {
         return getAll();
     }
 
-    // Ersetzt die gesamte Ticket-Liste durch eine neue Liste.
+    // Replaces the entire ticket list with a new list.
     public void saveTickets(List<MaintenanceTicket> list) {
         items.clear();
         items.addAll(list);

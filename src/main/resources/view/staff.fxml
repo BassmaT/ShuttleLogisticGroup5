@@ -12,31 +12,31 @@
 <?import javafx.scene.control.Separator?>
 
 <!--
-    Staff-Übersicht.
-    Links: Liste aller Mitarbeiter 
-    Rechts: Beim Klick auf einen Mitarbeiter werden seine Reparatur- und Routineaufgaben angezeigt.
-    fx:controller verknüpft diese Datei mit StaffController.
+    Staff overview.
+    Left: list of all employees
+    Right: clicking an employee shows their repair and routine tasks.
+    fx:controller links this file to StaffController.
 -->
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.group5.shuttle.controller.StaffController"
             style="-fx-background-color: #0D1117; -fx-padding: 20;">
 
-    <!-- Seitenüberschrift -->
+    <!-- Page heading -->
     <top>
         <Label text="Staff Overview"
                style="-fx-font-size: 28px; -fx-text-fill: #4B9CFF; -fx-font-weight: bold;"
                BorderPane.alignment="CENTER"/>
     </top>
 
-    <!-- Linke Seitenleiste: Liste aller Mitarbeiter -->
+    <!-- Left sidebar: list of all employees -->
     <left>
         <VBox spacing="8" style="-fx-padding: 10 16 10 0; -fx-min-width: 200; -fx-background-color: #0D1117; -fx-border-color: #21262d; -fx-border-width: 0 1 0 0;">
-            <!-- Abschnittsüberschrift -->
+            <!-- Section heading -->
             <Label text="Employees"
                    style="-fx-text-fill: #8b949e; -fx-font-size: 13px; -fx-font-weight: bold;"/>
             <Separator style="-fx-background-color: #21262d;"/>
-            <!-- ListView zeigt alle Mitarbeiter – beim Klick werden rechts die Tasks angezeigt -->
+            <!-- ListView shows all employees – clicking one displays their tasks on the right -->
             <ListView fx:id="employeeList"
                       style="-fx-background: #0D1117; -fx-background-color: #161B22; -fx-border-color: #21262d;"
                       VBox.vgrow="ALWAYS"
@@ -44,18 +44,18 @@
         </VBox>
     </left>
 
-    <!-- Hauptbereich rechts: Details des ausgewählten Mitarbeiters -->
+    <!-- Main area on the right: details of the selected employee -->
     <center>
         <ScrollPane fitToWidth="true"
                     style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
             <VBox spacing="14" style="-fx-padding: 0 0 10 16; -fx-background-color: transparent;">
 
-                <!-- Name des ausgewählten Mitarbeiters (groß, weiß) -->
+                <!-- Name of the selected employee (large, white) -->
                 <Label fx:id="lblEmployeeName"
                        text="← Select an employee"
                        style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;"/>
 
-                <!-- Rolle und Team des Mitarbeiters -->
+                <!-- Role and team of the employee -->
                 <HBox spacing="20">
                     <Label fx:id="lblEmployeeRole" text=""
                            style="-fx-text-fill: #4B9CFF; -fx-font-size: 14px;"/>
@@ -65,22 +65,22 @@
 
                 <Separator style="-fx-background-color: #21262d;"/>
 
-                <!-- Abschnitt: Reparaturaufgaben -->
+                <!-- Section: repair tasks -->
                 <Label text="Repair Tasks"
                        style="-fx-text-fill: #8b949e; -fx-font-size: 15px; -fx-font-weight: bold;"/>
 
-                <!-- Tabelle der Reparaturaufgaben dieses Mitarbeiters -->
+                <!-- Table of repair tasks for this employee -->
                 <TableView fx:id="repairTaskTable"
                            style="-fx-background: #0D1117; -fx-background-color: #161B22;"
                            prefHeight="160">
                     <columns>
-                        <!-- Shuttle-Teil, auf das sich die Reparatur bezieht -->
+                        <!-- Shuttle part to which the repair relates -->
                         <TableColumn fx:id="colRepairPart"   text="Part"    prefWidth="130"/>
-                        <!-- Betroffener Sensor, z. B. "coolantPressure" -->
+                        <!-- Affected sensor, e.g. "coolantPressure" -->
                         <TableColumn fx:id="colRepairSensor" text="Sensor"  prefWidth="150"/>
-                        <!-- Durchzuführende Maßnahme, z. B. "Replace component" -->
+                        <!-- Action to be taken, e.g. "Replace component" -->
                         <TableColumn fx:id="colRepairAction" text="Action"  prefWidth="190"/>
-                        <!-- Status: "WARNING", "REPLACE" oder erledigt -->
+                        <!-- Status: "WARNING", "REPLACE" or done -->
                         <TableColumn fx:id="colRepairStatus" text="Status"  prefWidth="100"/>
                     </columns>
                     <placeholder>
@@ -91,25 +91,25 @@
 
                 <Separator style="-fx-background-color: #21262d;"/>
 
-                <!-- Abschnitt: Routineaufgaben -->
+                <!-- Section: routine tasks -->
                 <Label text="Routine Tasks"
                        style="-fx-text-fill: #8b949e; -fx-font-size: 15px; -fx-font-weight: bold;"/>
 
-                <!-- Tabelle der Routineaufgaben dieses Mitarbeiters -->
-                <!-- Die Done-Spalte enthält eine Checkbox – beim Abhaken wird completedAt gesetzt -->
+                <!-- Table of routine tasks for this employee -->
+                <!-- The done column contains a checkbox – ticking it sets completedAt -->
                 <TableView fx:id="routineTaskTable"
                            style="-fx-background: #0D1117; -fx-background-color: #161B22;"
                            prefHeight="200">
                     <columns>
-                        <!-- Aufgabenbezeichnung, z. B. "Clean Cabin" -->
+                        <!-- Task name, e.g. "Clean Cabin" -->
                         <TableColumn fx:id="colRoutineName" text="Task"        prefWidth="200"/>
-                        <!-- Zugehöriges Shuttle-Teil -->
+                        <!-- Associated shuttle part -->
                         <TableColumn fx:id="colRoutinePart" text="Part"        prefWidth="130"/>
-                        <!-- Geschätzte Dauer in Minuten -->
+                        <!-- Estimated duration in minutes -->
                         <TableColumn fx:id="colRoutineEst"  text="Est. (min)"  prefWidth="90"/>
-                        <!-- Checkbox: erledigt ja/nein -->
+                        <!-- Checkbox: done yes/no -->
                         <TableColumn fx:id="colRoutineDone" text="Done"        prefWidth="60"/>
-                        <!-- Zeitstempel der Erledigung (leer wenn noch nicht erledigt) -->
+                        <!-- Completion timestamp (empty if not yet done) -->
                         <TableColumn fx:id="colRoutineTime" text="Completed At" prefWidth="140"/>
                     </columns>
                     <placeholder>
@@ -122,7 +122,7 @@
         </ScrollPane>
     </center>
 
-    <!-- Zurück-Button unten links -->
+    <!-- Back button at the bottom left -->
     <bottom>
         <Button text="← Back to Dashboard"
                 fx:id="btnBack"

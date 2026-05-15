@@ -3,8 +3,8 @@ package com.group5.shuttle.model;
 import java.util.ArrayList;
 import java.util.List;
 
-// Kapselt den gesamten Zustand eines Shuttle-Teils (Orbiter, SRB, External Tank).
-// Wird von TakeoverState als einheitliche Datenstruktur pro Teil verwendet.
+// Encapsulates the entire state of a shuttle part (Orbiter, SRB, External Tank).
+// Used by TakeoverState as a unified data structure per part.
 public class PartState {
 
     private boolean          securityApproved  = false;

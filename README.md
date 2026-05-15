@@ -1,37 +1,40 @@
-# Shuttle Dashboard — Technische Dokumentation
+# Shuttle Dashboard — Technical Documentation
 
-**Gruppe 5 · Java/JavaFX Projekt**
+**Group 5 · Java/JavaFX Project**
 
 ---
+## 0. Disclaimer: 
+The overall structure, functionality, architecture, and core design concepts of this project were independently planned and developed by the project team. The initial prototype and parts of the implementation were created with the assistance of AI-based development tools. All generated code was subsequently reviewed, adapted, tested, and refined manually to ensure functionality, stability, maintainability, and overall code quality.
 
-## 1. Projektübersicht
+## 1. Project Overview
 
-Das Shuttle Dashboard ist eine JavaFX-Anwendung zur Steuerung und Überwachung des Übergabeprozesses einer Raumfähre. Es simuliert den vollständigen Ablauf nach der Landung: von der Sensor-Kalibrierung über die Reparatur defekter Komponenten bis zur Freigabe durch den Security Chief.
+The Shuttle Dashboard is a JavaFX application for managing and monitoring the handover process of a space shuttle. It simulates the complete workflow after landing: from sensor calibration through repair of defective components to sign-off by the Security Chief.
 
-### Kernfunktionen
+### Core Features
 
-| Funktion | Beschreibung |
+| Feature | Description |
 |---|---|
-| **Login** | Demo-Anmeldung per Namensauswahl; Rolle steuert Sichtbarkeit der Navigation |
-| **Phasenverwaltung** | Automatischer Ablauf: Landing → Sensor Loading → Operational |
-| **Mission Control** | Reparaturaufgaben pro Shuttle-Teil, Technikerzuweisung, Freigabe |
-| **Logistics** | Bestellworkflow mit Genehmigung durch Security Chief |
-| **Predictive Analysis** | Trendauswertung über 5 Flughistorien; Frühwarnsystem |
-| **Schedule** | Interaktiver 3-Tage-Übergabeplan mit Umplanungsfunktion |
-| **Staff** | Mitarbeiterverwaltung und Teamübersicht |
-| **Inventory** | Lagerbestandsanzeige mit Statusfarbkodierung |
-| **History** | Protokoll abgeschlossener Wartungstickets |
+| **Login** | Demo login via name selection; role controls navigation visibility |
+| **Phase Management** | Automatic workflow: Landing → Sensor Loading → Operational |
+| **Mission Control** | Repair tasks per shuttle part, technician assignment, approval |
+| **Logistics** | Order workflow with Security Chief approval |
+| **Predictive Analysis** | Trend evaluation over 5 flight histories; early warning system |
+| **Schedule** | Interactive 3-day handover plan with reassignment functionality |
+| **Staff** | Employee management and team overview |
+| **Inventory** | Stock level display with color-coded status |
+| **History** | Log of completed maintenance tickets |
+| **AI Advisor** | Role-based AI chat (FSM) for Planners; read-only for other roles |
 
 ### Tech Stack
 
-| Komponente | Version |
+| Component | Version |
 |---|---|
 | Java | 17 |
 | JavaFX | 21.0.2 |
-| Build-Tool | Maven |
-| UI-Definition | FXML |
+| Build Tool | Maven |
+| UI Definition | FXML |
 
-### Einstiegspunkt
+### Entry Point
 
 ```
 Main.java → App.java → login_view.fxml → LoginController → main_view.fxml → MainController
@@ -39,38 +42,38 @@ Main.java → App.java → login_view.fxml → LoginController → main_view.fxm
 
 ---
 
-## 2. Architektur
+## 2. Architecture
 
-### Architekturmuster: MVC
+### Architectural Pattern: MVC
 
-Die Anwendung folgt dem **Model-View-Controller**-Muster mit strikter Schichtentrennung:
+The application follows the **Model-View-Controller** pattern with strict layer separation:
 
-- **Model** (`model/`): Plain Java Objects (POJOs) und Enums — keine Logik, nur Daten und JavaFX-Properties
-- **View** (`resources/view/*.fxml`): Deklarative UI-Definitionen in FXML
-- **Controller** (`controller/`): Verbinden UI-Events mit Services; keine Datenzugriffslogik
-- **Service** (`service/`): Geschäftslogik, Datenzugriff; alle zustandsbehafteten Services als Singletons
+- **Model** (`model/`): Plain Java Objects (POJOs) and Enums — no logic, only data and JavaFX properties
+- **View** (`resources/view/*.fxml`): Declarative UI definitions in FXML
+- **Controller** (`controller/`): Connect UI events with services; no data access logic
+- **Service** (`service/`): Business logic, data access; all stateful services as singletons
 
-### Package-Struktur
+### Package Structure
 
-| Package | Klassen / Interfaces | Verantwortlichkeit |
+| Package | Classes / Interfaces | Responsibility |
 |---|---|---|
-| `com.group5.shuttle` | 2 Klassen | App-Einstieg (`Main`, `App`) |
-| `controller` | 20 Klassen | UI-Logik, Event-Handling, Panel-Controller, Helper |
-| `service` | 24 Klassen + 12 Interfaces | Geschäftslogik, Datenzugriff, statische Helfer |
-| `model` | 17 Klassen + 5 Enums | Datenmodell (POJOs, JavaFX-Properties, Enums) |
-| `util` | 8 Klassen | Querschnittsthemen (Farben, Konverter, Tabellenzellen) |
+| `com.group5.shuttle` | 2 classes | App entry point (`Main`, `App`) |
+| `controller` | 20 classes | UI logic, event handling, panel controllers, helpers |
+| `service` | 24 classes + 12 interfaces | Business logic, data access, static helpers |
+| `model` | 17 classes + 4 enums | Data model (POJOs, JavaFX properties, enums) |
+| `util` | 8 classes | Cross-cutting concerns (colors, converters, table cells) |
 
-### Verwendete Entwurfsmuster
+### Design Patterns Used
 
 **Singleton**
-Alle zustandsbehafteten Services halten genau eine Instanz über die gesamte Sitzung. Implementiert mit Holder-Klasse oder einfacher statischer Instanz:
+All stateful services maintain exactly one instance throughout the session. Implemented with Holder class:
 `TakeoverState`, `SessionState`, `EmployeeService`, `InventoryService`, `SensorDataService`, `ScheduleService`, `FlightHistoryService`, `PhaseTimerService`, `TicketStore`, `OrderStore`, `RoutineTaskStore`
 
 **Template Method**
-`BaseController` definiert `loadView(fxml)` als Template: `getNavigationButton()` ist abstrakt — Subklassen liefern den konkreten Button, damit `loadView` das aktive Fenster findet. `setupBackButton(btn)` kapselt das Back-Button-Muster:
+`BaseController` defines `loadView(fxml)` as a template: `getNavigationButton()` is abstract — subclasses provide the concrete button so that `loadView` can find the active window. `setupBackButton(btn)` encapsulates the back-button pattern:
 
 ```java
-// BaseController (abstrakte Vorlage)
+// BaseController (abstract template)
 protected void loadView(String fxml) {
     Parent root = new FXMLLoader(...).load();
     Stage stage = (Stage) getNavigationButton().getScene().getWindow();
@@ -80,12 +83,12 @@ protected void setupBackButton(Button btn) {
     btn.setOnAction(e -> loadView("main_view.fxml"));
 }
 
-// Subklasse (konkrete Implementierung)
+// Subclass (concrete implementation)
 @Override protected Button getNavigationButton() { return btnBack; }
 ```
 
 **Strategy**
-`ColoredTableCell` ist der Context; er nimmt eine `Function<String, String>` als Strategie. `StatusColors` liefert die konkreten Strategien für Sensor-, Lager- und Bestellstatus:
+`ColoredTableCell` is the context; it accepts a `Function<String, String>` as a strategy. `StatusColors` provides concrete strategies for sensor, stock, and order status:
 
 ```java
 new ColoredTableCell<>(StatusColors::forSensorStatus)
@@ -94,7 +97,7 @@ new ColoredTableCell<>(StatusColors::forOrderStatus)
 ```
 
 **Observer (JavaFX Properties)**
-`RepairTask` und `LogisticsOrder` verwenden JavaFX Properties (`SimpleBooleanProperty`, `SimpleStringProperty`), damit Tabellenzeilen sich automatisch aktualisieren, wenn sich der Zustand ändert:
+`RepairTask` and `LogisticsOrder` use JavaFX Properties (`SimpleBooleanProperty`, `SimpleStringProperty`) so that table rows update automatically when state changes:
 
 ```java
 private final BooleanProperty done       = new SimpleBooleanProperty(false);
@@ -102,7 +105,7 @@ private final StringProperty  partStatus = new SimpleStringProperty("NONE");
 ```
 
 **Enum-carried Metadata (OCP)**
-Enums tragen fachliche Metadaten (Farbe, Label, Stil), sodass switch-Anweisungen entfallen. Neue Ausprägung = ein neuer Enum-Eintrag:
+Enums carry domain metadata (color, label, style), eliminating switch statements. New value = one new enum entry:
 
 ```java
 enum ScheduleStatus {
@@ -113,11 +116,14 @@ enum ScheduleStatus {
 }
 ```
 
+**Finite State Machine (AI Chat)**
+`AiChatController` implements a role-based advisory dialog as an FSM with states `IDLE → SENSOR_WARNING → TECHNICIAN_RECOMMENDATION → SCHEDULE_PROPOSED → FINISHED`. Only the Planner role receives interactive access.
+
 ---
 
-## 3. UML Klassendiagramm
+## 3. UML Class Diagram
 
-### 3a. Controller-Hierarchie
+### 3a. Controller Hierarchy
 
 ```mermaid
 classDiagram
@@ -143,7 +149,9 @@ classDiagram
         -workerReg: IWorkerRegistry
         -repairAccess: IRepairAccess
         -predictiveService: IPredictiveAnalysisService
+        -phaseTimer: PhaseTimerService
         +initialize()
+        +loadView(fxml: String)
         +updateDashboard()
     }
 
@@ -181,6 +189,8 @@ classDiagram
     class ScheduleController {
         -scheduleService: IScheduleService
         +initialize()
+        +getInstance()$ ScheduleController
+        +refreshSchedule()
     }
 
     class StaffController {
@@ -221,7 +231,11 @@ classDiagram
     }
 
     class AiChatController {
-        +setContext(role: String)
+        -userRole: UserRole
+        -mainController: MainController
+        +setMainController(mc: MainController)
+        +setContext(role: UserRole)
+        +enableInteraction()
         +handleInput()
     }
 
@@ -238,7 +252,6 @@ classDiagram
 
     class RoutineTableHelper {
         <<utility>>
-        +setup(table, colName, colDone, colTime)$
         +setup(table, colName, colEst, colDone, colTime)$
     }
 
@@ -259,10 +272,13 @@ classDiagram
     MissionControlController --> InventoryStatusPanelController : creates
     MissionControlController ..> RoutineTableHelper : uses
     StaffController ..> RoutineTableHelper : uses
-    AiChatController ..> AiAdvisorService : calls (nicht aktiv genutzt)
+    AiChatController --> SessionState : uses
+    AiChatController ..> ScheduleService : uses
 ```
 
-### 3b. Service-Interfaces und Implementierungen
+---
+
+### 3b. Service Interfaces and Implementations
 
 ```mermaid
 classDiagram
@@ -354,55 +370,87 @@ classDiagram
     class TakeoverState {
         <<Singleton>>
         +PART_KEYS: String[]$
+        +LANDING_SECONDS: int$
+        +SENSOR_LOADING_SECONDS: int$
         +getInstance()$ TakeoverState
         +getDisplayName(partKey: String)$ String
+        +reset()
     }
 
     class EmployeeService {
         <<Singleton>>
         +getInstance()$ EmployeeService
+        +getAllEmployees() List~Employee~
+        +getById(id: String) Optional~Employee~
+        +getByRole(role: String) List~Employee~
+        +getByTeam(team: String) List~Employee~
     }
 
     class SensorDataService {
         <<Singleton>>
         +getInstance()$ SensorDataService
+        +loadSensorData() ShuttleData
+        +loadThresholds() Map
+        +evaluate(value: double, t: SensorThreshold) SensorStatus
     }
 
     class InventoryService {
         <<Singleton>>
         +getInstance()$ InventoryService
+        +loadInventory() List~InventoryItem~
+        +saveInventory(items: List)
     }
 
     class ScheduleService {
         <<Singleton>>
         +getInstance()$ ScheduleService
+        +loadSchedule() TakeoverSchedule
     }
 
     class FlightHistoryService {
         <<Singleton>>
         +getInstance()$ FlightHistoryService
+        +loadFlightHistory() FlightHistory
     }
 
     class PredictiveAnalysisService {
         -flightHistoryService: IFlightHistoryService
         -sensorDataService: ISensorDataService
-        +analyzeAll() Map
+        +analyzeAll() Map~String, List~TrendResult~~
     }
 
-    TakeoverState ..|> IWorkerRegistry
-    TakeoverState ..|> IRepairAccess
-    TakeoverState ..|> IPartApproval
-    TakeoverState ..|> ITakeoverProgress
-    TakeoverState ..|> IPhaseTracker
-    EmployeeService ..|> IEmployeeService
-    SensorDataService ..|> ISensorDataService
-    InventoryService ..|> IInventoryService
-    ScheduleService ..|> IScheduleService
-    FlightHistoryService ..|> IFlightHistoryService
-    PredictiveAnalysisService ..|> IPredictiveAnalysisService
+    class SessionState {
+        <<Singleton>>
+        -currentUser: Employee
+        -currentUserRole: UserRole
+        -pendingNotification: boolean
+        +getInstance()$ SessionState
+        +setCurrentUser(e: Employee)
+        +getCurrentUser() Employee
+        +setUserRole(role: UserRole)
+        +getUserRole() UserRole
+        +getCurrentRole() String
+        +hasPendingNotification() boolean
+        +setPendingNotification(value: boolean)
+        +isLoggedIn() boolean
+    }
 
-    PredictiveAnalysisService --> IFlightHistoryService
-    PredictiveAnalysisService --> ISensorDataService
+    class RoutineTaskStore {
+        <<Singleton>>
+        +getInstance()$ RoutineTaskStore
+        +getAllTasks() List~RoutineTask~
+        +getTasksForEmployee(empId: String) List~RoutineTask~
+        +getTasksForPart(part: String) List~RoutineTask~
+        +getById(id: String) Optional~RoutineTask~
+        +reset()
+    }
+
+    class PhaseTimerService {
+        <<Singleton>>
+        +getInstance()$ PhaseTimerService
+        +start(seconds: int, onTick: Consumer, onComplete: Runnable)
+        +stop()
+    }
 
     class AbstractStore~T~ {
         <<abstract>>
@@ -416,6 +464,7 @@ classDiagram
         +getInstance()$ OrderStore
         +createOrder(partName, qty, orderedBy, reason) LogisticsOrder
         +getOrders() List~LogisticsOrder~
+        +clear()
     }
 
     class TicketStore {
@@ -425,38 +474,22 @@ classDiagram
         +saveTickets(tickets: List)
     }
 
+    TakeoverState ..|> IWorkerRegistry
+    TakeoverState ..|> IRepairAccess
+    TakeoverState ..|> IPartApproval
+    TakeoverState ..|> ITakeoverProgress
+    TakeoverState ..|> IPhaseTracker
+    EmployeeService ..|> IEmployeeService
+    SensorDataService ..|> ISensorDataService
+    InventoryService ..|> IInventoryService
+    ScheduleService ..|> IScheduleService
+    FlightHistoryService ..|> IFlightHistoryService
+    PredictiveAnalysisService ..|> IPredictiveAnalysisService
     AbstractStore <|-- OrderStore
     AbstractStore <|-- TicketStore
 
-    class SessionState {
-        <<Singleton>>
-        -currentUser: Employee
-        +getInstance()$ SessionState
-        +setCurrentUser(e: Employee)
-        +getCurrentUser() Employee
-        +getCurrentRole() String
-    }
-
-    class RoutineTaskStore {
-        <<Singleton>>
-        +getInstance()$ RoutineTaskStore
-        +getTasksForEmployee(empId: String) List
-        +getTasksForPart(part: String) List
-        +getById(id: String) Optional~RoutineTask~
-        +reset()
-    }
-
-    class PhaseTimerService {
-        <<Singleton>>
-        +getInstance()$ PhaseTimerService
-        +start(seconds: int, onTick: Consumer, onComplete: Runnable)
-        +stop()
-    }
-
-    class AiAdvisorService {
-        <<utility>>
-        +getResponse(message: String)$ String
-    }
+    PredictiveAnalysisService --> IFlightHistoryService
+    PredictiveAnalysisService --> ISensorDataService
 
     class AppPhaseState {
         -appPhase: AppPhase
@@ -464,11 +497,18 @@ classDiagram
         +beginLanding()
         +beginSensorLoading()
         +setOperational()
-        +getScheduleStatus(approval: IPartApproval) ScheduleStatus
+        +getRemainingSeconds() int
         +getSimulatedHoursElapsed() double
+        +getScheduleStatus(approval: IPartApproval) ScheduleStatus
+        +reset()
     }
 
     TakeoverState *-- AppPhaseState
+
+    class AiAdvisorService {
+        <<utility>>
+        +getResponse(message: String)$ String
+    }
 
     class OrderApprovalService {
         <<utility>>
@@ -529,7 +569,9 @@ classDiagram
     RepairInventoryService ..> OrderDeliveryService
 ```
 
-### 3c. Model-Klassen und Enums
+---
+
+### 3c. Model Classes and Enums
 
 ```mermaid
 classDiagram
@@ -577,6 +619,7 @@ classDiagram
         +partStatusProperty() StringProperty
         +setDone(done: boolean)
         +setPartStatus(s: StockStatus)
+        +isPartAvailable() boolean
     }
 
     class RoutineTask {
@@ -588,10 +631,12 @@ classDiagram
         -done: SimpleBooleanProperty
         -completedAt: String
         +doneProperty() BooleanProperty
+        +setDone(done: boolean)
         +setCompletedAt(ts: String)
     }
 
     class MaintenanceTicket {
+        -id: String
         -date: String
         -part: String
         -sensor: String
@@ -618,6 +663,9 @@ classDiagram
         -min: Double
         -max: Double
         -warningBuffer: double
+        +getMin() Double
+        +getMax() Double
+        +getWarningBuffer() double
     }
 
     class SensorRow {
@@ -653,7 +701,9 @@ classDiagram
     class ScheduleDay {
         -dayNumber: int
         -label: String
-        -entries: List~ScheduleEntry~
+        -entries: ObservableList~ScheduleEntry~
+        +getDayNumber() int
+        +getEntries() List~ScheduleEntry~
     }
 
     class ScheduleEntry {
@@ -673,6 +723,8 @@ classDiagram
         -flightId: String
         -flightNumber: int
         -sensors: Map~String, Map~String, Double~~
+        +getFlightNumber() int
+        +getSensors() Map
     }
 
     class OrderStatus {
@@ -707,6 +759,14 @@ classDiagram
         +skipsStatusInit() boolean
     }
 
+    class UserRole {
+        <<enum>>
+        PLANNER
+        SECURITY
+        TECHNICIAN
+        LOGISTICIAN
+    }
+
     class AppPhase {
         <<enum>>
         LANDING
@@ -724,6 +784,9 @@ classDiagram
         +getColor() String
     }
 
+    note for AppPhase "nested enum in IPhaseTracker"
+    note for ScheduleStatus "nested enum in IPhaseTracker"
+
     ShuttleData *-- ShuttlePart
     TakeoverSchedule *-- ScheduleDay
     ScheduleDay *-- ScheduleEntry
@@ -735,13 +798,15 @@ classDiagram
     LogisticsOrder --> OrderStatus
 ```
 
-### 3d. Util-Klassen
+---
+
+### 3d. Utility Classes
 
 ```mermaid
 classDiagram
     class ColoredTableCell~T~ {
         -colorMapper: Function~String, String~
-        +ColoredTableCell(colorMapper: Function)
+        +ColoredTableCell(colorMapper: Function~String, String~)
         +updateItem(item: String, empty: boolean)
     }
 
@@ -792,6 +857,7 @@ classDiagram
         +label12(color: String)$ String
         +label13(color: String)$ String
         +label16(color: String)$ String
+        +labelBold16(color: String)$ String
     }
 
     class Dialogs {
@@ -807,7 +873,9 @@ classDiagram
     ShuttleDataHelper ..> SensorEvaluator : uses
 ```
 
-### 3e. Controller → Service Abhängigkeiten
+---
+
+### 3e. Controller → Service Dependencies (Dependency Inversion)
 
 ```mermaid
 classDiagram
@@ -822,6 +890,7 @@ classDiagram
     class SchedulePanelController
     class PredictivePanelController
     class InventoryStatusPanelController
+    class AiChatController
 
     class IEmployeeService { <<interface>> }
     class ISensorDataService { <<interface>> }
@@ -884,17 +953,19 @@ classDiagram
     SchedulePanelController --> IEmployeeService
     PredictivePanelController --> IPredictiveAnalysisService
     InventoryStatusPanelController --> IInventoryService
+    AiChatController --> SessionState
+    AiChatController --> ScheduleService
 ```
 
 ---
 
-## 4. UML Sequenzdiagramm — Takeover-Workflow
+## 4. UML Sequence Diagram — Takeover Workflow
 
-Zeigt den vollständigen Ablauf vom App-Start bis zur Freigabe eines Shuttle-Teils durch den Security Chief.
+Shows the complete flow from app start to sign-off of a shuttle part by the Security Chief.
 
 ```mermaid
 sequenceDiagram
-    participant OS as Betriebssystem
+    participant OS as Operating System
     participant App
     participant Main as MainController
     participant TS as TakeoverState
@@ -904,71 +975,116 @@ sequenceDiagram
     participant IS as InventoryService
 
     OS->>App: main()
-    App->>Main: initialize() [FXML geladen]
-    Main->>TS: getInstance() → IPhaseTracker
+    activate App
+    App->>Main: initialize()
+    activate Main
+
+    Main->>TS: getInstance()
+    activate TS
+    TS-->>Main: IPhaseTracker
+    deactivate TS
+
     Main->>PTS: getInstance()
+    activate PTS
+    PTS-->>Main: PhaseTimerService
+    deactivate PTS
+
     Main->>TS: beginLanding()
     Main->>PTS: start(15s, onTick, onComplete)
 
-    Note over Main,TS: Nach 15 Sekunden...
+    Note over Main,TS: After 15 seconds...
     PTS-->>Main: onComplete()
+
     Main->>TS: beginSensorLoading()
     Main->>PTS: start(10s, onTick, onComplete)
 
-    Note over Main,TS: Nach 10 Sekunden...
+    Note over Main,TS: After 10 seconds...
     PTS-->>Main: onComplete()
-    Main->>SDS: loadSensorData()
-    SDS-->>Main: ShuttleData
-    Main->>SDS: loadThresholds()
-    SDS-->>Main: Map(part → sensor → threshold)
-    Main->>TS: setOperational()
-    Main->>TS: generateRepairs(data, thresholds, sds)
-    TS-->>Main: RepairTasks für Orbiter, SRB, External Tank
-    Main-->>User: Dashboard zeigt Sensor-Warnungen
 
-    User->>Main: Klick "Mission Control"
+    Main->>SDS: loadSensorData()
+    activate SDS
+    SDS-->>Main: ShuttleData
+    deactivate SDS
+
+    Main->>SDS: loadThresholds()
+    activate SDS
+    SDS-->>Main: ThresholdMap
+    deactivate SDS
+
+    Main->>TS: setOperational()
+    Main->>TS: generateRepairs(data, thresholds)
+    activate TS
+    Note right of TS: Internally generates RepairTask objects
+    TS-->>Main: List<RepairTask>
+    deactivate TS
+
+    Main-->>User: Dashboard displays sensor warnings
+
+    User->>Main: Click "Mission Control"
     Main->>MCC: loadView("mission_control.fxml")
+    activate MCC
+
     MCC->>TS: getRepairs("orbiter")
+    activate TS
+    TS-->>MCC: List<RepairTask>
+    deactivate TS
+
     MCC->>IS: loadInventory()
-    MCC-->>User: Reparaturtabelle + Inventar
+    activate IS
+    IS-->>MCC: InventoryData
+    deactivate IS
+
+    MCC-->>User: Repair table + inventory
 
     User->>MCC: selectPart("orbiter")
     MCC->>TS: registerWorker("orbiter", name, "Technician")
-    MCC-->>User: Arbeits-Panel eingeblendet
 
-    loop Für jede Reparaturaufgabe
-        User->>MCC: Done-Checkbox angehakt
-        MCC->>IS: loadInventory()
-        MCC->>IS: saveInventory() [qty - 1]
-        MCC->>TS: RepairTask.setDone(true)
+    loop For each repair task
+        User->>MCC: Done checkbox ticked
+        MCC->>IS: saveInventory(partId, newQty)
+        activate IS
+        deactivate IS
+        MCC->>TS: setTaskDone(taskId)
     end
 
-    User->>MCC: Klick "Technician Done"
+    User->>MCC: Click "Technician Done"
     MCC->>TS: markTechnicianDone("orbiter", techName)
-    MCC->>MaintenanceHistoryService: logRepairs("orbiter", repairAccess, workerRegistry)
+    MCC->>MaintenanceHistoryService: logRepairs("orbiter", ...)
 
-    User->>MCC: Klick "Give Security Chief OK"
-    MCC->>TS: canApprove("orbiter") → true
+    User->>MCC: Click "Give Security Chief OK"
+    MCC->>TS: canApprove("orbiter")
+    activate TS
+    TS-->>MCC: true
+    deactivate TS
+
     MCC->>TS: approve("orbiter", chiefName)
     MCC-->>User: Header "Orbiter – APPROVED ✓"
 
-    User->>MCC: Klick "Back"
-    MCC->>Main: loadView("main_view.fxml") + updateDashboard()
-    Main->>TS: getProgress() → 0.33
-    Main->>TS: isTakeoverComplete() → false
+    User->>MCC: Click "Back"
+    MCC->>Main: updateDashboard()
+    deactivate MCC
 
-    Note over Main,TS: Ablauf für SRB und External Tank wiederholen...
-    Note over Main,TS: Nach 3. Freigabe: isTakeoverComplete() = true
-    Main-->>User: "Takeover Complete" Button erscheint
+    Main->>TS: getProgress()
+    activate TS
+    TS-->>Main: 0.33
+    deactivate TS
+
+    Main->>TS: isTakeoverComplete()
+    activate TS
+    TS-->>Main: false
+    deactivate TS
+
+    Note over Main,TS: After 3rd approval: isTakeoverComplete() = true
+    Main-->>User: "Takeover Complete" button appears
 ```
 
 ---
 
-## 4b. UML Sequenzdiagramm — Login & Rollenbasierter Zugriff
+## 4b. UML Sequence Diagram — Login & Role-Based Access
 
 ```mermaid
 sequenceDiagram
-    participant OS as Betriebssystem
+    participant OS as Operating System
     participant App
     participant LC as LoginController
     participant ES as EmployeeService
@@ -977,181 +1093,251 @@ sequenceDiagram
     participant RAC as RoleAccessController
 
     OS->>App: main()
-    App->>LC: initialize() [login_view.fxml geladen]
+    activate App
+    App->>LC: initialize()
+    activate LC
+
     LC->>ES: getAllEmployees()
-    ES-->>LC: List~Employee~ (4 Mitarbeiter, 4 Rollen)
-    LC-->>User: ComboBox mit EmployeeListCell befüllt
+    activate ES
+    ES-->>LC: List<Employee>
+    deactivate ES
 
-    User->>LC: Wählt Name aus ComboBox
-    LC-->>User: Rolle live anzeigen (z. B. "Rolle: Technician")
+    LC-->>User: ComboBox filled (Name + Role)
 
-    User->>LC: Klick "Anmelden"
+    User->>LC: Selects name
+    User->>LC: Click "Login"
+
     LC->>SS: setCurrentUser(selectedEmployee)
+    activate SS
+    deactivate SS
+
     LC->>MC: loadView("main_view.fxml")
+    activate MC
+
+    %% LoginController is typically destroyed after view switch
+    deactivate LC
 
     MC->>SS: getCurrentRole()
+    activate SS
     SS-->>MC: "Technician"
-    MC->>RAC: new RoleAccessController(RoleConfig.RESTRICTED_BUTTONS, buttonLookup)
+    deactivate SS
+
+    %% Constructor call per requirements
+    MC->>RAC: new RoleAccessController(config, buttons)
+    activate RAC
+
     MC->>RAC: applyRestrictions(allNavButtons)
-    Note over RAC: Deaktiviert laut RoleConfig:<br/>btnTechnician, btnInventory,<br/>btnHistory, btnLogistics, btnSchedule
-    MC-->>User: Dashboard mit eingeschränkter Navigation
+    Note over RAC: Disables buttons per RoleConfig
+    RAC-->>MC: restrictionsApplied
+    deactivate RAC
+    MC-->>User: Dashboard with restricted navigation
 ```
 
 ---
 
-## 5. Programmlogik — Kernprozesse
+## 4c. UML Sequence Diagram — AI Advisor (Planner Workflow)
 
-### 5.1 Login & Rollenbasierter Zugriff
+```mermaid
+sequenceDiagram
+    participant MC as MainController
+    participant ACC as AiChatController
+    participant SS as SessionState
+    participant ScS as ScheduleService
 
-Die Anwendung startet mit einem Demo-Login-Screen. Der Benutzer wählt seinen Namen aus einer ComboBox — alle Mitarbeiter werden über `EmployeeService.getAllEmployees()` geladen und mit `EmployeeListCell` (nutzt `EmployeeStringConverter`) dargestellt.
+    MC->>ACC: setMainController(this)
+    MC->>SS: getCurrentUser()
+    SS-->>MC: Employee (Planner)
+    MC->>ACC: setContext(UserRole.PLANNER)
+    ACC-->>User: "AI Advisor online for role: PLANNER"
 
-Nach der Auswahl speichert `SessionState` (Singleton) den eingeloggten Mitarbeiter für die gesamte Sitzung. `MainController` liest die Rolle und delegiert die Button-Sperrung an `RoleAccessController`, der seine Konfiguration aus `RoleConfig.RESTRICTED_BUTTONS` liest (OCP: neue Rolle = ein Eintrag in `RoleConfig`, kein Code ändert sich):
+    Note over MC,ACC: After OPERATIONAL phase...
+    MC->>ACC: enableInteraction()
+    ACC-->>User: Sensor warning: coolantPressure 2.8
 
-| Rolle | Gesperrte Navigation |
+    User->>ACC: Click "Dispatch technician"
+    ACC-->>User: Technician recommendation (Ellen Vance / Marc Stein)
+
+    User->>ACC: Click "Assign Ellen Vance"
+    ACC-->>User: Schedule proposal with risk analysis
+
+    User->>ACC: Click "Accept (Risk)"
+    ACC->>ScS: loadSchedule()
+    ScS-->>ACC: TakeoverSchedule
+    ACC->>ScS: Add entry (ScheduleEntry Day 1, 13:00)
+    ACC->>SS: setPendingNotification(true)
+    ACC->>MC: updateDashboard()
+    MC-->>User: Dashboard updated
+```
+
+---
+
+## 5. Program Logic — Core Processes
+
+### 5.1 Login & Role-Based Access
+
+The application starts with a demo login screen. The user selects their name from a ComboBox — all employees are loaded via `EmployeeService.getAllEmployees()` and rendered with `EmployeeListCell` (uses `EmployeeStringConverter`).
+
+After selection, `SessionState` (singleton) stores both the logged-in employee and the `UserRole` enum for the entire session. `MainController` reads the role and delegates button locking to `RoleAccessController`, which reads its configuration from `RoleConfig.RESTRICTED_BUTTONS` (OCP: new role = one entry in `RoleConfig`, no other code changes):
+
+| Role | Restricted Navigation |
 |---|---|
-| **Security Chief** | nichts — Vollzugriff |
-| **Technician** | Technician-View, Inventory, History, Logistics, Schedule |
-| **Planner** | Mission Control, Technician-View, Inventory, History, Logistics |
-| **Logistics** | Mission Control, Technician-View, History, Staff, Schedule |
+| **Security Chief** | nothing — full access |
+| **Technician** | Inventory, History, Staff, Logistics, Schedule |
+| **Planner** | Mission Control, Technician View, Inventory, History, Logistics |
+| **Logistics** | Mission Control, Technician View, History, Staff, Schedule |
 
-### 5.2 Phasenverwaltung
+### 5.2 Phase Management
 
-Die Anwendung durchläuft drei Phasen, gesteuert durch `PhaseTimerService` (JavaFX `Timeline`):
+The application cycles through three phases, controlled by `PhaseTimerService` (JavaFX `Timeline`):
 
-| Phase | Dauer | Beschreibung |
+| Phase | Duration | Description |
 |---|---|---|
-| **LANDING** | 15 Sekunden | Shuttle landet; nur Logistics zugänglich |
-| **SENSOR_LOADING** | 10 Sekunden | Sensordaten werden simuliert geladen |
-| **OPERATIONAL** | Unbegrenzt | Vollbetrieb; Reparaturen können starten |
+| **LANDING** | 15 seconds | Shuttle landing; only Logistics accessible |
+| **SENSOR_LOADING** | 10 seconds | Sensor data simulated loading |
+| **OPERATIONAL** | Unlimited | Full operation; repairs can begin |
 
-`AppPhaseState` berechnet simulierte Stunden seit Operational-Start. Anhand von Meilensteinen (`orbiter` = 15 h, `srb` = 38 h, `externalTank` = 40 h) wird der `ScheduleStatus` bestimmt (`ON_TIME`, `HOURS_BEHIND`, `DAY_BEHIND`). Der `ScheduleStatus`-Enum trägt Farbe, Label und CSS-Stil (OCP).
+`AppPhaseState` calculates simulated hours since the Operational start. Based on milestones (`orbiter` = 15 h, `srb` = 38 h, `externalTank` = 40 h) the `ScheduleStatus` is determined (`ON_TIME`, `HOURS_BEHIND`, `DAY_BEHIND`). The `ScheduleStatus` enum carries color, label, and CSS style (OCP).
 
-### 5.3 Reparatur-Workflow
-
-```
-1. Techniker wählt Teil → System registriert ihn via IWorkerRegistry
-2. RepairPlanningService erzeugt RepairTasks aus Sensordaten (WARNING/REPLACE)
-3. Pro Aufgabe: Lagerbestand prüfen via IInventoryService
-   → IN_STOCK:    Checkbox → Bestand -1 via RepairInventoryService
-   → OUT_OF_STOCK: Order → OrderDeliveryService simuliert 10s Lieferung → ARRIVED
-4. Alle Aufgaben erledigt → "Technician Done"
-   → MaintenanceHistoryService schreibt Tickets in TicketStore
-5. Security Chief logt ein → canApprove() = true → "Approve"
-   → IPartApproval.approve() → Progress +33%
-6. Nach 3 Teilen: ITakeoverProgress.isTakeoverComplete() = true
-```
-
-### 5.4 Logistics-Bestellworkflow
+### 5.3 Repair Workflow
 
 ```
-PENDING_APPROVAL → (Approve) → ORDERED → (10 s Lieferung) → DELIVERED
+1. Technician selects part → system registers them via IWorkerRegistry
+2. RepairPlanningService creates RepairTasks from sensor data (WARNING/REPLACE)
+3. Per task: check stock level via IInventoryService
+   → IN_STOCK:     checkbox → stock -1 via RepairInventoryService
+   → OUT_OF_STOCK: order → OrderDeliveryService simulates 10s delivery → ARRIVED
+4. All tasks done → "Technician Done"
+   → MaintenanceHistoryService writes tickets to TicketStore
+5. Security Chief logs in → canApprove() = true → "Approve"
+   → IPartApproval.approve() → progress +33%
+6. After 3 parts: ITakeoverProgress.isTakeoverComplete() = true
+```
+
+### 5.4 Logistics Order Workflow
+
+```
+PENDING_APPROVAL → (Approve) → ORDERED → (10s delivery) → DELIVERED
                  → (Reject)  → REJECTED
 ```
 
-`OrderApprovalService` delegiert an `LogisticsOrderService` (Status-Update) und `OrderDeliveryService` (10-Sekunden-Timer). Nach Lieferung erhöht `InventoryService` den Lagerbestand automatisch.
+`OrderApprovalService` delegates to `LogisticsOrderService` (status update) and `OrderDeliveryService` (10-second timer). After delivery, `InventoryService` automatically increases stock levels.
 
-### 5.5 Prädiktive Analyse
+### 5.5 Predictive Analysis
 
-`PredictiveAnalysisService` (implementiert `IPredictiveAnalysisService`) wertet 5 gespeicherte Flughistorien aus:
+`PredictiveAnalysisService` (implements `IPredictiveAnalysisService`) evaluates 5 stored flight histories:
 
-1. Für jeden Sensor: Werte der letzten 5 Flüge aus `FlightHistoryService`
-2. Trend = linearer Slope = (letzter − erster Wert) / (Anzahl − 1)
-3. Klassifikation: `RISING` / `FALLING` / `STABLE`
-4. `TrendCalculator.computeFlightsUntilLimit()` berechnet, in wie vielen Flügen ein Sensor den Grenzwert überschreitet
-5. Kritische Trends werden im Dashboard-Panel via `PredictivePanelController` angezeigt
+1. For each sensor: values from the last 5 flights from `FlightHistoryService`
+2. Trend = linear slope = (last − first value) / (count − 1)
+3. Classification: `RISING` / `FALLING` / `STABLE`
+4. `TrendCalculator.computeFlightsUntilLimit()` calculates how many flights remain until a sensor exceeds its threshold
+5. Critical trends are displayed in the dashboard panel via `PredictivePanelController`
 
-### 5.6 SOLID-Konformität der Architektur
+### 5.6 AI Advisor
 
-| Prinzip | Umsetzung |
+`AiChatController` implements a role-based advisory dialog as a **Finite State Machine**:
+
+| State | Description |
 |---|---|
-| **S** | Jede Klasse hat eine klar abgegrenzte Verantwortung; Panel-Controller trennen Dashboard-Abschnitte |
-| **O** | Enums tragen Metadaten (Farbe, Label); `RoleConfig` ist der einzige Änderungspunkt für neue Rollen; `AiAdvisorService` nutzt Maps statt if-Ketten |
-| **L** | Alle Interface-Implementierungen erfüllen die Schnittstellenverträge vollständig |
-| **I** | 12 fokussierte Interfaces (`IPartApproval`, `IRepairAccess`, `ITakeoverProgress`, `IWorkerRegistry`, `IPhaseTracker`, …) statt einer monolithischen Schnittstelle |
-| **D** | Controller-Felder sind als Interface typisiert; `getInstance()`-Aufrufe nur im Composition-Root (Feld-Initialisierung) |
+| `IDLE` | Waiting for sensor data |
+| `SENSOR_WARNING` | Critical sensor finding displayed |
+| `TECHNICIAN_RECOMMENDATION` | Technician selection proposed |
+| `SCHEDULE_PROPOSED` | Schedule with risk analysis presented |
+| `FINISHED` | Workflow completed |
+
+Only the role `UserRole.PLANNER` receives interactive access. Other roles see a read-only notice. After an assignment, `SessionState.setPendingNotification(true)` sets a notification flag that appears as an alert for the technician on the next dashboard refresh.
+
+### 5.7 SOLID Compliance
+
+| Principle | Implementation |
+|---|---|
+| **S** | Each class has a clearly defined responsibility; panel controllers separate dashboard sections; `AppPhaseState`, `SensorStatusAggregator`, `InventoryStatusCalculator` extracted |
+| **O** | Enums carry metadata (color, label); `RoleConfig` is the single change point for new roles; `AiAdvisorService` uses maps instead of if-chains |
+| **L** | All interface implementations fully satisfy their contracts; `OrderStore.clear()` calls `super.clear()` |
+| **I** | 12 focused interfaces (`IPartApproval`, `IRepairAccess`, `ITakeoverProgress`, `IWorkerRegistry`, `IPhaseTracker`, `SensorEvaluator`, …) instead of a monolithic interface |
+| **D** | Controller fields are typed as interfaces; `RepairPlanningService.plan()` and `SensorStatusAggregator` receive dependencies as parameters |
 
 ---
 
-## 6. Setup & Ausführung
+## 6. Setup & Execution
 
-### Voraussetzungen
+### Prerequisites
 
-- Java 17 oder höher
+- Java 17 or higher
 - Maven 3.6+
 
-### Starten
+### Run
 
 ```bash
 cd shuttle-dashboard
 mvn clean javafx:run
 ```
 
-### Kompilieren ohne Ausführen
+### Compile Without Running
 
 ```bash
 mvn compile
 ```
 
-### Projektstruktur
+### Project Structure
 
 ```
 shuttle-dashboard/
 ├── pom.xml
 └── src/main/
     ├── java/com/group5/shuttle/
-    │   ├── App.java                              ← JavaFX Application-Einstieg
-    │   ├── Main.java                             ← OS-Einstieg (Launcher-Wrapper)
+    │   ├── App.java                              ← JavaFX Application entry point
+    │   ├── Main.java                             ← OS entry point (launcher wrapper)
     │   ├── controller/
-    │   │   ├── BaseController.java               ← abstrakte Basisklasse (Template Method)
-    │   │   ├── LoginController.java              ← Login-Screen
-    │   │   ├── MainController.java               ← Haupt-Dashboard
-    │   │   ├── MissionControlController.java     ← Reparatur & Freigabe
-    │   │   ├── TechnicianController.java         ← Sensor-Übersicht
-    │   │   ├── HistoryController.java            ← Wartungsprotokoll
-    │   │   ├── InventoryController.java          ← Lagerbestand
-    │   │   ├── LogisticsController.java          ← Bestellworkflow
-    │   │   ├── ScheduleController.java           ← 3-Tage-Plan
-    │   │   ├── StaffController.java              ← Mitarbeiterverwaltung
-    │   │   ├── SensorPanelController.java        ← Dashboard-Panel: Sensoren
-    │   │   ├── SchedulePanelController.java      ← Dashboard-Panel: Zeitplan
-    │   │   ├── PredictivePanelController.java    ← Dashboard-Panel: Vorhersage
-    │   │   ├── InventoryStatusPanelController.java ← Dashboard-Panel: Lager
-    │   │   ├── AiChatController.java             ← KI-Chat-Drawer
-    │   │   ├── RoleAccessController.java         ← Rollen-Zugriffssteuerung
-    │   │   ├── RoleConfig.java                   ← Rollen-Konfiguration (OCP)
-    │   │   ├── RoutineTableHelper.java           ← Tabellen-Setup (DRY)
-    │   │   ├── PartStatusCell.java               ← Tabellenzelle: Teil-Status
-    │   │   └── SensorStatusCell.java             ← Tabellenzelle: Sensor-Status
+    │   │   ├── BaseController.java               ← abstract base class (Template Method)
+    │   │   ├── LoginController.java              ← login screen (not a BaseController)
+    │   │   ├── MainController.java               ← main dashboard
+    │   │   ├── MissionControlController.java     ← repairs & approval
+    │   │   ├── TechnicianController.java         ← sensor overview
+    │   │   ├── HistoryController.java            ← maintenance log
+    │   │   ├── InventoryController.java          ← stock levels
+    │   │   ├── LogisticsController.java          ← order workflow
+    │   │   ├── ScheduleController.java           ← 3-day plan
+    │   │   ├── StaffController.java              ← employee management
+    │   │   ├── SensorPanelController.java        ← dashboard panel: sensors
+    │   │   ├── SchedulePanelController.java      ← dashboard panel: schedule
+    │   │   ├── PredictivePanelController.java    ← dashboard panel: predictions
+    │   │   ├── InventoryStatusPanelController.java ← dashboard panel: inventory
+    │   │   ├── AiChatController.java             ← AI chat drawer (FSM, Planner role)
+    │   │   ├── RoleAccessController.java         ← role-based access control
+    │   │   ├── RoleConfig.java                   ← role configuration (OCP)
+    │   │   ├── RoutineTableHelper.java           ← table setup helper (DRY)
+    │   │   ├── PartStatusCell.java               ← table cell: part status
+    │   │   └── SensorStatusCell.java             ← table cell: sensor status
     │   ├── service/
     │   │   ├── interfaces: IEmployeeService, IInventoryService, IScheduleService,
     │   │   │               IFlightHistoryService, IPredictiveAnalysisService,
     │   │   │               ISensorDataService, SensorEvaluator,
     │   │   │               IPartApproval, IRepairAccess, ITakeoverProgress,
     │   │   │               IWorkerRegistry, IPhaseTracker
-    │   │   ├── TakeoverState.java                ← Kern-Singleton (5 Interfaces)
-    │   │   ├── AppPhaseState.java                ← Phasen-Logik
-    │   │   ├── SessionState.java                 ← Angemeldeter Benutzer
-    │   │   ├── PhaseTimerService.java            ← JavaFX-Timer
-    │   │   ├── EmployeeService.java              ← Mitarbeiterdaten
-    │   │   ├── InventoryService.java             ← Lagerverwaltung
-    │   │   ├── SensorDataService.java            ← Sensordaten & Grenzwerte
-    │   │   ├── ScheduleService.java              ← Zeitplandaten
-    │   │   ├── FlightHistoryService.java         ← Flughistorien
-    │   │   ├── PredictiveAnalysisService.java    ← Trendanalyse
-    │   │   ├── RoutineTaskStore.java             ← Routineaufgaben
-    │   │   ├── OrderStore.java                   ← Bestellungen
-    │   │   ├── TicketStore.java                  ← Wartungstickets
-    │   │   ├── AbstractStore.java                ← Generische Store-Basis
-    │   │   ├── AiAdvisorService.java             ← KI-Demo-Antworten
-    │   │   ├── OrderApprovalService.java         ← Bestellgenehmigung
-    │   │   ├── OrderDeliveryService.java         ← Liefersimulation
-    │   │   ├── RepairInventoryService.java       ← Reparatur-Lager-Logik
-    │   │   ├── RepairPlanningService.java        ← Reparaturplanung
-    │   │   ├── MaintenanceHistoryService.java    ← Ticket-Protokollierung
-    │   │   ├── SensorStatusAggregator.java       ← Sensor-Status-Aggregation
-    │   │   ├── InventoryStatusCalculator.java    ← Lager-Status-Berechnung
-    │   │   ├── TrendCalculator.java              ← Trend-Berechnung
-    │   │   └── LogisticsOrderService.java        ← Bestellstatus-Updates
+    │   │   ├── TakeoverState.java                ← core singleton (5 interfaces)
+    │   │   ├── AppPhaseState.java                ← phase logic (extracted from TakeoverState)
+    │   │   ├── SessionState.java                 ← logged-in user + UserRole
+    │   │   ├── PhaseTimerService.java            ← JavaFX timer
+    │   │   ├── EmployeeService.java              ← employee data
+    │   │   ├── InventoryService.java             ← inventory management
+    │   │   ├── SensorDataService.java            ← sensor data & thresholds
+    │   │   ├── ScheduleService.java              ← schedule data
+    │   │   ├── FlightHistoryService.java         ← flight histories
+    │   │   ├── PredictiveAnalysisService.java    ← trend analysis
+    │   │   ├── RoutineTaskStore.java             ← routine tasks
+    │   │   ├── OrderStore.java                   ← orders
+    │   │   ├── TicketStore.java                  ← maintenance tickets
+    │   │   ├── AbstractStore.java                ← generic store base
+    │   │   ├── AiAdvisorService.java             ← AI demo responses (static maps)
+    │   │   ├── OrderApprovalService.java         ← order approval
+    │   │   ├── OrderDeliveryService.java         ← delivery simulation (10s)
+    │   │   ├── RepairInventoryService.java       ← repair inventory logic
+    │   │   ├── RepairPlanningService.java        ← repair planning
+    │   │   ├── MaintenanceHistoryService.java    ← ticket logging
+    │   │   ├── SensorStatusAggregator.java       ← sensor status aggregation
+    │   │   ├── InventoryStatusCalculator.java    ← stock status calculation
+    │   │   ├── TrendCalculator.java              ← trend calculation
+    │   │   └── LogisticsOrderService.java        ← order status transitions
     │   ├── model/
     │   │   ├── Employee.java, InventoryItem.java, LogisticsOrder.java
     │   │   ├── RepairTask.java, RoutineTask.java, MaintenanceTicket.java
@@ -1159,25 +1345,27 @@ shuttle-dashboard/
     │   │   ├── SensorRow.java, PartState.java, TrendResult.java
     │   │   ├── TakeoverSchedule.java, ScheduleDay.java, ScheduleEntry.java
     │   │   ├── FlightHistory.java, FlightRecord.java
+    │   │   ├── UserRole.java                     ← role enum (PLANNER, SECURITY, TECHNICIAN, LOGISTICIAN)
     │   │   └── enums: OrderStatus, SensorStatus, StockStatus
-    │   │              (AppPhase, ScheduleStatus als nested enums in IPhaseTracker)
+    │   │              (AppPhase, ScheduleStatus as nested enums in IPhaseTracker)
     │   └── util/
-    │       ├── ColoredTableCell.java             ← generische Tabellenzelle (Strategy)
-    │       ├── EmployeeStringConverter.java      ← StringConverter für ComboBox
-    │       ├── EmployeeListCell.java             ← ListCell für ComboBox/ListView
-    │       ├── EmployeeComboHelper.java          ← ComboBox-Setup (DRY)
-    │       ├── ShuttleDataHelper.java            ← Sensor-Evaluierung (DRY)
-    │       ├── StatusColors.java                 ← Farbkodierung nach Status
-    │       ├── Styles.java                       ← CSS-Konstanten
-    │       └── Dialogs.java                      ← Alert-Hilfsmethoden
+    │       ├── ColoredTableCell.java             ← generic table cell (Strategy)
+    │       ├── EmployeeStringConverter.java      ← StringConverter for ComboBox
+    │       ├── EmployeeListCell.java             ← ListCell for ComboBox/ListView
+    │       ├── EmployeeComboHelper.java          ← ComboBox setup (DRY)
+    │       ├── ShuttleDataHelper.java            ← sensor evaluation helper (DRY)
+    │       ├── StatusColors.java                 ← color coding by status
+    │       ├── Styles.java                       ← CSS constants
+    │       └── Dialogs.java                      ← alert helper methods
     └── resources/view/
-        ├── login_view.fxml                       ← Login-Screen
-        ├── main_view.fxml                        ← Haupt-Dashboard
-        ├── mission_control.fxml                  ← Reparatur & Freigabe
-        ├── logistics.fxml                        ← Bestellworkflow
-        ├── schedule_view.fxml                    ← 3-Tage-Plan
-        ├── technician.fxml                       ← Sensor-Übersicht
-        ├── staff.fxml                            ← Mitarbeiterverwaltung
-        ├── inventory.fxml                        ← Lagerbestand
-        └── history.fxml                          ← Wartungsprotokoll
+        ├── login_view.fxml                       ← login screen
+        ├── main_view.fxml                        ← main dashboard
+        ├── ai_chat.fxml                          ← AI chat drawer
+        ├── mission_control.fxml                  ← repairs & approval
+        ├── logistics.fxml                        ← order workflow
+        ├── schedule_view.fxml                    ← 3-day plan
+        ├── technician.fxml                       ← sensor overview
+        ├── staff.fxml                            ← employee management
+        ├── inventory.fxml                        ← stock levels
+        └── history.fxml                          ← maintenance log
 ```

@@ -7,8 +7,8 @@ import com.group5.shuttle.model.ShuttlePart;
 
 import java.util.Map;
 
-// Einzel-Verantwortung: aggregiert den schlechtesten Sensorstatus über alle Shuttle-Teile.
-// Extrahiert aus SensorDataService (war dort gemischt mit Datenladen und Einzelauswertung).
+// Single responsibility: aggregates the worst sensor status across all shuttle parts.
+// Extracted from SensorDataService (was previously mixed with data loading and individual evaluation).
 public final class SensorStatusAggregator {
 
     private SensorStatusAggregator() {}

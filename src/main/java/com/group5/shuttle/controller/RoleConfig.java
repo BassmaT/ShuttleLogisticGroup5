@@ -3,8 +3,8 @@ package com.group5.shuttle.controller;
 import java.util.List;
 import java.util.Map;
 
-// OCP: neue Rolle → einen Eintrag hier ergänzen.
-// RoleAccessController und MainController bleiben unverändert.
+// OCP: new role → add one entry here.
+// RoleAccessController and MainController remain unchanged.
 final class RoleConfig {
 
     private RoleConfig() {}

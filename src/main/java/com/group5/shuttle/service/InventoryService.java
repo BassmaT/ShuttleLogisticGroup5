@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Verantwortlich für: Lagerhaltung (Inventory laden und speichern).
- * Singleton – inventoryCache bleibt für die gesamte Sitzung erhalten.
+ * Responsible for: inventory management (loading and saving inventory).
+ * Singleton – inventoryCache persists for the entire session.
  */
 public class InventoryService implements IInventoryService {
 

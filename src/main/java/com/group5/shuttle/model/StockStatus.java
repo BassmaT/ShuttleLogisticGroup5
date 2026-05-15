@@ -24,6 +24,6 @@ public enum StockStatus {
     public String  getLabel()          { return label; }
     public String  getColor()          { return color; }
     public boolean showsButton()       { return showsButton; }
-    /** True → RepairInventoryService überspringt diesen Status beim Initialisieren. */
+    /** True → RepairInventoryService skips this status during initialization. */
     public boolean skipsStatusInit()   { return skipsInit; }
 }

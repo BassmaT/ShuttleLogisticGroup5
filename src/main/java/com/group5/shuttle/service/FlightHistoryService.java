@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Verantwortlich für: historische Flugdaten (wird von PredictiveAnalysisService verwendet).
- * Singleton – Flugdaten sind unveränderlich während der Sitzung.
+ * Responsible for: historical flight data (used by PredictiveAnalysisService).
+ * Singleton – flight data is immutable during the session.
  */
 public class FlightHistoryService implements IFlightHistoryService {
 

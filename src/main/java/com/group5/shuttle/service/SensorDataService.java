@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Verantwortlich für: Sensordaten, Schwellwerte, Sensorauswertung.
- * Singleton – wird einmalig pro Sitzung instanziiert.
+ * Responsible for: sensor data, thresholds, sensor evaluation.
+ * Singleton – instantiated once per session.
  */
 public class SensorDataService implements ISensorDataService {
 

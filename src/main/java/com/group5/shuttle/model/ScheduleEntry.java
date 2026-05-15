@@ -1,22 +1,22 @@
 package com.group5.shuttle.model;
 
-// Repräsentiert einen einzelnen Eintrag im 3-Tage-Zeitplan der Übergabe
+// Represents a single entry in the 3-day handover schedule
 public class ScheduleEntry {
 
-    // Uhrzeit des Eintrags, z. B. "08:00"
+    // Time of the entry, e.g. "08:00"
     private final String time;
 
-    // Beschreibung der Aufgabe, z. B. "Inspect Landing Gear"
+    // Description of the task, e.g. "Inspect Landing Gear"
     private final String task;
 
-    // Kategorie: "routine", "repair", "approval", "diagnostic" oder "break"
-    // Wird für die Farbdarstellung im Dashboard verwendet
+    // Category: "routine", "repair", "approval", "diagnostic" or "break"
+    // Used for color rendering in the dashboard
     private final String category;
 
-    // ID des zuständigen Mitarbeiters – kann null sein (z. B. bei Pausen)
+    // ID of the responsible employee – can be null (e.g. for breaks)
     private String assignedEmployeeId;
 
-    // Betroffenes Shuttle-Teil – kann null sein
+    // Affected shuttle part – can be null
     private final String shuttlePart;
 
     public ScheduleEntry(String time, String task, String category,
@@ -34,6 +34,6 @@ public class ScheduleEntry {
     public String getAssignedEmployeeId() { return assignedEmployeeId; }
     public String getShuttlePart()        { return shuttlePart; }
 
-    // Setter für interaktive Umplanung im ScheduleController
+    // Setter for interactive rescheduling in ScheduleController
     public void setAssignedEmployeeId(String id) { this.assignedEmployeeId = id; }
 }

@@ -5,8 +5,8 @@ import com.group5.shuttle.service.EmployeeService;
 import com.group5.shuttle.service.IEmployeeService;
 import javafx.util.StringConverter;
 
-// Wiederverwendbarer StringConverter für Employee-ComboBoxen.
-// Zeigt "Name (Rolle)" an, z. B. "Ellen Vance (Technician)".
+// Reusable StringConverter for Employee ComboBoxes.
+// Displays "Name (Role)", e.g. "Ellen Vance (Technician)".
 public final class EmployeeStringConverter extends StringConverter<Employee> {
 
     public static final EmployeeStringConverter INSTANCE = new EmployeeStringConverter();

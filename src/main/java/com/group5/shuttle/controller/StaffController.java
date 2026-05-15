@@ -21,29 +21,29 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-// Controller für die Staff-Übersicht.
-// Links: Liste aller Mitarbeiter.
-// Rechts: Reparatur- und Routineaufgaben des ausgewählten Mitarbeiters.
+// Controller for the Staff overview.
+// Left: list of all employees.
+// Right: repair and routine tasks for the selected employee.
 public class StaffController extends BaseController {
 
-    // --- FXML-Verknüpfungen ---
+    // --- FXML bindings ---
 
-    // Liste aller Mitarbeiter in der linken Seitenleiste
+    // List of all employees in the left sidebar
     @FXML private ListView<Employee> employeeList;
 
-    // Anzeige von Name, Rolle und Team des ausgewählten Mitarbeiters
+    // Displays name, role and team of the selected employee
     @FXML private Label lblEmployeeName;
     @FXML private Label lblEmployeeRole;
     @FXML private Label lblEmployeeTeam;
 
-    // Tabelle der Reparaturaufgaben
+    // Table of repair tasks
     @FXML private TableView<RepairTask> repairTaskTable;
     @FXML private TableColumn<RepairTask, String> colRepairPart;
     @FXML private TableColumn<RepairTask, String> colRepairSensor;
     @FXML private TableColumn<RepairTask, String> colRepairAction;
     @FXML private TableColumn<RepairTask, String> colRepairStatus;
 
-    // Tabelle der Routineaufgaben
+    // Table of routine tasks
     @FXML private TableView<RoutineTask> routineTaskTable;
     @FXML private TableColumn<RoutineTask, String>  colRoutineName;
     @FXML private TableColumn<RoutineTask, String>  colRoutinePart;
@@ -51,39 +51,39 @@ public class StaffController extends BaseController {
     @FXML private TableColumn<RoutineTask, Boolean> colRoutineDone;
     @FXML private TableColumn<RoutineTask, String>  colRoutineTime;
 
-    // Zurück-zum-Dashboard-Button (in BaseController mit Navigation verknüpft)
+    // Back-to-dashboard button (linked to navigation in BaseController)
     @FXML private javafx.scene.control.Button btnBack;
 
     private final IWorkerRegistry workerRegistry = TakeoverState.getInstance();
     private final IRepairAccess   repairAccess   = TakeoverState.getInstance();
 
-    // BaseController benötigt diesen Button, um das Fenster (Stage) zu ermitteln
+    // BaseController needs this button to retrieve the window (Stage)
     @Override
     protected javafx.scene.control.Button getNavigationButton() { return btnBack; }
 
-    // Wird beim Laden der FXML aufgerufen – initialisiert alle Tabellen und die Mitarbeiterliste
+    // Called when the FXML is loaded – initializes all tables and the employee list
     @FXML
     public void initialize() {
-        setupRepairTable();     // Spalten der Reparaturtabelle konfigurieren
-        setupRoutineTable();    // Spalten der Routinetabelle konfigurieren
-        loadEmployees();        // Mitarbeiterliste befüllen
+        setupRepairTable();     // Configure columns of the repair table
+        setupRoutineTable();    // Configure columns of the routine table
+        loadEmployees();        // Populate the employee list
 
-        // Wenn ein Mitarbeiter in der Liste ausgewählt wird, Details rechts anzeigen
+        // When an employee is selected in the list, show their details on the right
         employeeList.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldVal, newVal) -> {
                 if (newVal != null) showEmployee(newVal);
             });
 
-        // Zurück-Button verknüpfen
+        // Link the back button
         setupBackButton(btnBack);
     }
 
-    // Befüllt die ListView mit allen Mitarbeitern aus EmployeeService
+    // Populates the ListView with all employees from EmployeeService
     private void loadEmployees() {
         List<Employee> employees = EmployeeService.getInstance().getAllEmployees();
         employeeList.setItems(FXCollections.observableArrayList(employees));
 
-        // Benutzerdefinierten Zellinhalt: "Name (Rolle) – Team"
+        // Custom cell content: "Name (Role) – Team"
         employeeList.setCellFactory(lv -> new javafx.scene.control.ListCell<>() {
             @Override
             protected void updateItem(Employee e, boolean empty) {
@@ -99,7 +99,7 @@ public class StaffController extends BaseController {
         });
     }
 
-    // Zeigt Name, Rolle, Team und Tasks des ausgewählten Mitarbeiters an
+    // Displays name, role, team and tasks of the selected employee
     private void showEmployee(Employee emp) {
         lblEmployeeName.setText(emp.getName());
         lblEmployeeRole.setText(emp.getRole());
@@ -114,30 +114,30 @@ public class StaffController extends BaseController {
         }
         repairTaskTable.setItems(FXCollections.observableArrayList(assignedRepairs));
 
-        // Routineaufgaben: alle Aufgaben, die diesem Mitarbeiter zugewiesen sind
+        // Routine tasks: all tasks assigned to this employee
         List<RoutineTask> assignedRoutine =
             RoutineTaskStore.getInstance().getTasksForEmployee(emp.getId());
         routineTaskTable.setItems(FXCollections.observableArrayList(assignedRoutine));
     }
 
-    // Konfiguriert die Spalten der Reparaturtabelle
+    // Configures the columns of the repair table
     private void setupRepairTable() {
-        // Part-Spalte: zeigt den Anzeigenamen des Shuttle-Teils
+        // Part column: shows the display name of the shuttle part
         colRepairPart.setCellValueFactory(data ->
             new javafx.beans.property.SimpleStringProperty(
                 TakeoverState.getDisplayName(data.getValue().getPartKey())));
 
-        // Sensor-Spalte
+        // Sensor column
         colRepairSensor.setCellValueFactory(new PropertyValueFactory<>("sensorName"));
 
-        // Action-Spalte
+        // Action column
         colRepairAction.setCellValueFactory(new PropertyValueFactory<>("action"));
 
-        // Status-Spalte mit Farbcodierung (gelb = WARNING, rot = REPLACE, grün = erledigt)
+        // Status column with color coding (yellow = WARNING, red = REPLACE, green = done)
         colRepairStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
         colRepairStatus.setCellFactory(col -> new ColoredTableCell<>(StatusColors::forSensorStatus));
 
-        // Hintergrundfarbe der Tabelle und Textfarbe für alle Zellen setzen
+        // Set background color of the table and text color for all cells
         repairTaskTable.setStyle(Styles.TABLE_DARK);
     }
 

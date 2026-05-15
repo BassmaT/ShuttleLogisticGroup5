@@ -9,15 +9,15 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-// Einzel-Verantwortung: konfiguriert die Routineaufgaben-Tabelle (Spalten, Listener, Stile).
-// Extrahiert aus MissionControlController und StaffController (war dort duplizierte Logik).
+// Single responsibility: configures the routine-task table (columns, listeners, styles).
+// Extracted from MissionControlController and StaffController (was duplicated logic there).
 final class RoutineTableHelper {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private RoutineTableHelper() {}
 
-    // Overload ohne Estimated-Minutes-Spalte – Callers müssen kein null übergeben.
+    // Overload without an estimated-minutes column – callers do not need to pass null.
     static void setup(TableView<RoutineTask>         table,
                       TableColumn<RoutineTask, String>  colName,
                       TableColumn<RoutineTask, Boolean> colDone,

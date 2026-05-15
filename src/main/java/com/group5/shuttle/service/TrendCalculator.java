@@ -2,14 +2,14 @@ package com.group5.shuttle.service;
 
 import com.group5.shuttle.model.SensorThreshold;
 
-// Einzel-Verantwortung: Berechnung von Trendwerten und Empfehlungstexten.
-// Extrahiert aus PredictiveAnalysisService (war dort gemischt mit Datenfluss-Logik).
+// Single responsibility: calculation of trend values and recommendation texts.
+// Extracted from PredictiveAnalysisService (was previously mixed with data-flow logic).
 public final class TrendCalculator {
 
     private TrendCalculator() {}
 
-    // Berechnet, wie viele Flüge es noch dauert, bis der Grenzwert erreicht wird.
-    // Gibt -1 zurück, wenn keine Berechnung möglich ist.
+    // Calculates how many flights remain until the threshold is reached.
+    // Returns -1 if no calculation is possible.
     public static int computeFlightsUntilLimit(double current, double trend, SensorThreshold t) {
         if (t == null || Math.abs(trend) < 0.001) return -1;
 
@@ -26,7 +26,7 @@ public final class TrendCalculator {
         return -1;
     }
 
-    // Erzeugt einen lesbaren Empfehlungstext für die Anzeige im Dashboard.
+    // Generates a human-readable recommendation text for display on the dashboard.
     public static String buildRecommendation(String sensor, double trend, String direction, int flights) {
         String trendStr = String.format("%.2f/Flight", Math.abs(trend));
 

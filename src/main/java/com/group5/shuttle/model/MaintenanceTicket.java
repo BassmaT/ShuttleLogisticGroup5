@@ -1,31 +1,31 @@
 package com.group5.shuttle.model;
 
-// Ein Wartungsticket dokumentiert eine durchgeführte Reparatur.
-// Wird nach jeder abgeschlossenen Reparatur in der History gespeichert.
+// A maintenance ticket documents a completed repair.
+// Saved after every finished repair in the history.
 public class MaintenanceTicket {
 
-    // Eindeutige Ticket-Nummer, z. B. "TKT-001".
+    // Unique ticket number, e.g. "TKT-001".
     private String id;
 
-    // Datum und Uhrzeit der Reparatur, z. B. "2026-04-05 14:32:10".
+    // Date and time of the repair, e.g. "2026-04-05 14:32:10".
     private String date;
 
-    // Welcher Shuttle-Teil wurde repariert, z. B. "Orbiter".
+    // Which shuttle part was repaired, e.g. "Orbiter".
     private String part;
 
-    // Welcher Sensor hat die Reparatur ausgelöst, z. B. "coolantPressure".
+    // Which sensor triggered the repair, e.g. "coolantPressure".
     private String sensor;
 
-    // Welchen Status hatte der Sensor vor der Reparatur: "WARNING" oder "REPLACE".
+    // What status the sensor had before the repair: "WARNING" or "REPLACE".
     private String oldStatus;
 
-    // Was wurde konkret gemacht, z. B. "Replace component – used: Heat Shield Panel".
+    // What was specifically done, e.g. "Replace component – used: Heat Shield Panel".
     private String action;
 
-    // Wer hat die Reparatur durchgeführt – Name des Technikers.
+    // Who carried out the repair – name of the technician.
     private String technician;
 
-    // Konstruktor – initialisiert ein vollständiges Ticket in einem Schritt.
+    // Constructor – initializes a complete ticket in one step.
     public MaintenanceTicket(String id, String date, String part, String sensor,
                              String oldStatus, String action, String technician) {
         this.id         = id;
@@ -37,7 +37,7 @@ public class MaintenanceTicket {
         this.technician = technician;
     }
 
-    // Getter-Methoden – werden von PropertyValueFactory für die History-Tabelle benötigt.
+    // Getter methods – required by PropertyValueFactory for the history table.
     public String getId()         { return id; }
     public String getDate()       { return date; }
     public String getPart()       { return part; }

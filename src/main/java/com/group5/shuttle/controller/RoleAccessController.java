@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-// Einzel-Verantwortung: aktiviert oder deaktiviert Navigations-Buttons
-// basierend auf der Rolle des eingeloggten Mitarbeiters.
-// OCP: Rollen-Konfiguration kommt aus RoleConfig – diese Klasse bleibt unverändert.
+// Single responsibility: enables or disables navigation buttons
+// based on the role of the logged-in employee.
+// OCP: role configuration comes from RoleConfig – this class remains unchanged.
 final class RoleAccessController {
 
     private final Map<String, List<String>> restrictionIds;

@@ -4,7 +4,7 @@ import com.group5.shuttle.model.Employee;
 import com.group5.shuttle.service.EmployeeService;
 import com.group5.shuttle.service.SessionState;
 import com.group5.shuttle.model.UserRole;
-import com.group5.shuttle.service.SessionState;
+
 
 import com.group5.shuttle.util.Dialogs;
 import com.group5.shuttle.util.EmployeeListCell;
@@ -19,9 +19,9 @@ import javafx.stage.Stage;
 
 import java.util.List;
 
-// Controller für den Login-Screen (login_view.fxml).
-// Der Login ist nur zur Demo – der Benutzer wählt seinen Namen aus einer ComboBox.
-// Danach wird die Rolle aus dem Employee-Objekt gelesen und in SessionState gespeichert.
+// Controller for the login screen (login_view.fxml).
+// The login is for demo purposes only – the user selects their name from a ComboBox.
+// The role is then read from the Employee object and stored in SessionState.
 public class LoginController {
 
     @FXML private ComboBox<Employee> cmbEmployee;
@@ -39,10 +39,10 @@ public class LoginController {
         cmbEmployee.setCellFactory(lv -> new EmployeeListCell());
         cmbEmployee.setButtonCell(new EmployeeListCell());
 
-        // Rolle live anzeigen sobald Auswahl sich ändert
+        // Show role live as the selection changes
         cmbEmployee.getSelectionModel().selectedItemProperty().addListener((obs, old, selected) -> {
             if (selected != null) {
-                lblRole.setText("Rolle: " + selected.getRole());
+                lblRole.setText("Role: " + selected.getRole());
                 lblError.setText("");
             }
         });
@@ -57,7 +57,7 @@ public class LoginController {
             return;
         }
 
-        // UserRole aus Employee ableiten
+        // Derive UserRole from Employee
         UserRole role = switch (selected.getRole()) {
             case "Planner" -> UserRole.PLANNER;
             case "Security Chief" -> UserRole.SECURITY;

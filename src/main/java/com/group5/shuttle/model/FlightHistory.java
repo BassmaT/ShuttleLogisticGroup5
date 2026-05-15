@@ -2,10 +2,10 @@ package com.group5.shuttle.model;
 
 import java.util.List;
 
-// Wrapper-Objekt für alle historischen Flugdatensätze
+// Wrapper object for all historical flight records
 public class FlightHistory {
 
-    // Liste aller historischen Flüge (chronologisch sortiert)
+    // List of all historical flights (sorted chronologically)
     private final List<FlightRecord> flights;
 
     public FlightHistory(List<FlightRecord> flights) {

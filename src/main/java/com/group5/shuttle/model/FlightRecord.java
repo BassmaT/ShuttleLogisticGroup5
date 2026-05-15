@@ -2,17 +2,17 @@ package com.group5.shuttle.model;
 
 import java.util.Map;
 
-// Repräsentiert einen einzelnen historischen Flugdatensatz für die Trendanalyse
+// Represents a single historical flight record for trend analysis
 public class FlightRecord {
 
-    // Bezeichnung des Fluges, z. B. "STS-133"
+    // Flight designation, e.g. "STS-133"
     private final String flightId;
 
-    // Flugsnummer (1–5) – wird zur chronologischen Sortierung verwendet
+    // Flight number (1–5) – used for chronological sorting
     private final int flightNumber;
 
-    // Sensorwerte nach Shuttle-Teil und Sensor-Name:
-    // Schlüssel: Teil (z. B. "orbiter") → Sensor (z. B. "hullTemperature") → Wert
+    // Sensor values by shuttle part and sensor name:
+    // Key: part (e.g. "orbiter") → sensor (e.g. "hullTemperature") → value
     private final Map<String, Map<String, Double>> sensors;
 
     public FlightRecord(String flightId, int flightNumber,

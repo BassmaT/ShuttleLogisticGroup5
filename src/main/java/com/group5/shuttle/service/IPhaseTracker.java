@@ -2,15 +2,15 @@ package com.group5.shuttle.service;
 
 import com.group5.shuttle.util.Styles;
 
-// Fokussierte Schnittstelle für den Phase-Lifecycle und die Zeitmessung (SRP).
-// Nur Code, der die App-Phase steuert oder abfragt, hängt von dieser ab.
+// Focused interface for the phase lifecycle and time tracking (SRP).
+// Only code that controls or queries the app phase depends on this interface.
 public interface IPhaseTracker {
 
     enum AppPhase { LANDING, SENSOR_LOADING, OPERATIONAL }
 
     /**
-     * OCP: neuer Status → hier einen Eintrag ergänzen.
-     * MainController.updateProgressAndSchedule() bleibt unverändert.
+     * OCP: new status → add an entry here.
+     * MainController.updateProgressAndSchedule() remains unchanged.
      */
     enum ScheduleStatus {
         ON_TIME      (Styles.ACCENT_SUCCESS, "On Schedule",    "#66ff66"),
@@ -42,4 +42,3 @@ public interface IPhaseTracker {
     void setOperational();
     void reset();
 }
-

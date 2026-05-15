@@ -4,11 +4,11 @@ import com.group5.shuttle.model.ScheduleDay;
 import com.group5.shuttle.model.ScheduleEntry;
 import com.group5.shuttle.model.TakeoverSchedule;
 import javafx.collections.FXCollections;
-import java.util.Arrays;
+
 
 /**
- * Verantwortlich für: den 3-Tage-Übergabe-Zeitplan.
- * Singleton – Zeitplandaten ändern sich nicht während der Sitzung.
+ * Responsible for: the 3-day takeover schedule.
+ * Singleton – schedule data does not change during the session.
  */
 public class ScheduleService implements IScheduleService {
 

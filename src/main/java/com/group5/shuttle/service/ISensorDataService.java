@@ -5,8 +5,8 @@ import com.group5.shuttle.model.ShuttleData;
 
 import java.util.Map;
 
-// Abstraktion für den Sensordaten-Service (D – Dependency Inversion).
-// Controller abhängig von dieser Schnittstelle, nicht von der konkreten Klasse.
+// Abstraction for the sensor data service (D – Dependency Inversion).
+// Controllers depend on this interface, not on the concrete class.
 public interface ISensorDataService extends SensorEvaluator {
     ShuttleData loadSensorData();
     Map<String, Map<String, SensorThreshold>> loadThresholds();

@@ -1,7 +1,7 @@
 package com.group5.shuttle.service;
 
-// Fokussierte Schnittstelle für Mitarbeiter-Registrierung am Shuttle-Teil (I – Interface Segregation).
-// Nur Controller, die Mitarbeiter registrieren oder abfragen, hängen von dieser ab.
+// Focused interface for employee registration on a shuttle part (I – Interface Segregation).
+// Only controllers that register or query employees depend on this interface.
 public interface IWorkerRegistry {
     void registerWorker(String partKey, String name, String role);
     String getWorkerInfo(String partKey);

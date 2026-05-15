@@ -3,19 +3,19 @@ package com.group5.shuttle.model;
 import java.util.HashMap;
 import java.util.Map;
 
-// Dieses Modell repräsentiert einen Teil des Shuttles (z. B. Orbiter, SRB, Tank).
-// Jeder Teil hat mehrere Sensoren mit ihren aktuellen Messwerten.
+// This model represents a part of the shuttle (e.g. Orbiter, SRB, Tank).
+// Each part has multiple sensors with their current measurement values.
 public class ShuttlePart {
 
-    // Eine Map speichert Sensorname → Messwert, z. B. "hullTemperature" → 520.0
+    // A map stores sensor name → measurement value, e.g. "hullTemperature" → 520.0
     private Map<String, Double> sensors = new HashMap<>();
 
-    // Fügt einen Sensorwert zur Map hinzu.
+    // Adds a sensor value to the map.
     public void setSensor(String key, Double value) {
-        sensors.put(key, value); // Sensorname als Schlüssel, Messwert als Wert speichern
+        sensors.put(key, value); // Store sensor name as key, measurement value as value
     }
 
-    // Gibt die komplette Sensor-Map zurück, damit andere Klassen darauf zugreifen können.
+    // Returns the complete sensor map so that other classes can access it.
     public Map<String, Double> getSensors() {
         return sensors;
     }

@@ -1,8 +1,8 @@
 package com.group5.shuttle.service;
 
-// ISP: Nur der Freigabe-Workflow (isPartApproved, canApprove, approve).
-// Fortschritts-Metriken (getProgress, isTakeoverComplete, getLastActivity)
-// sind in ITakeoverProgress ausgelagert.
+// ISP: Only the approval workflow (isPartApproved, canApprove, approve).
+// Progress metrics (getProgress, isTakeoverComplete, getLastActivity)
+// are separated out into ITakeoverProgress.
 public interface IPartApproval {
     boolean isPartApproved(String partKey);
     boolean canApprove(String partKey);

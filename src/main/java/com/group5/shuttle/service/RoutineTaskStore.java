@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-// Singleton: hält alle Routineaufgaben der aktuellen Sitzung im Arbeitsspeicher.
-// Der Erledigt-Status ist nur transient – er wird beim Schließen der App gelöscht.
+// Singleton: holds all routine tasks for the current session in memory.
+// The completed status is transient only – it is cleared when the app is closed.
 public class RoutineTaskStore {
 
     private static final class Holder {
@@ -56,7 +56,7 @@ public class RoutineTaskStore {
             .findFirst();
     }
 
-    // Setzt alle Aufgaben auf "nicht erledigt" zurück – wird beim Takeover-Reset aufgerufen
+    // Resets all tasks to "not done" – called on takeover reset
     public void reset() {
         tasks.forEach(t -> {
             t.setDone(false);

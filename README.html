@@ -1306,60 +1306,105 @@ Enums tragen fachliche Metadaten (Farbe, Label, Stil), sodass switch-Anweisungen
     participant IS as InventoryService
 
     OS->>App: main()
-    App->>Main: initialize() [FXML geladen]
-    Main->>TS: getInstance() → IPhaseTracker
+    activate App
+    App->>Main: initialize()
+    activate Main
+
+    Main->>TS: getInstance()
+    activate TS
+    TS-->>Main: IPhaseTracker
+    deactivate TS
+
     Main->>PTS: getInstance()
+    activate PTS
+    PTS-->>Main: PhaseTimerService
+    deactivate PTS
+
     Main->>TS: beginLanding()
     Main->>PTS: start(15s, onTick, onComplete)
 
     Note over Main,TS: Nach 15 Sekunden...
     PTS-->>Main: onComplete()
+
     Main->>TS: beginSensorLoading()
     Main->>PTS: start(10s, onTick, onComplete)
 
     Note over Main,TS: Nach 10 Sekunden...
     PTS-->>Main: onComplete()
+
     Main->>SDS: loadSensorData()
+    activate SDS
     SDS-->>Main: ShuttleData
+    deactivate SDS
+
     Main->>SDS: loadThresholds()
-    SDS-->>Main: Map(part → sensor → threshold)
+    activate SDS
+    SDS-->>Main: ThresholdMap
+    deactivate SDS
+
     Main->>TS: setOperational()
-    Main->>TS: generateRepairs(data, thresholds, sds)
-    TS-->>Main: RepairTasks für Orbiter, SRB, External Tank
+    Main->>TS: generateRepairs(data, thresholds)
+    activate TS
+    Note right of TS: Erzeugt intern RepairTask-Objekte
+    TS-->>Main: List<RepairTask>
+    deactivate TS
+
     Main-->>User: Dashboard zeigt Sensor-Warnungen
 
     User->>Main: Klick "Mission Control"
     Main->>MCC: loadView("mission_control.fxml")
+    activate MCC
+
     MCC->>TS: getRepairs("orbiter")
+    activate TS
+    TS-->>MCC: List<RepairTask>
+    deactivate TS
+
     MCC->>IS: loadInventory()
+    activate IS
+    IS-->>MCC: InventoryData
+    deactivate IS
+
     MCC-->>User: Reparaturtabelle + Inventar
 
     User->>MCC: selectPart("orbiter")
     MCC->>TS: registerWorker("orbiter", name, "Technician")
-    MCC-->>User: Arbeits-Panel eingeblendet
 
     loop Für jede Reparaturaufgabe
         User->>MCC: Done-Checkbox angehakt
-        MCC->>IS: loadInventory()
-        MCC->>IS: saveInventory() [qty - 1]
-        MCC->>TS: RepairTask.setDone(true)
+        MCC->>IS: saveInventory(partId, newQty)
+        activate IS
+        deactivate IS
+        MCC->>TS: setTaskDone(taskId)
     end
 
     User->>MCC: Klick "Technician Done"
     MCC->>TS: markTechnicianDone("orbiter", techName)
-    MCC->>MaintenanceHistoryService: logRepairs("orbiter", repairAccess, workerRegistry)
+    MCC->>MaintenanceHistoryService: logRepairs("orbiter", ...)
 
     User->>MCC: Klick "Give Security Chief OK"
-    MCC->>TS: canApprove("orbiter") → true
+    MCC->>TS: canApprove("orbiter")
+    activate TS
+    TS-->>MCC: true
+    deactivate TS
+
     MCC->>TS: approve("orbiter", chiefName)
     MCC-->>User: Header "Orbiter – APPROVED ✓"
 
     User->>MCC: Klick "Back"
-    MCC->>Main: loadView("main_view.fxml") + updateDashboard()
-    Main->>TS: getProgress() → 0.33
-    Main->>TS: isTakeoverComplete() → false
+    MCC->>Main: updateDashboard()
+    deactivate MCC
 
-    Note over Main,TS: Ablauf für SRB und External Tank wiederholen...
+    Main->>TS: getProgress()
+    activate TS
+    TS-->>Main: 0.33
+    deactivate TS
+
+    Main->>TS: isTakeoverComplete()
+    activate TS
+    TS-->>Main: false
+    deactivate TS
+
     Note over Main,TS: Nach 3. Freigabe: isTakeoverComplete() = true
     Main-->>User: "Takeover Complete" Button erscheint
 </div></code></pre>
@@ -1375,23 +1420,43 @@ Enums tragen fachliche Metadaten (Farbe, Label, Stil), sodass switch-Anweisungen
     participant RAC as RoleAccessController
 
     OS->>App: main()
-    App->>LC: initialize() [login_view.fxml geladen]
+    activate App
+    App->>LC: initialize()
+    activate LC
+
     LC->>ES: getAllEmployees()
-    ES-->>LC: List~Employee~ (4 Mitarbeiter, 4 Rollen)
-    LC-->>User: ComboBox mit EmployeeListCell befüllt
+    activate ES
+    ES-->>LC: List<Employee>
+    deactivate ES
 
-    User->>LC: Wählt Name aus ComboBox
-    LC-->>User: Rolle live anzeigen (z. B. "Rolle: Technician")
+    LC-->>User: ComboBox befüllt (Name + Rolle)
 
+    User->>LC: Wählt Name aus
     User->>LC: Klick "Anmelden"
+
     LC->>SS: setCurrentUser(selectedEmployee)
+    activate SS
+    deactivate SS
+
     LC->>MC: loadView("main_view.fxml")
+    activate MC
+
+    % LoginController wird nach dem View-Wechsel meist abgebaut
+    deactivate LC
 
     MC->>SS: getCurrentRole()
+    activate SS
     SS-->>MC: "Technician"
-    MC->>RAC: new RoleAccessController(RoleConfig.RESTRICTED_BUTTONS, buttonLookup)
+    deactivate SS
+
+    % Konstruktor-Aufruf gemäß Anforderung
+    MC->>RAC: new RoleAccessController(config, buttons)
+    activate RAC
+
     MC->>RAC: applyRestrictions(allNavButtons)
-    Note over RAC: Deaktiviert laut RoleConfig:<br/>btnTechnician, btnInventory,<br/>btnHistory, btnLogistics, btnSchedule
+    Note over RAC: Deaktiviert Buttons gemäß RoleConfig
+    RAC-->>MC: restrictionsApplied
+    deactivate RAC
     MC-->>User: Dashboard mit eingeschränkter Navigation
 </div></code></pre>
 <hr>
